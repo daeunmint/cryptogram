@@ -540,6 +540,21 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
 .hall:not(.built) .hthumb{filter:grayscale(1) contrast(.85);opacity:.55}
 .hall .hbig{display:block;width:min(100%,240px);aspect-ratio:1;object-fit:cover;border-radius:10px;margin:8px auto 4px;border:1px solid var(--line)}
 .hall:not(.built) .hbig{filter:grayscale(1);opacity:.5}
+
+/* ---- settings ---- */
+.iconbtn{padding:6px 9px}
+.prefrow{gap:10px}
+.prefrow>b{font-size:.95rem}
+.prefrow .sub{margin:0}
+.seg{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{flex:1;border:0;background:transparent;min-height:36px;padding:7px 4px;font-size:.85rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12),inset 0 -2px 0 var(--sel)}
+body.no-help .help{display:none}
+html body{font-size:calc(14px * var(--ui-scale,1))}
+#prefsBack{font-size:.82rem;padding:7px 12px}
+.cell{width:calc(30px * var(--ui-scale,1))}
+@media(max-width:600px){ .cell{width:calc(clamp(19px,5.65vw,24px) * min(var(--ui-scale,1),1.1))} }
+@media(max-width:360px){ .cell{width:calc(19px * min(var(--ui-scale,1),1.05))} }
 </style>
 <style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
@@ -567,12 +582,14 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
 <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
 <symbol id="i-bag" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/><path d="M4 12h16"/></symbol>
 <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16"/><path d="M20 20v-4h-4"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.8"/></symbol>
 </svg>
 <div class="wrap">
   <header>
     <h1>CRYPTOGRAM<span>A→?</span></h1>
     <div class="chips">
       <button class="chip" id="lvChip" aria-label="Open progress"><svg class="ic" aria-hidden="true"><use href="#i-level"/></svg><b id="chipLv">Lv.1</b><span id="chipMis">0/3</span></button>
+      <button class="chip iconbtn" id="prefsBtn" aria-label="Settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></button>
       <button class="chip" id="walletChip" aria-label="Open shop"><svg class="ic coin" aria-hidden="true"><use href="#i-coin"/></svg><span class="g-txt" id="chipGold">0</span><svg class="ic gem" aria-hidden="true"><use href="#i-gem"/></svg><span class="j-txt" id="chipGems">0</span></button>
     </div>
   </header>
@@ -711,12 +728,195 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
       <div class="sub" id="xmsg" aria-live="polite"></div>
     </div>
   </section>
+  <!-- ===== SETTINGS ===== -->
+  <section class="view" id="view-prefs" aria-label="Settings" hidden>
+    <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></h2><button id="prefsBack">Back to game</button></div>
+    <div class="card0 prefrow">
+      <b>Language</b>
+      <div class="seg" role="group" aria-label="Language"><button data-pref="lang" data-val="ko">한국어</button><button data-pref="lang" data-val="en">English</button></div>
+      <p class="sub">Puzzle sentences stay in English. This changes menus, buttons and descriptions.</p>
+    </div>
+    <div class="card0 prefrow">
+      <b>Text size</b>
+      <div class="seg" role="group" aria-label="Text size"><button data-pref="size" data-val="s">Small</button><button data-pref="size" data-val="m">Medium</button><button data-pref="size" data-val="l">Large</button><button data-pref="size" data-val="xl">Extra large</button></div>
+    </div>
+    <div class="card0 prefrow">
+      <b>Color theme</b>
+      <div class="seg" role="group" aria-label="Color theme"><button data-pref="theme" data-val="system">System</button><button data-pref="theme" data-val="light">Light</button><button data-pref="theme" data-val="dark">Dark</button></div>
+    </div>
+    <div class="card0 prefrow">
+      <b>Help text</b>
+      <div class="seg" role="group" aria-label="Help text"><button data-pref="help" data-val="true">Show</button><button data-pref="help" data-val="false">Hide</button></div>
+    </div>
+    <p class="sub">Settings are saved on this device.</p>
+  </section>
 </div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="sentences.js"></script>
 <script>window.CG_IMG={"hall-ancient":"img/hall-ancient.webp","hall-entrance":"img/hall-entrance.webp","hall-medieval":"img/hall-medieval.webp","hall-modern":"img/hall-modern.webp","hall-unsolved":"img/hall-unsolved.webp","hall-war":"img/hall-war.webp","museum-0":"img/museum-0.webp","museum-1":"img/museum-1.webp","museum-2":"img/museum-2.webp","museum-3":"img/museum-3.webp","museum-4":"img/museum-4.webp","museum-5":"img/museum-5.webp","museum-6":"img/museum-6.webp"};</script>
 <script>
+/* ---------- language & settings ---------- */
+const PREF_DEF={lang:null,size:"m",theme:"system",help:true};
+let PREF={...PREF_DEF};
+try{ PREF={...PREF_DEF,...JSON.parse(localStorage.getItem("cg_prefs")||"{}")}; }catch(e){}
+if(!PREF.lang) PREF.lang=/^ko/i.test(navigator.language||"")?"ko":"en";
+let LANG=PREF.lang;
+const K=(ko,en)=>LANG==="ko"?ko:en;
+function savePrefs(){ try{ localStorage.setItem("cg_prefs",JSON.stringify(PREF)); }catch(e){} }
+
+/* static page text: English → Korean */
+const KO_STATIC={
+ "Play":"플레이","Progress":"진행","Museum":"박물관","Shop":"상점","Records":"기록","Settings":"설정",
+ "TIME":"시간","HINTS":"힌트","MISSES":"오답",
+ "Daily":"데일리","Easy":"쉬움","Normal":"보통","Hard":"어려움","today":"오늘",
+ "×1 score":"점수 ×1","×2 score":"점수 ×2","×3 score":"점수 ×3",
+ "Hint":"힌트","Clear":"지우기","Letter counts":"글자 빈도","New puzzle":"새 퍼즐","Reveal vowels":"모음 공개",
+ "Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Typing a letter fills every matching code letter at once.":
+   "퍼즐의 칸을 누르고 알맞은 알파벳을 입력하세요. 암호 글자 하나는 실제 글자 하나를 뜻하고, 자기 자신으로 바뀌는 글자는 없어요. 입력하면 같은 암호 글자 칸이 한 번에 채워져요.",
+ "Daily missions":"일일 미션","+150 XP and +300 G each · +2 ◆ for all three":"미션마다 +150 XP, +300 G · 3개 모두 완료 시 +2 ◆",
+ "Calendar":"달력","Collection":"도감",
+ "Cipher Museum":"암호 박물관","Build":"건설",
+ "Gold":"골드","Gems":"보석","Items":"아이템","Paid with gold":"골드로 구매",
+ "Cipher cards":"암호 카드","Paid with gems · shown in the Museum":"보석으로 구매 · 박물관에 전시",
+ "Looks":"꾸미기","Every look you own adds gold to each solve":"꾸미기를 하나 가질 때마다 클리어 골드가 늘어나요",
+ "Content":"콘텐츠","New sentence themes":"새 문장 테마","Exchange":"환전","Gems → gold only":"보석 → 골드만 가능",
+ "Your records":"내 기록","Loading…":"불러오는 중…",
+ "Sign in to sync your progress across browsers and devices.":"로그인하면 다른 브라우저와 기기에서도 기록이 이어져요.",
+ "Sign in with Google":"Google로 로그인","Sign out":"로그아웃",
+ "Solved":"클리어","Total score":"총점","Badges":"배지","Day streak":"연속 일수",
+ "Level":"난이도","Best score":"최고 점수","Best time":"최고 시간",
+ "Recent solves":"최근 기록","Move to another browser":"다른 기기로 옮기기",
+ "Copy your save code here, then load it in the other browser or on your phone. It carries your records and the puzzle in progress.":
+   "여기서 세이브 코드를 복사한 뒤 다른 브라우저나 폰에서 불러오세요. 기록과 풀던 퍼즐이 함께 옮겨져요.",
+ "Copy save code":"세이브 코드 복사","Load save code":"세이브 코드 불러오기","Replace my records":"내 기록 덮어쓰기","Cancel":"취소",
+ "Language":"언어","Text size":"글자 크기","Color theme":"화면 테마","Help text":"도움말 문구",
+ "Small":"작게","Medium":"보통","Large":"크게","Extra large":"아주 크게",
+ "System":"시스템","Light":"라이트","Dark":"다크","Show":"보이기","Hide":"숨기기",
+ "Puzzle sentences stay in English. This changes menus, buttons and descriptions.":"퍼즐 문장은 영어 그대로예요. 메뉴, 버튼, 설명이 바뀌어요.",
+ "Settings are saved on this device.":"설정은 이 기기에 저장돼요.","Back to game":"게임으로 돌아가기"
+};
+
+/* game data shown in Korean (matched by id) */
+const KO_DATA={
+ diff:{easy:"쉬움",normal:"보통",hard:"어려움"},
+ rar:{C:"일반",R:"레어",E:"에픽",L:"전설"},
+ tier:{basic:"기본",rare:"레어"},
+ slots:{board:"퍼즐판",cell:"글자",kb:"키보드"},
+ packs:["1장","5 + 1장"],
+ ranks:["초보자","견습생","해독가","암호분석가","코드브레이커","암호 현자","에니그마 마스터"],
+ themes:{"famous-quotes":["명언","명언"],"proverbs":["속담","속담"],"animals":["동물 상식","동물 상식"],"world-trivia":["세계 상식","상식"],
+   "classic-songs":["옛 노래","옛 노래"],"shakespeare":["셰익스피어","셰익스피어"],"cipher-stories":["암호 이야기","암호 이야기"],"general":["일반","일반"]},
+ halls:{
+  entrance:["입구 홀","암호와 신호","+10 ◆"],
+  ancient:["고대 암호관","카이사르, 스파르타, 그리스","클리어마다 +100 G"],
+  medieval:["중세·르네상스관","비즈네르, 플레이페어, 스코틀랜드 메리 여왕","암호 이야기 테마 해금"],
+  war:["전쟁 암호관","에니그마, 블레츨리 파크, 나바호 코드 토커","+30 ◆"],
+  modern:["현대 암호관","RSA, AES, 일회용 패드","클리어마다 +200 G"],
+  unsolved:["미해결 미스터리관","보이니치, 크립토스, 빌 암호","전설 카드 1장 확정"]},
+ items:{
+  hint:["힌트권","하루 무료 힌트 3개를 다 쓴 뒤 쓸 수 있는 추가 힌트 1회."],
+  vowel:["모음 공개권","퍼즐의 A, E, I, O, U를 한 번에 공개해요. 힌트 1회로 계산돼요."],
+  freeze:["연속 보호권","하루를 빠져도 연속 기록을 지켜 줘요. 자동으로 사용돼요."]},
+ badges:{
+  first:["첫 해독","첫 퍼즐 클리어"],nohint:["커닝 금지","힌트 없이 클리어"],flawless:["완벽주의자","힌트와 오답 없이 클리어"],
+  quick:["번개 손","60초 안에 클리어"],hard:["코드브레이커","어려움 퍼즐 클리어"],enigma:["에니그마","어려움 퍼즐을 힌트 없이 클리어"],
+  daily:["오늘의 한 판","데일리 퍼즐 클리어"],streak3:["상승세","3일 연속 클리어"],streak7:["일주일 전사","7일 연속 클리어"],
+  ten:["해독가","퍼즐 10개 클리어"],fifty:["암호분석가","퍼즐 50개 클리어"],high:["고득점","한 판에 1,500점 이상"],
+  missions:["미션 완수","일일 미션 3개 모두 완료"],level10:["떠오르는 별","레벨 10 달성"],explorer:["탐험가","열린 모든 테마에서 클리어"],
+  collector:["기록관","모든 문장 수집"],curator:["큐레이터","첫 전시관 건설"],cards10:["카드 수집가","서로 다른 암호 카드 10장 수집"],
+  stylist:["스타일리스트","모든 꾸미기 종류를 하나씩 보유"]},
+ missions:{
+  solve2:"퍼즐 2개 클리어",solve3:"퍼즐 3개 클리어",hard1:"어려움 퍼즐 1개 클리어",normal2:"보통 퍼즐 2개 클리어",
+  easyfast:"쉬움 퍼즐을 1분 안에 클리어",fast:"아무 퍼즐이나 2분 안에 클리어",nohint:"힌트 없이 퍼즐 클리어",
+  nomiss:"오답 없이 퍼즐 클리어",daily:"오늘의 데일리 퍼즐 클리어",points:"오늘 1,500점 모으기",
+  themes2:"서로 다른 테마 2개에서 클리어",newone:"새 문장 1개 수집"},
+ looks:{graph:"모눈종이",parchment:"양피지",blueprint:"청사진",terminal:"터미널",starfield:"별밤",aurora:"오로라",
+  tiles:"타일",typewriter:"타자기",neon:"네온",pixel:"픽셀",goldleaf:"금박",prism:"프리즘",
+  mint:"민트",retro:"레트로",midnight:"미드나잇",sakura:"벚꽃",holo:"홀로그램",ember:"엠버"},
+ cards:{
+  morse:["모스 부호","1840년대 · 미국","짧은 신호와 긴 신호로 글자를 전신선에 실어 보냈어요.","SOS = ··· ––– ···"],
+  braille:["점자","1824 · 프랑스","2 × 3 칸의 볼록한 점으로 시각장애인이 손끝으로 글자를 읽어요.","⠁ = A, ⠃ = B"],
+  nato:["NATO 음성 알파벳","1956","잡음 많은 무전에서도 철자가 정확히 전해지도록 글자마다 단어를 붙였어요.","C = Charlie, Q = Quebec"],
+  semaphore:["수기 신호","19세기","두 깃발을 정해진 각도로 들어 글자를 표시해요. 무전 이전 배와 배 사이의 통신법이에요.","글자 하나 = 팔 각도 한 쌍"],
+  caesar:["시저 암호","기원전 1세기 · 로마","모든 글자를 알파벳 순서로 세 칸씩 밀어서 써요.","HELLO → KHOOR"],
+  atbash:["아트배시","기원전 500년경 · 히브리","알파벳을 뒤집어 A는 Z로, B는 Y로 바꿔요.","HELLO → SVOOL"],
+  scytale:["스키테일","기원전 7세기 · 스파르타","막대에 띠를 감아 글을 써요. 같은 굵기의 막대가 있어야 글자가 다시 맞춰져요.","띠가 아니라 막대를 따라 읽기"],
+  polybius:["폴리비오스 정사각형","기원전 2세기 · 그리스","글자를 5 × 5 격자에 넣고 행과 열 번호로 보내요.","H → 23"],
+  alkindi:["알킨디","9세기 · 바그다드","치환 암호를 깨는 빈도 분석을 처음으로 기록한 학자예요.","영어에서 가장 흔한 글자는 E, T, A"],
+  pigpen:["피그펜 암호","18세기 · 프리메이슨","글자마다 그 글자를 둘러싼 격자 모양과 점으로 바꿔 써요.","글자 대신 도형"],
+  bacon:["베이컨 암호","1605 · 영국","글자 하나를 A와 B 다섯 개로 써요. 두 가지 글꼴 속에 숨기기 좋아요.","A = AAAAA, B = AAAAB"],
+  alberti:["알베르티 암호 원판","1467 · 이탈리아","돌아가는 원판 두 개로, 메시지 중간에 알파벳을 바꾼 최초의 암호예요.","원판을 돌리면 암호가 바뀜"],
+  vigenere:["비즈네르 암호","16세기 · 프랑스","키워드에 따라 글자마다 다른 칸만큼 밀어요. 300년 동안 깰 수 없다고 불렸어요.","ATTACK + 키 LEMON → LXFOPV"],
+  playfair:["플레이페어 암호","1854 · 영국","5 × 5 키 정사각형으로 글자를 두 개씩 암호화해요. 보어 전쟁과 1차 대전에서 쓰였어요.","한 글자가 아니라 두 글자씩"],
+  mary:["스코틀랜드 메리 여왕","1586 · 영국","배빙턴 음모에서 쓴 암호 편지가 해독되면서 처형으로 이어졌어요.","글자와 단어를 기호로 바꾼 노멘클레이터"],
+  adfgvx:["ADFGVX 암호","1918 · 독일","모스 부호로 구별하기 쉬운 여섯 글자만 쓰는 야전 암호예요.","모든 메시지가 A D F G V X로만"],
+  lorenz:["로렌츠 (튜니)","1941 · 독일","독일 최고 사령부의 텔레프린터 암호로, 콜로서스의 도움으로 해독됐어요.","12개 바퀴로 텔레프린터 부호를 뒤섞음"],
+  purple:["퍼플","1939 · 일본","미국 해독반이 실물을 한 번도 보지 않고 복제해 낸 외교 암호 기계예요.","1940년에 해독"],
+  zimmermann:["치머만 전보","1917","해독된 독일 전보가 미국이 1차 대전에 참전하는 계기가 됐어요.","영국 40호실이 해독"],
+  enigma:["에니그마","1930년대–1945 · 독일","키를 누를 때마다 로터가 돌아, 같은 글자도 매번 다르게 암호화돼요.","A A A A → 서로 다른 네 글자"],
+  turing:["앨런 튜링","1912–1954 · 영국","에니그마 해독을 앞당긴 봄브를 설계했고, 컴퓨터 과학의 기초를 놓았어요.","봄브가 로터 설정을 빠르게 탐색"],
+  navajo:["나바호 코드 토커","1942–1945 · 미국","나바호어를 바탕으로 만든 암호로, 끝내 해독되지 않았어요.","거북 = 탱크"],
+  hash:["해시 함수","1990년대–현재","데이터의 지문이에요. 글자 하나만 바뀌어도 해시 전체가 달라져요.","cat과 bat → 완전히 다른 해시"],
+  des:["DES","1977 · 미국","최초의 공개 암호 표준으로, 56비트 키는 지금은 너무 짧아요.","1998년 무차별 대입으로 해독"],
+  aes:["AES","2001 · 미국","Wi-Fi, HTTPS, 저장 데이터 대부분을 지키는 블록 암호예요.","128, 192, 256비트 키"],
+  otp:["일회용 패드","1917년 이후","메시지만큼 긴 무작위 키를 한 번만 써요. 수학적으로 깰 수 없어요.","키를 재사용하면 깨짐"],
+  dh:["디피–헬만 키 교환","1976 · 미국","처음 만난 두 사람이 공개된 통로에서 비밀 키를 함께 만들어요.","섞기는 쉽고 되돌리기는 어려운 색깔"],
+  quantum:["양자 키 분배","1984 · BB84","광자 하나하나로 키를 보내요. 엿들으면 상태가 흐트러져 바로 들켜요.","물리 법칙이 자물쇠"],
+  rsa:["RSA","1977 · 리베스트, 샤미르, 애들먼","아주 큰 수를 소인수분해하기 어렵다는 점에 기댄 공개키 암호예요.","p × q는 쉽고, 되돌리기는 어려움"],
+  zodiac:["조디악 340","1969 · 2020년 해독","연쇄살인범의 암호로, 51년 만에 아마추어들이 풀었어요.","340개 기호"],
+  beale:["빌 암호","1885 · 미국","숨겨진 보물을 가리킨다는 숫자 암호 세 개 중 하나만 풀렸어요.","열쇠: 미국 독립선언서"],
+  dorabella:["도라벨라 암호","1897 · 영국","작곡가 엘가가 보낸 곡선 기호 편지로, 아직 아무도 못 읽었어요.","87개 기호, 24가지 모양"],
+  voynich:["보이니치 필사본","15세기","아무도 읽지 못한 문자로 쓰인 그림책 한 권이에요.","약 240쪽"],
+  kryptos:["크립토스","1990 · CIA, 버지니아","암호 문단 네 개가 새겨진 조각상으로, 네 번째는 아직 풀리지 않았어요.","공개된 단서: BERLIN, CLOCK"]}
+};
+
+let EN_DATA=null;
+function applyDataLang(){
+  if(!EN_DATA) EN_DATA={
+    diff:Object.fromEntries(Object.keys(DIFF).map(k=>[k,DIFF[k].label])),
+    rar:Object.fromEntries(Object.keys(RAR).map(k=>[k,RAR[k].name])),
+    tier:Object.fromEntries(Object.keys(TIER).map(k=>[k,TIER[k].label])),
+    slots:{...SLOTS}, packs:PACKS.map(p=>p.label), ranks:RANKS.map(r=>r[1]),
+    themes:Object.fromEntries(THEMES.map(t=>[t.id,[t.name,t.label]])),
+    halls:Object.fromEntries(HALLS.map(h=>[h.id,[h.name,h.theme,h.reward]])),
+    items:Object.fromEntries(ITEMS.map(i=>[i.id,[i.name,i.desc]])),
+    badges:Object.fromEntries(BADGES.map(b=>[b.id,[b.name,b.desc]])),
+    missions:Object.fromEntries(Object.keys(MISSIONS).map(k=>[k,MISSIONS[k].text])),
+    looks:Object.fromEntries(LOOKS.map(l=>[l.id,l.name])),
+    cards:Object.fromEntries(CARDS.map(c=>[c.id,[c.name,c.era,c.d,c.ex]]))
+  };
+  const D=LANG==="ko"?KO_DATA:EN_DATA, E=EN_DATA;
+  const pick=(grp,id)=>(D[grp]&&D[grp][id]!=null)?D[grp][id]:E[grp][id];
+  Object.keys(DIFF).forEach(k=>DIFF[k].label=pick("diff",k));
+  Object.keys(RAR).forEach(k=>RAR[k].name=pick("rar",k));
+  Object.keys(TIER).forEach(k=>TIER[k].label=pick("tier",k));
+  Object.keys(SLOTS).forEach(k=>SLOTS[k]=pick("slots",k));
+  PACKS.forEach((p,i)=>p.label=pick("packs",i));
+  RANKS.forEach((r,i)=>r[1]=pick("ranks",i));
+  THEMES.forEach(t=>{ const v=pick("themes",t.id)||[t.name,t.label]; t.name=v[0]; t.label=v[1]; });
+  HALLS.forEach(h=>{ [h.name,h.theme,h.reward]=pick("halls",h.id); });
+  ITEMS.forEach(i=>{ [i.name,i.desc]=pick("items",i.id); });
+  BADGES.forEach(b=>{ [b.name,b.desc]=pick("badges",b.id); });
+  Object.keys(MISSIONS).forEach(k=>MISSIONS[k].text=pick("missions",k));
+  LOOKS.forEach(l=>l.name=pick("looks",l.id));
+  CARDS.forEach(c=>{ [c.name,c.era,c.d,c.ex]=pick("cards",c.id); });
+}
+
+/* static text nodes are collected once, before the game renders anything */
+let STATIC_NODES=null;
+function collectStatic(){
+  STATIC_NODES=[];
+  const w=document.createTreeWalker(document.querySelector(".wrap"),NodeFilter.SHOW_TEXT);
+  let n; while((n=w.nextNode())){ const t=n.nodeValue.trim(); if(t&&KO_STATIC[t]) STATIC_NODES.push({n,en:n.nodeValue,key:t}); }
+}
+function applyStatic(){
+  if(!STATIC_NODES) collectStatic();
+  STATIC_NODES.forEach(o=>{ o.n.nodeValue=LANG==="ko"?o.en.replace(o.key,KO_STATIC[o.key]):o.en; });
+  const ci=document.getElementById("codeIn"); if(ci) ci.placeholder=K("세이브 코드를 붙여넣으세요","Paste a save code");
+  document.documentElement.lang=LANG;
+}
+
 /* ---------- sentences: parsed from sentences.js ---------- */
 const THEMES=[], SENT=[];
 (function parse(){
@@ -753,7 +953,7 @@ const HALLS=[
   {id:"medieval",name:"Medieval & Renaissance",theme:"Vigenère, Playfair, Mary Queen of Scots",cost:20000,reward:"Unlocks the Cipher Stories theme",apply:()=>{}},
   {id:"war",     name:"Wartime Codebreaking",theme:"Enigma, Bletchley Park, Navajo code talkers",cost:35000,reward:"+30 ◆",apply:()=>{ ST.gems+=30; }},
   {id:"modern",  name:"Modern Cryptography",theme:"RSA, AES, one-time pads",cost:50000,reward:"+200 G on every solve",apply:()=>{}},
-  {id:"unsolved",name:"Unsolved Mysteries",theme:"Voynich, Kryptos, Beale",cost:80000,reward:"A guaranteed Legendary card",apply:()=>{ const c=pullCard("L"); toast(`Legendary card: ${c.name}`); }}
+  {id:"unsolved",name:"Unsolved Mysteries",theme:"Voynich, Kryptos, Beale",cost:80000,reward:"A guaranteed Legendary card",apply:()=>{ const c=pullCard("L"); toast(K(`전설 카드: ${c.name}`,`Legendary card: ${c.name}`)); }}
 ];
 const IMG=window.CG_IMG||{};
 const RAR={C:{name:"Common",cls:"c"},R:{name:"Rare",cls:"r"},E:{name:"Epic",cls:"e"},L:{name:"Legendary",cls:"l"}};
@@ -882,7 +1082,7 @@ function seeded(str){
 }
 
 /* ---------- views (tabs) ---------- */
-const VIEWS=["play","progress","museum","shop","records"];
+const VIEWS=["play","progress","museum","shop","records","prefs"];
 function show(v){
   if(!VIEWS.includes(v)) v="play";
   VIEWS.forEach(x=>$("view-"+x).hidden=x!==v);
@@ -981,7 +1181,7 @@ function renderHeader(){
   $("chipMis").textContent=`${done}/3`;
   $("chipGold").textContent=num(ST.gold);
   $("chipGems").textContent=num(ST.gems);
-  $("dailyTag").textContent=ST.daily[day()]?"solved ✓":"today";
+  $("dailyTag").textContent=ST.daily[day()]?K("완료 ✓","solved ✓"):K("오늘","today");
 }
 function applyLooks(){ const v=$("view-play"); v.dataset.board=ST.equip.board; v.dataset.cell=ST.equip.cell; v.dataset.kb=ST.equip.kb; }
 function renderRecords(){
@@ -995,7 +1195,7 @@ function renderRecords(){
     [DIFF[d].label,b.solved||0,b.score!=null?num(b.score):"–",fmt(b.time)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.appendChild(td);});
     $("bests").appendChild(tr);
   });
-  $("sSub").textContent=ST.played?`${ST.played} started · ${Object.keys(ST.daily).length} daily · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
+  $("sSub").textContent=ST.played?LANG==="ko"?`시작 ${ST.played} · 데일리 ${Object.keys(ST.daily).length} · 힌트 없이 ${ST.noHint} · 오답 없이 ${ST.noMiss||0} · 최장 연속 ${ST.bestStreak}일`:`${ST.played} started · ${Object.keys(ST.daily).length} daily · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:K("퍼즐을 풀면 기록이 시작돼요.","Solve a puzzle to start your record.");
   $("badges").innerHTML="";
   BADGES.forEach(b=>{
     const got=ST.badges[b.id], el=document.createElement("div"); el.className="badge"+(got?" got":"");
@@ -1004,14 +1204,14 @@ function renderRecords(){
     el.append(n,s); $("badges").appendChild(el);
   });
   $("recent").innerHTML="";
-  if(!ST.recent.length){ const li=document.createElement("li"); li.innerHTML="<span>No solves yet. Your last 8 puzzles appear here.</span>"; $("recent").appendChild(li); }
+  if(!ST.recent.length){ const li=document.createElement("li"); li.innerHTML=K("<span>아직 기록이 없어요. 최근 퍼즐 8개가 여기에 표시돼요.</span>","<span>No solves yet. Your last 8 puzzles appear here.</span>"); $("recent").appendChild(li); }
   ST.recent.forEach(r=>{
     const li=document.createElement("li");
-    const a=document.createElement("span"); a.textContent=(r.mode?(r.mode==="daily"?"Daily":DIFF[r.mode].label)+" · ":"")+r.a;
-    const b=document.createElement("span"); b.textContent=`${r.score!=null?num(r.score)+" pts · ":""}${fmt(r.time)} · ${r.hints}H · ${r.miss??"–"}✕`;
+    const a=document.createElement("span"); a.textContent=(r.mode?(r.mode==="daily"?K("데일리","Daily"):DIFF[r.mode].label)+" · ":"")+r.a;
+    const b=document.createElement("span"); b.textContent=`${r.score!=null?num(r.score)+K("점 · "," pts · "):""}${fmt(r.time)} · ${r.hints}H · ${r.miss??"–"}✕`;
     li.append(a,b); $("recent").appendChild(li);
   });
-  $("where").textContent=store.kind==="db"?"Saved to your account":store.kind==="cloud"?"Synced to your Google account":"Saved in this browser";
+  $("where").textContent=store.kind==="db"?K("계정에 저장 중","Saved to your account"):store.kind==="cloud"?K("Google 계정과 동기화 중","Synced to your Google account"):K("이 브라우저에 저장 중","Saved in this browser");
 }
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
 function renderProgress(){
@@ -1020,8 +1220,8 @@ function renderProgress(){
   $("xpTotal").textContent=num(xp)+" XP";
   $("xpBar").style.width=Math.round((xp-lo)/(hi-lo)*100)+"%";
   const nr=RANKS.find(([min])=>min>L);
-  $("xpText").textContent=`${num(xp-lo)} / ${num(hi-lo)} XP to Lv.${L+1} (+${3+Math.floor((L+1)/5)} ◆)`;
-  $("nextRank").textContent=nr?`Next rank: ${nr[1]} at Lv.${nr[0]} (+15 ◆)`:"Top rank reached";
+  $("xpText").textContent=K(`Lv.${L+1}까지 ${num(xp-lo)} / ${num(hi-lo)} XP (+${3+Math.floor((L+1)/5)} ◆)`,`${num(xp-lo)} / ${num(hi-lo)} XP to Lv.${L+1} (+${3+Math.floor((L+1)/5)} ◆)`);
+  $("nextRank").textContent=nr?K(`다음 랭크: Lv.${nr[0]} ${nr[1]} (+15 ◆)`,`Next rank: ${nr[1]} at Lv.${nr[0]} (+15 ◆)`):K("최고 랭크 달성","Top rank reached");
   const M=ensureMissions(); $("missions").innerHTML="";
   M.ids.forEach(id=>{
     const def=MISSIONS[id]; if(!def) return;
@@ -1029,32 +1229,32 @@ function renderProgress(){
     const li=document.createElement("li"); li.className=done?"done":"";
     const ck=document.createElement("span"); ck.className="ck"; ck.textContent=done?"✓":"";
     const mt=document.createElement("span"); mt.className="mt"; mt.textContent=def.text;
-    const mp=document.createElement("span"); mp.className="mp"; mp.textContent=done?"Done":`${num(p)}/${num(def.target)}`;
+    const mp=document.createElement("span"); mp.className="mp"; mp.textContent=done?K("완료","Done"):`${num(p)}/${num(def.target)}`;
     li.append(ck,mt,mp); $("missions").appendChild(li);
   });
   const first=new Date(calY,calM,1), days=new Date(calY,calM+1,0).getDate(), today=day();
-  $("calTitle").textContent=first.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  $("calTitle").textContent=first.toLocaleDateString(LANG==="ko"?"ko-KR":"en-US",{month:"long",year:"numeric"});
   const cal=$("cal"); cal.innerHTML="";
-  ["S","M","T","W","T","F","S"].forEach(w=>{ const e=document.createElement("div"); e.className="dow"; e.textContent=w; cal.appendChild(e); });
+  (LANG==="ko"?["일","월","화","수","목","금","토"]:["S","M","T","W","T","F","S"]).forEach(w=>{ const e=document.createElement("div"); e.className="dow"; e.textContent=w; cal.appendChild(e); });
   for(let i=0;i<first.getDay();i++){ const e=document.createElement("div"); e.className="cd blank"; cal.appendChild(e); }
   let played=0;
   for(let n=1;n<=days;n++){
     const key=day(new Date(calY,calM,n)), e=document.createElement("div"), did=!!ST.days[key];
     if(did) played++;
     e.className="cd"+(did?" did":"")+(ST.daily[key]?" dly":"")+(key===today?" today":"");
-    e.textContent=n; e.title=did?`${key}: ${ST.days[key]} solved`+(ST.daily[key]?" · Daily done":""):key;
+    e.textContent=n; e.title=did?K(`${key}: ${ST.days[key]}개 클리어`,`${key}: ${ST.days[key]} solved`)+(ST.daily[key]?K(" · 데일리 완료"," · Daily done"):""):key;
     cal.appendChild(e);
   }
-  $("calSub").textContent=`${played} day${played===1?"":"s"} played this month · ★ Daily solved`;
+  $("calSub").textContent=K(`이번 달 ${played}일 플레이 · ★ 데일리 완료`,`${played} day${played===1?"":"s"} played this month · ★ Daily solved`);
   const now=new Date(); $("calNext").disabled=calY>now.getFullYear()||(calY===now.getFullYear()&&calM>=now.getMonth());
   const got=SENT.filter(s=>ST.found[s.k]).length;
-  $("collCount").textContent=`${got}/${SENT.length} collected`;
+  $("collCount").textContent=K(`${got}/${SENT.length} 수집`,`${got}/${SENT.length} collected`);
   const box=$("collection"), open=new Set([...box.querySelectorAll("details[open]")].map(d=>d.dataset.th));
   box.innerHTML="";
   THEMES.forEach(th=>{
     const list=SENT.filter(s=>s.th===th.id), have=list.filter(s=>ST.found[s.k]).length, isOpen=unlockedTheme(th);
     const det=document.createElement("details"); det.className="coll"; det.dataset.th=th.id; if(open.has(th.id)) det.open=true;
-    const sum=document.createElement("summary"); sum.textContent=th.name+(isOpen?"":" · locked");
+    const sum=document.createElement("summary"); sum.textContent=th.name+(isOpen?"":K(" · 잠김"," · locked"));
     const cnt=document.createElement("span"); cnt.textContent=`${have}/${list.length}`; sum.appendChild(cnt);
     const bar=document.createElement("div"); bar.className="bar"; bar.innerHTML=`<i style="width:${Math.round(have/list.length*100)}%"></i>`;
     det.append(sum,bar);
@@ -1063,7 +1263,7 @@ function renderProgress(){
     list.forEach(s=>{
       const f=ST.found[s.k], li=document.createElement("li"), sm=document.createElement("small");
       if(f){ li.textContent=s.t; sm.textContent=`${s.a||th.label} · ${DIFF[tierOf(s)].label} · ${f.slice(5)}`; }
-      else { li.className="lock"; li.textContent="Not collected yet"; sm.textContent=`${DIFF[tierOf(s)].label} · ${words(s)} words`; }
+      else { li.className="lock"; li.textContent=K("아직 수집하지 않음","Not collected yet"); sm.textContent=K(`${DIFF[tierOf(s)].label} · ${words(s)}단어`,`${DIFF[tierOf(s)].label} · ${words(s)} words`); }
       li.appendChild(sm); ol.appendChild(li);
     });
     det.appendChild(ol); box.appendChild(det);
@@ -1071,7 +1271,7 @@ function renderProgress(){
 }
 function lockText(th){
   if(!th.lock) return "";
-  return th.lock.type==="gems"?`Unlock in the Shop for ${th.lock.val} ◆.`:`Opens when museum hall ${th.lock.val} (${HALLS[th.lock.val-1]?HALLS[th.lock.val-1].name:""}) is built.`;
+  return th.lock.type==="gems"?K(`상점에서 ${th.lock.val} ◆로 해금할 수 있어요.`,`Unlock in the Shop for ${th.lock.val} ◆.`):K(`박물관 ${th.lock.val}번 전시관(${HALLS[th.lock.val-1]?HALLS[th.lock.val-1].name:""})을 지으면 열려요.`,`Opens when museum hall ${th.lock.val} (${HALLS[th.lock.val-1]?HALLS[th.lock.val-1].name:""}) is built.`);
 }
 $("calPrev").onclick=()=>{ calM--; if(calM<0){calM=11;calY--;} renderProgress(); };
 $("calNext").onclick=()=>{ calM++; if(calM>11){calM=0;calY++;} renderProgress(); };
@@ -1083,7 +1283,7 @@ function cardEl(c,count){
   const n=document.createElement("b"); n.textContent=count?c.name:"???";
   const t=document.createElement("span"); t.className="tag t-"+R.cls; t.textContent=R.name;
   top.append(n,t); el.appendChild(top);
-  const era=document.createElement("div"); era.className="era"; era.textContent=count?c.era:"Not collected yet"; el.appendChild(era);
+  const era=document.createElement("div"); era.className="era"; era.textContent=count?c.era:K("아직 수집하지 않음","Not collected yet"); el.appendChild(era);
   if(count){
     const p=document.createElement("p"); p.textContent=c.d;
     const ex=document.createElement("code"); ex.textContent=c.ex;
@@ -1098,20 +1298,20 @@ function renderMuseum(){
   $("musFig").hidden=!mi;
   if(mi&&$("musImg").getAttribute("src")!==mi){ $("musImg").src=mi; }
   $("musImg").alt=b?`The Cipher Museum with ${b} of 6 halls built`:"An empty plot with the museum's blueprints";
-  $("musCap").textContent=b>=HALLS.length?"Museum complete":b?`${b} / ${HALLS.length} halls open`:"Construction site";
-  $("musCount").textContent=`${b}/${HALLS.length} halls`;
+  $("musCap").textContent=b>=HALLS.length?K("박물관 완성","Museum complete"):b?K(`전시관 ${b} / ${HALLS.length} 개관`,`${b} / ${HALLS.length} halls open`):K("공사 현장","Construction site");
+  $("musCount").textContent=K(`전시관 ${b}/${HALLS.length}`,`${b}/${HALLS.length} halls`);
   if(next){
-    $("musNext").textContent=`Next: ${next.name} · ${next.reward}`;
+    $("musNext").textContent=K(`다음: ${next.name} · ${next.reward}`,`Next: ${next.name} · ${next.reward}`);
     $("musBar").style.width=Math.min(100,Math.round(ST.gold/next.cost*100))+"%";
     $("musProg").textContent=`${num(Math.min(ST.gold,next.cost))} / ${num(next.cost)} G`;
     $("buildBtn").hidden=false; $("buildBtn").disabled=ST.gold<next.cost;
-    $("buildBtn").textContent=ST.gold>=next.cost?`Build for ${num(next.cost)} G`:"Build";
+    $("buildBtn").textContent=ST.gold>=next.cost?K(`${num(next.cost)} G로 건설`,`Build for ${num(next.cost)} G`):K("건설","Build");
   } else {
-    $("musNext").textContent="Every hall is built. The museum is complete.";
+    $("musNext").textContent=K("모든 전시관을 지었어요. 박물관이 완성됐어요.","Every hall is built. The museum is complete.");
     $("musBar").style.width="100%"; $("musProg").textContent=""; $("buildBtn").hidden=true;
   }
   const have=CARDS.filter(c=>ST.cards[c.id]).length;
-  $("musPerk").textContent=`${have}/${CARDS.length} cipher cards collected · Halls add +${num(bon.hall)} G to every solve`;
+  $("musPerk").textContent=K(`암호 카드 ${have}/${CARDS.length}장 수집 · 전시관 보너스 클리어마다 +${num(bon.hall)} G`,`${have}/${CARDS.length} cipher cards collected · Halls add +${num(bon.hall)} G to every solve`);
   const box=$("halls"), open=new Set([...box.querySelectorAll("details[open]")].map(d=>d.dataset.h));
   box.innerHTML="";
   HALLS.forEach((h,i)=>{
@@ -1121,11 +1321,11 @@ function renderMuseum(){
     const sum=document.createElement("summary");
     if(IMG["hall-"+h.id]){ const t=document.createElement("img"); t.className="hthumb"; t.src=IMG["hall-"+h.id]; t.alt=""; t.loading="lazy"; sum.appendChild(t); }
     const nm=document.createElement("b"); nm.textContent=`${i+1}. ${h.name}`;
-    const st=document.createElement("span"); st.className="st"; st.textContent=built?`Open · ${own}/${list.length} cards`:`${num(h.cost)} G · ${own}/${list.length} cards`;
+    const st=document.createElement("span"); st.className="st"; st.textContent=built?K(`개관 · 카드 ${own}/${list.length}`,`Open · ${own}/${list.length} cards`):K(`${num(h.cost)} G · 카드 ${own}/${list.length}`,`${num(h.cost)} G · ${own}/${list.length} cards`);
     sum.append(nm,st); det.appendChild(sum);
     if(IMG["hall-"+h.id]){ const bi=document.createElement("img"); bi.className="hbig"; bi.src=IMG["hall-"+h.id]; bi.alt=`${h.name} centerpiece`; bi.loading="lazy"; det.appendChild(bi); }
-    const rw=document.createElement("div"); rw.className="rw"; rw.textContent=`${h.theme} · Reward: ${h.reward}${built?" ✓":""}`; det.appendChild(rw);
-    if(!built){ const n=document.createElement("div"); n.className="rw"; n.textContent="Build this hall to put its cards on show. Cards you pull now are kept for it."; det.appendChild(n); }
+    const rw=document.createElement("div"); rw.className="rw"; rw.textContent=K(`${h.theme} · 보상: ${h.reward}${built?" ✓":""}`,`${h.theme} · Reward: ${h.reward}${built?" ✓":""}`); det.appendChild(rw);
+    if(!built){ const n=document.createElement("div"); n.className="rw"; n.textContent=K("이 전시관을 지으면 카드가 전시돼요. 지금 뽑은 카드도 보관돼요.","Build this hall to put its cards on show. Cards you pull now are kept for it."); det.appendChild(n); }
     const g=document.createElement("div"); g.className="cards";
     list.forEach(c=>g.appendChild(cardEl(c,built?ST.cards[c.id]:0)));
     det.appendChild(g); box.appendChild(det);
@@ -1134,8 +1334,8 @@ function renderMuseum(){
 $("buildBtn").onclick=()=>{
   const h=HALLS[ST.built]; if(!h||ST.gold<h.cost) return;
   ST.gold-=h.cost; ST.built++; h.apply();
-  if(!ST.badges.curator){ ST.badges.curator=day(); ST.gems+=5; toast("Badge unlocked: Curator · +5 ◆"); }
-  toast(`${h.name} is open! ${h.reward}`);
+  if(!ST.badges.curator){ ST.badges.curator=day(); ST.gems+=5; toast(K("배지 획득: 큐레이터 · +5 ◆","Badge unlocked: Curator · +5 ◆")); }
+  toast(K(`${h.name} 개관! ${h.reward}`,`${h.name} is open! ${h.reward}`));
   commit(); if(S) renderThemes();
   const f=$("musFig"); f.classList.remove("reveal"); void f.offsetWidth; f.classList.add("reveal"); window.scrollTo({top:0,behavior:"smooth"});
 };
@@ -1143,24 +1343,24 @@ $("buildBtn").onclick=()=>{
 function renderShop(){
   const bon=bonuses();
   $("wGold").textContent=num(ST.gold); $("wGems").textContent=num(ST.gems);
-  $("bonusLine").textContent=`Bonus on every solve: +${num(bon.gold)} G${bon.xp?` and +${bon.xp} XP`:""} (${bon.basic} basic look${bon.basic===1?"":"s"}, ${bon.rare} rare, museum +${bon.hall} G)`;
+  $("bonusLine").textContent=K(`클리어 보너스: +${num(bon.gold)} G${bon.xp?`, +${bon.xp} XP`:""} (기본 꾸미기 ${bon.basic}, 레어 ${bon.rare}, 박물관 +${bon.hall} G)`,`Bonus on every solve: +${num(bon.gold)} G${bon.xp?` and +${bon.xp} XP`:""} (${bon.basic} basic look${bon.basic===1?"":"s"}, ${bon.rare} rare, museum +${bon.hall} G)`);
   const it=$("items"); it.innerHTML="";
   const free=FREE_HINTS-ST.freeHint.used;
   ITEMS.forEach(x=>{
     const r=document.createElement("div"); r.className="row2";
     const t=document.createElement("div"); t.className="txt"; t.innerHTML="<b></b><span></span>";
-    t.querySelector("b").textContent=`${x.name} · owned ${ST.inv[x.id]}`;
-    t.querySelector("span").textContent=x.id==="hint"?`${x.desc} Free today: ${free}/${FREE_HINTS}.`:x.desc;
+    t.querySelector("b").textContent=K(`${x.name} · 보유 ${ST.inv[x.id]}`,`${x.name} · owned ${ST.inv[x.id]}`);
+    t.querySelector("span").textContent=x.id==="hint"?K(`${x.desc} 오늘 무료: ${free}/${FREE_HINTS}.`,`${x.desc} Free today: ${free}/${FREE_HINTS}.`):x.desc;
     const b=document.createElement("button"); b.textContent=`${num(x.price)} G`; b.disabled=ST.gold<x.price;
-    b.onclick=()=>{ if(ST.gold<x.price) return; ST.gold-=x.price; ST.inv[x.id]++; toast(`Bought: ${x.name}`); commit(); };
+    b.onclick=()=>{ if(ST.gold<x.price) return; ST.gold-=x.price; ST.inv[x.id]++; toast(K(`구매 완료: ${x.name}`,`Bought: ${x.name}`)); commit(); };
     r.append(icBox({hint:"ticket",vowel:"eye",freeze:"freeze"}[x.id]),t,b); it.appendChild(r);
   });
   const pk=$("packs"); pk.innerHTML="";
   PACKS.forEach(p=>{
     const r=document.createElement("div"); r.className="row2";
     const t=document.createElement("div"); t.className="txt";
-    t.innerHTML="<b></b><span>Common 60% · Rare 30% · Epic 9% · Legendary 1%. A duplicate gives back 2 ◆.</span>";
-    t.querySelector("b").textContent=`Card pack · ${p.label}`;
+    t.innerHTML=K("<b></b><span>일반 60% · 레어 30% · 에픽 9% · 전설 1%. 중복 카드는 2 ◆로 돌려받아요.</span>","<b></b><span>Common 60% · Rare 30% · Epic 9% · Legendary 1%. A duplicate gives back 2 ◆.</span>");
+    t.querySelector("b").textContent=K(`카드팩 · ${p.label}`,`Card pack · ${p.label}`);
     const b=document.createElement("button"); b.textContent=`${p.price} ◆`; b.disabled=ST.gems<p.price;
     b.onclick=()=>buyPack(p);
     r.append(icBox("cards"),t,b); pk.appendChild(r);
@@ -1169,7 +1369,7 @@ function renderShop(){
   Object.keys(SLOTS).forEach(slot=>{
     const h=document.createElement("div"); h.className="sub"; h.style.fontWeight="700"; h.textContent=SLOTS[slot]; cs.appendChild(h);
     const grid=document.createElement("div"); grid.className="cosgrid";
-    [{id:"default",slot,tier:null,name:"Classic"},...LOOKS.filter(l=>l.slot===slot)].forEach(l=>{
+    [{id:"default",slot,tier:null,name:K("기본","Classic")},...LOOKS.filter(l=>l.slot===slot)].forEach(l=>{
       const own=l.id==="default"||!!ST.owned[l.id], eq=ST.equip[slot]===l.id;
       const c=document.createElement("div"); c.className="cos"+(eq?" eq":"");
       const pv=document.createElement("div"); pv.className="pv"; pv.dataset[slot]=l.id;
@@ -1184,16 +1384,16 @@ function renderShop(){
       const b=document.createElement("b"); b.textContent=l.name; nm.appendChild(b);
       if(l.tier){ const t=document.createElement("span"); t.className="tag "+(l.tier==="rare"?"t-l":"t-c"); t.textContent=TIER[l.tier].label; nm.appendChild(t); }
       const bon2=document.createElement("div"); bon2.className="bon";
-      bon2.textContent=l.tier?`+${TIER[l.tier].gold} G${TIER[l.tier].xp?` · +${TIER[l.tier].xp} XP`:""} per solve`:"Default look";
+      bon2.textContent=l.tier?K(`클리어마다 +${TIER[l.tier].gold} G${TIER[l.tier].xp?` · +${TIER[l.tier].xp} XP`:""}`,`+${TIER[l.tier].gold} G${TIER[l.tier].xp?` · +${TIER[l.tier].xp} XP`:""} per solve`):K("기본 디자인","Default look");
       const btn=document.createElement("button");
-      if(eq){ btn.textContent="In use"; btn.disabled=true; }
-      else if(own){ btn.textContent="Use"; btn.onclick=()=>{ ST.equip[slot]=l.id; commit(); }; }
+      if(eq){ btn.textContent=K("사용 중","In use"); btn.disabled=true; }
+      else if(own){ btn.textContent=K("사용","Use"); btn.onclick=()=>{ ST.equip[slot]=l.id; commit(); }; }
       else{
         const pr=TIER[l.tier].price; btn.textContent=`${pr} ◆`; btn.disabled=ST.gems<pr;
         btn.onclick=()=>{
           if(ST.gems<pr) return; ST.gems-=pr; ST.owned[l.id]=day(); ST.equip[slot]=l.id;
-          toast(`New look: ${l.name} · +${TIER[l.tier].gold} G per solve`);
-          if(!ST.badges.stylist&&Object.keys(SLOTS).every(s=>LOOKS.some(x=>x.slot===s&&ST.owned[x.id]))){ ST.badges.stylist=day(); ST.gems+=5; toast("Badge unlocked: Stylist · +5 ◆"); }
+          toast(K(`새 꾸미기: ${l.name} · 클리어마다 +${TIER[l.tier].gold} G`,`New look: ${l.name} · +${TIER[l.tier].gold} G per solve`));
+          if(!ST.badges.stylist&&Object.keys(SLOTS).every(s=>LOOKS.some(x=>x.slot===s&&ST.owned[x.id]))){ ST.badges.stylist=day(); ST.gems+=5; toast(K("배지 획득: 스타일리스트 · +5 ◆","Badge unlocked: Stylist · +5 ◆")); }
           commit();
         };
       }
@@ -1206,23 +1406,23 @@ function renderShop(){
     const r=document.createElement("div"); r.className="row2";
     const t=document.createElement("div"); t.className="txt"; t.innerHTML="<b></b><span></span>";
     const cnt=SENT.filter(s=>s.th===th.id).length;
-    t.querySelector("b").textContent=`${th.name} · ${cnt} sentences`;
-    t.querySelector("span").textContent=unlockedTheme(th)?"Unlocked. Pick it from the theme list on the Play page.":lockText(th);
+    t.querySelector("b").textContent=K(`${th.name} · ${cnt}문장`,`${th.name} · ${cnt} sentences`);
+    t.querySelector("span").textContent=unlockedTheme(th)?K("해금 완료. 플레이 화면의 테마 목록에서 고르세요.","Unlocked. Pick it from the theme list on the Play page."):lockText(th);
     const b=document.createElement("button");
-    if(unlockedTheme(th)){ b.textContent="Owned"; b.disabled=true; }
+    if(unlockedTheme(th)){ b.textContent=K("보유","Owned"); b.disabled=true; }
     else if(th.lock.type==="gems"){
       b.textContent=`${th.lock.val} ◆`; b.disabled=ST.gems<th.lock.val;
-      b.onclick=()=>{ if(ST.gems<th.lock.val) return; ST.gems-=th.lock.val; ST.unlocked[th.id]=day(); toast(`Unlocked: ${th.name}`); commit(); if(S) renderThemes(); };
+      b.onclick=()=>{ if(ST.gems<th.lock.val) return; ST.gems-=th.lock.val; ST.unlocked[th.id]=day(); toast(K(`해금: ${th.name}`,`Unlocked: ${th.name}`)); commit(); if(S) renderThemes(); };
     }
-    else { b.textContent="Museum"; b.onclick=()=>show("museum"); }
+    else { b.textContent=K("박물관","Museum"); b.onclick=()=>show("museum"); }
     r.append(icBox("book"),t,b); ct.appendChild(r);
   });
   const ex=$("exchange"); ex.innerHTML="";
   [1,10].forEach(n=>{
     const r=document.createElement("div"); r.className="row2";
-    const t=document.createElement("div"); t.className="txt"; t.innerHTML="<b></b><span>Gold can't be turned back into gems.</span>";
+    const t=document.createElement("div"); t.className="txt"; t.innerHTML=K("<b></b><span>골드는 보석으로 바꿀 수 없어요.</span>","<b></b><span>Gold can't be turned back into gems.</span>");
     t.querySelector("b").textContent=`${n} ◆ → ${num(n*GEM_TO_GOLD)} G`;
-    const b=document.createElement("button"); b.textContent="Trade"; b.disabled=ST.gems<n;
+    const b=document.createElement("button"); b.textContent=K("교환","Trade"); b.disabled=ST.gems<n;
     b.onclick=()=>{ if(ST.gems<n) return; ST.gems-=n; ST.gold+=n*GEM_TO_GOLD; toast(`+${num(n*GEM_TO_GOLD)} G`); commit(); };
     r.append(icBox("swap"),t,b); ex.appendChild(r);
   });
@@ -1241,12 +1441,12 @@ function buyPack(p){
   if(ST.gems<p.price) return;
   ST.gems-=p.price;
   const got=[]; for(let i=0;i<p.n;i++) got.push(pullCard());
-  if(!ST.badges.cards10&&CARDS.filter(c=>ST.cards[c.id]).length>=10){ ST.badges.cards10=day(); ST.gems+=5; toast("Badge unlocked: Card Shark · +5 ◆"); }
+  if(!ST.badges.cards10&&CARDS.filter(c=>ST.cards[c.id]).length>=10){ ST.badges.cards10=day(); ST.gems+=5; toast(K("배지 획득: 카드 수집가 · +5 ◆","Badge unlocked: Card Shark · +5 ◆")); }
   commit();
   const pl=$("pull"); pl.innerHTML="";
   got.forEach(c=>pl.appendChild(cardEl(c,ST.cards[c.id])));
   const best=got.reduce((a,c)=>"CREL".indexOf(c.r)>"CREL".indexOf(a.r)?c:a,got[0]);
-  toast(`${RAR[best.r].name}: ${best.name}${got.length>1?` and ${got.length-1} more`:""}`);
+  toast(`${RAR[best.r].name}: ${best.name}${got.length>1?K(` 외 ${got.length-1}장`,` and ${got.length-1} more`):""}`);
 }
 
 /* ---------- solve rewards ---------- */
@@ -1266,14 +1466,14 @@ function recordSolve(){
   const pbScore=b.score!=null&&sc>b.score;
   b.solved++; if(b.score==null||sc>b.score) b.score=sc; if(b.time==null||t<b.time) b.time=t;
   if(ST.lastDay!==d){
-    gold+=100; notes.push("First solve today · +100 G");
+    gold+=100; notes.push(K("오늘 첫 클리어 · +100 G","First solve today · +100 G"));
     const gap=ST.lastDay?daysBetween(ST.lastDay,d):99;
     if(gap===1) ST.streak++;
-    else if(ST.lastDay&&gap>1&&gap-1<=ST.inv.freeze){ ST.inv.freeze-=gap-1; ST.streak++; notes.push(`Streak freeze used ×${gap-1}`); }
+    else if(ST.lastDay&&gap>1&&gap-1<=ST.inv.freeze){ ST.inv.freeze-=gap-1; ST.streak++; notes.push(K(`연속 보호권 사용 ×${gap-1}`,`Streak freeze used ×${gap-1}`)); }
     else ST.streak=1;
     ST.lastDay=d;
-    if(ST.streak%30===0){ gems+=30; notes.push(`${ST.streak}-day streak · +30 ◆`); }
-    else if(ST.streak%7===0){ gems+=10; notes.push(`${ST.streak}-day streak · +10 ◆`); }
+    if(ST.streak%30===0){ gems+=30; notes.push(K(`${ST.streak}일 연속 · +30 ◆`,`${ST.streak}-day streak · +30 ◆`)); }
+    else if(ST.streak%7===0){ gems+=10; notes.push(K(`${ST.streak}일 연속 · +10 ◆`,`${ST.streak}-day streak · +10 ◆`)); }
   }
   ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
   ST.xp+=sc+bon.xp;
@@ -1281,18 +1481,18 @@ function recordSolve(){
   const dk=Object.keys(ST.days).sort(); while(dk.length>400) delete ST.days[dk.shift()];
   const isNew=!ST.found[s.k]; if(isNew){ ST.found[s.k]=d; gold+=100; }
   ST.themesSolved[s.th]=(ST.themesSolved[s.th]||0)+1;
-  if(diff==="hard"&&!S.hints){ gems+=1; notes.push("Hard without hints · +1 ◆"); }
+  if(diff==="hard"&&!S.hints){ gems+=1; notes.push(K("힌트 없이 어려움 클리어 · +1 ◆","Hard without hints · +1 ◆")); }
   const M=ensureMissions(), ctx={diff,mode:S.mode,t,hints:S.hints,miss:S.mistakes,sc,th:s.th,isNew};
   M.ids.forEach(id=>{
     const def=MISSIONS[id]; if(!def||M.claimed[id]) return;
     M.prog[id]=Math.min(def.target,(M.prog[id]||0)+def.add(ctx,M));
-    if(M.prog[id]>=def.target){ M.claimed[id]=true; ST.xp+=MISSION_XP; gold+=MISSION_GOLD; notes.push(`Mission done: ${def.text} · +${MISSION_GOLD} G`); }
+    if(M.prog[id]>=def.target){ M.claimed[id]=true; ST.xp+=MISSION_XP; gold+=MISSION_GOLD; notes.push(K(`미션 완료: ${def.text} · +${MISSION_GOLD} G`,`Mission done: ${def.text} · +${MISSION_GOLD} G`)); }
   });
-  if(!M.bonus&&M.ids.every(id=>M.claimed[id])){ M.bonus=true; gems+=ALL_GEMS; notes.push(`All missions done · +${ALL_GEMS} ◆`); }
+  if(!M.bonus&&M.ids.every(id=>M.claimed[id])){ M.bonus=true; gems+=ALL_GEMS; notes.push(K(`미션 모두 완료 · +${ALL_GEMS} ◆`,`All missions done · +${ALL_GEMS} ◆`)); }
   const lvAfter=levelOf(ST.xp);
   for(let L=lvBefore+1;L<=lvAfter;L++){
-    const g=3+Math.floor(L/5); gems+=g; notes.push(`Level up! Lv.${L} · +${g} ◆`);
-    if(rankOf(L)!==rankOf(L-1)){ gems+=15; notes.push(`New rank: ${rankOf(L)} · +15 ◆`); }
+    const g=3+Math.floor(L/5); gems+=g; notes.push(K(`레벨 업! Lv.${L} · +${g} ◆`,`Level up! Lv.${L} · +${g} ◆`));
+    if(rankOf(L)!==rankOf(L-1)){ gems+=15; notes.push(K(`새 랭크: ${rankOf(L)} · +15 ◆`,`New rank: ${rankOf(L)} · +15 ◆`)); }
   }
   if(S.mode==="daily"){ ST.daily[S.date]={time:t,score:sc,hints:S.hints,miss:S.mistakes};
     const keys=Object.keys(ST.daily).sort(); while(keys.length>90) delete ST.daily[keys.shift()]; }
@@ -1309,8 +1509,8 @@ function recordSolve(){
   ST.gold+=gold; ST.gems+=gems;
   commit();
   notes.forEach(n=>toast(n));
-  if(isNew) toast("New sentence collected · +100 G");
-  earned.forEach(id=>toast(`Badge unlocked: ${BADGES.find(x=>x.id===id).name} · +5 ◆`));
+  if(isNew) toast(K("새 문장 수집 · +100 G","New sentence collected · +100 G"));
+  earned.forEach(id=>toast(K(`배지 획득: ${BADGES.find(x=>x.id===id).name} · +5 ◆`,`Badge unlocked: ${BADGES.find(x=>x.id===id).name} · +5 ◆`)));
   return {sc,pbScore,gold,gems};
 }
 const toastQ=[]; let toasting=false;
@@ -1375,7 +1575,7 @@ function start(saved){
   renderMeta();
   document.querySelectorAll(".modes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
   renderThemes();
-  $("next").textContent=mode==="daily"?"Practice":"New puzzle";
+  $("next").textContent=mode==="daily"?K("연습하기","Practice"):K("새 퍼즐","New puzzle");
   build(); update(); renderFreq();
   clearInterval(timer); if(!S.done) timer=setInterval(tick,1000); tick();
 }
@@ -1387,12 +1587,12 @@ function renderMeta(){
 }
 function renderThemes(){
   const box=$("themes"); box.innerHTML="";
-  [{id:"all",name:"All themes"},...THEMES].forEach(th=>{
+  [{id:"all",name:K("전체 테마","All themes")},...THEMES].forEach(th=>{
     const b=document.createElement("button"), open=th.id==="all"||unlockedTheme(th);
-    b.textContent=th.name+(open?"":" · locked");
+    b.textContent=th.name+(open?"":K(" · 잠김"," · locked"));
     if(!open) b.className="locked";
     b.setAttribute("aria-pressed",String(mode!=="daily"&&prefTheme===th.id));
-    b.disabled=mode==="daily"; if(mode==="daily") b.title="The Daily puzzle mixes all themes";
+    b.disabled=mode==="daily"; if(mode==="daily") b.title=K("데일리 퍼즐은 모든 테마에서 나와요","The Daily puzzle mixes all themes");
     b.onclick=()=>{
       if(!open){ msg(lockText(th),"bad"); return; }
       prefTheme=th.id; try{localStorage.setItem("cg_theme",th.id);}catch(e){} play(mode==="daily"?"normal":mode);
@@ -1408,7 +1608,7 @@ function play(m){
       [...up].forEach(ch=>{ if(AZ.includes(ch)) p.guess[n++]=ch; });
       p.done=true; p.ms=res.time*1000; p.hints=res.hints; p.mistakes=res.miss;
       start(p);
-      msg(`Today's puzzle is solved: ${num(res.score)} pts in ${fmt(res.time)}. A new one arrives tomorrow.`,"ok");
+      msg(K(`오늘의 퍼즐 완료: ${fmt(res.time)} 동안 ${num(res.score)}점. 내일 새 퍼즐이 나와요.`,`Today's puzzle is solved: ${num(res.score)} pts in ${fmt(res.time)}. A new one arrives tomorrow.`),"ok");
       save("current",snapshot()); return;
     }
     if(S&&S.mode==="daily"&&S.date===day()&&!S.done) return;
@@ -1450,10 +1650,10 @@ function update(){
 function renderHintBtn(){
   if(!S||!ST.freeHint) return;
   const free=Math.max(0,FREE_HINTS-ST.freeHint.used), tix=ST.inv.hint||0;
-  $("hint").innerHTML=ic("hint")+"<span>"+(free?`Hint · ${free} free`:tix?`Hint · ${tix} ticket${tix===1?"":"s"}`:"Hint")+"</span>";
+  $("hint").innerHTML=ic("hint")+"<span>"+(LANG==="ko"?(free?`힌트 · 무료 ${free}`:tix?`힌트 · ${tix}장`:"힌트"):(free?`Hint · ${free} free`:tix?`Hint · ${tix} ticket${tix===1?"":"s"}`:"Hint"))+"</span>";
   $("hint").disabled=S.done;
   $("itemRow").hidden=!(ST.inv.vowel>0)||S.done;
-  $("vowelBtn").innerHTML=ic("eye")+`<span>Reveal vowels · ${ST.inv.vowel||0} left</span>`;
+  $("vowelBtn").innerHTML=ic("eye")+K(`<span>모음 공개 · ${ST.inv.vowel||0}개 남음</span>`,`<span>Reveal vowels · ${ST.inv.vowel||0} left</span>`);
 }
 
 let showFreq=false;
@@ -1469,7 +1669,7 @@ function renderFreq(){
     const b=document.createElement("button");
     b.className=(solved[k]?"done ":"")+(k===selC?"on":"");
     b.innerHTML=k+"<i>"+cnt[k]+"</i>";
-    b.title=`Code letter ${k} appears ${cnt[k]} time${cnt[k]===1?"":"s"}`;
+    b.title=K(`암호 글자 ${k}: ${cnt[k]}번`,`Code letter ${k} appears ${cnt[k]} time${cnt[k]===1?"":"s"}`);
     b.onclick=()=>{ if(S.done) return; const i=S.cells.findIndex((c,j)=>c.c===k&&S.guess[j]!==c.p); S.sel=i>=0?i:S.cells.findIndex(c=>c.c===k); update(); renderFreq(); };
     $("freq").appendChild(b);
   });
@@ -1504,8 +1704,8 @@ function checkWin(){
   if(S.cells.every((c,i)=>S.guess[i]===c.p)){
     S.base+=Date.now()-S.t0; S.done=true; S.sel=null; clearInterval(timer); tick(); update(); renderFreq(); renderMeta();
     const {sc,pbScore,gold,gems}=recordSolve();
-    msg(`${pbScore?"New best! ":""}${num(sc)} pts · ${fmt(elapsed())} · +${num(gold)} G${gems?` · +${gems} ◆`:""}`,"ok");
-  } else msg("Every letter is filled, but some are wrong. Fix the red letters.","bad");
+    msg(K(`${pbScore?"최고 기록! ":""}${num(sc)}점 · ${fmt(elapsed())} · +${num(gold)} G${gems?` · +${gems} ◆`:""}`,`${pbScore?"New best! ":""}${num(sc)} pts · ${fmt(elapsed())} · +${num(gold)} G${gems?` · +${gems} ◆`:""}`),"ok");
+  } else msg(K("모든 칸을 채웠지만 틀린 글자가 있어요. 빨간 글자를 고쳐 보세요.","Every letter is filled, but some are wrong. Fix the red letters."),"bad");
 }
 function useHintAllowance(){
   migrate();
@@ -1517,7 +1717,7 @@ function hint(){
   if(!S||S.done) return;
   const open=S.cells.map((c,i)=>i).filter(i=>S.guess[i]!==S.cells[i].p);
   if(!open.length) return;
-  if(!useHintAllowance()){ msg("No hints left today. Buy hint tickets in the Shop.","bad"); return; }
+  if(!useHintAllowance()){ msg(K("오늘 힌트를 다 썼어요. 상점에서 힌트권을 사세요.","No hints left today. Buy hint tickets in the Shop."),"bad"); return; }
   const i=open.includes(S.sel)?S.sel:open[Math.floor(Math.random()*open.length)];
   const code=S.cells[i].c; S.cells.forEach((c,j)=>{ if(c.c===code){ S.guess[j]=c.p; S.rev.add(j); } });
   S.hints++; $("hints").textContent=S.hints; msg("");
@@ -1528,7 +1728,7 @@ function revealVowels(){
   if(!S||S.done||!(ST.inv.vowel>0)) return;
   const V="AEIOU"; let any=false;
   S.cells.forEach((c,j)=>{ if(V.includes(c.p)){ if(S.guess[j]!==c.p) any=true; S.guess[j]=c.p; S.rev.add(j); } });
-  if(!any){ msg("All the vowels are already in place.","ok"); return; }
+  if(!any){ msg(K("모음은 이미 모두 맞혔어요.","All the vowels are already in place."),"ok"); return; }
   ST.inv.vowel--; S.hints++; $("hints").textContent=S.hints; msg("");
   save("stats",ST); renderShop();
   S.sel=nextEmpty(S.sel==null?-1:S.sel); after();
@@ -1538,7 +1738,7 @@ function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.ha
 ["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((r,ri)=>{
   const row=document.createElement("div"); row.className="row";
   [...r].forEach(L=>{const b=document.createElement("button");b.className="key";b.textContent=L;b.dataset.k=L;b.onclick=()=>assign(L);row.appendChild(b);});
-  if(ri===2){const b=document.createElement("button");b.className="key wide";b.textContent="Erase";b.onclick=erase;row.appendChild(b);}
+  if(ri===2){const b=document.createElement("button");b.className="key wide";b.id="eraseKey";b.textContent=K("지우기","Erase");b.onclick=erase;row.appendChild(b);}
   $("kb").appendChild(row);
 });
 document.addEventListener("keydown",e=>{
@@ -1565,10 +1765,10 @@ function makeCode(){ return "CG1."+btoa(unescape(encodeURIComponent(JSON.stringi
 $("copyCode").onclick=async()=>{
   const code=makeCode(), out=$("codeOut");
   out.value=code; out.hidden=false; $("loadBox").hidden=true;
-  try{ await navigator.clipboard.writeText(code); $("xmsg").textContent="Save code copied. Paste it with Load save code on the other browser."; }
-  catch(e){ out.focus(); out.select(); $("xmsg").textContent="Copy the selected code above, then paste it on the other browser."; }
+  try{ await navigator.clipboard.writeText(code); $("xmsg").textContent=K("세이브 코드를 복사했어요. 다른 브라우저에서 '세이브 코드 불러오기'로 붙여넣으세요.","Save code copied. Paste it with Load save code on the other browser."); }
+  catch(e){ out.focus(); out.select(); $("xmsg").textContent=K("위에 선택된 코드를 복사해서 다른 브라우저에 붙여넣으세요.","Copy the selected code above, then paste it on the other browser."); }
 };
-$("showLoad").onclick=()=>{ $("loadBox").hidden=false; $("codeOut").hidden=true; $("codeIn").value=""; $("xmsg").textContent="Loading replaces the records on this browser."; $("codeIn").focus(); };
+$("showLoad").onclick=()=>{ $("loadBox").hidden=false; $("codeOut").hidden=true; $("codeIn").value=""; $("xmsg").textContent=K("불러오면 이 브라우저의 기록을 덮어써요.","Loading replaces the records on this browser."); $("codeIn").focus(); };
 $("cancelLoad").onclick=()=>{ $("loadBox").hidden=true; $("xmsg").textContent=""; };
 $("doLoad").onclick=()=>{
   let data;
@@ -1576,11 +1776,11 @@ $("doLoad").onclick=()=>{
     const raw=$("codeIn").value.trim(); if(!raw.startsWith("CG1.")) throw 0;
     data=JSON.parse(decodeURIComponent(escape(atob(raw.slice(4)))));
     if(!data||!data.s||typeof data.s.solved!=="number") throw 0;
-  }catch(e){ $("xmsg").textContent="That code doesn't look right. Copy the whole code, starting with CG1., and try again."; return; }
+  }catch(e){ $("xmsg").textContent=K("코드가 올바르지 않아요. CG1.로 시작하는 코드 전체를 복사해서 다시 시도하세요.","That code doesn't look right. Copy the whole code, starting with CG1., and try again."); return; }
   ST={...ST,...data.s}; commit();
   if(validSnap(data.c)&&!data.c.done){ start(data.c); save("current",snapshot()); }
   else play(ST.daily[day()]?"normal":"daily");
-  $("loadBox").hidden=true; $("xmsg").textContent=`Loaded: ${ST.solved} solved, ${num(ST.gold)} G, ${num(ST.gems)} ◆.`;
+  $("loadBox").hidden=true; $("xmsg").textContent=K(`불러오기 완료: ${ST.solved}개 클리어, ${num(ST.gold)} G, ${num(ST.gems)} ◆.`,`Loaded: ${ST.solved} solved, ${num(ST.gold)} G, ${num(ST.gems)} ◆.`);
 };
 
 /* ---------- automatic sync for the hosted version (Firebase) ---------- */
@@ -1598,41 +1798,67 @@ async function setupCloud(){
     try{ await auth.signInWithPopup(p); }
     catch(e){
       if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment") auth.signInWithRedirect(p);
-      else if(e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/cancelled-popup-request") $("acctText").textContent="Sign-in didn't work ("+e.code+"). Try again.";
+      else if(e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/cancelled-popup-request") $("acctText").textContent=K("로그인에 실패했어요 ("+e.code+"). 다시 시도하세요.","Sign-in didn't work ("+e.code+"). Try again.");
     }
   };
   $("signOut").onclick=()=>auth.signOut();
   auth.onAuthStateChanged(async u=>{
     if(!u){
       store=local; $("signIn").hidden=false; $("signOut").hidden=true;
-      $("acctText").textContent="Sign in to sync your progress across browsers and devices.";
+      $("acctText").textContent=K("로그인하면 다른 브라우저와 기기에서도 기록이 이어져요.","Sign in to sync your progress across browsers and devices.");
       renderRecords(); return;
     }
     const ref=k=>fs.collection("users").doc(u.uid).collection("data").doc(k);
     const cloud={kind:"cloud",
       async get(k){ const s=await ref(k).get(); return s.exists?s.data():null; },
       async set(k,v){ local.set(k,v); await ref(k).set(JSON.parse(JSON.stringify(v))); }};
-    $("signIn").hidden=true; $("signOut").hidden=false; $("acctText").textContent="Syncing…";
+    $("signIn").hidden=true; $("signOut").hidden=false; $("acctText").textContent=K("동기화 중…","Syncing…");
     let cs=null, cc=null;
     try{ cs=await cloud.get("stats"); cc=await cloud.get("current"); }
-    catch(e){ $("acctText").textContent="Couldn't reach the sync server. Your progress stays in this browser for now."; return; }
+    catch(e){ $("acctText").textContent=K("동기화 서버에 연결하지 못했어요. 지금은 이 브라우저에 저장돼요.","Couldn't reach the sync server. Your progress stays in this browser for now."); return; }
     store=cloud;
     if(cs&&(cs.solved||0)>=(ST.solved||0)){ ST={...ST,...cs}; renderAll(); if(validSnap(cc)&&!cc.done) start(cc); }
     else { save("stats",ST); if(S) save("current",snapshot()); }
-    $("acctText").textContent="Signed in as "+(u.displayName||u.email||"you")+". Progress syncs automatically.";
+    $("acctText").textContent=K((u.displayName||u.email||"")+" 계정으로 로그인했어요. 기록이 자동으로 동기화돼요.","Signed in as "+(u.displayName||u.email||"you")+". Progress syncs automatically.");
     renderRecords();
   });
 }
 
+/* ---------- settings ---------- */
+const SIZES={s:0.92,m:1,l:1.1,xl:1.2};
+const HOST_THEME=document.documentElement.getAttribute("data-theme");
+function applyPrefs(){
+  document.documentElement.style.setProperty("--ui-scale",SIZES[PREF.size]||1);
+  document.documentElement.style.fontSize=(100*(SIZES[PREF.size]||1))+"%";
+  if(PREF.theme==="system"){ if(HOST_THEME) document.documentElement.setAttribute("data-theme",HOST_THEME); else document.documentElement.removeAttribute("data-theme"); }
+  else document.documentElement.setAttribute("data-theme",PREF.theme);
+  document.body.classList.toggle("no-help",!PREF.help);
+  document.querySelectorAll("#view-prefs [data-pref]").forEach(b=>b.setAttribute("aria-pressed",String(String(PREF[b.dataset.pref])===b.dataset.val)));
+}
+function applyLang(){
+  LANG=PREF.lang; applyDataLang(); applyStatic();
+  const ek=$("eraseKey"); if(ek) ek.textContent=K("지우기","Erase");
+  if(ST&&ST.freeHint) renderAll();
+  if(S){ renderThemes(); renderMeta(); $("next").textContent=mode==="daily"?K("연습하기","Practice"):K("새 퍼즐","New puzzle"); renderFreq(); }
+}
+document.querySelectorAll("#view-prefs [data-pref]").forEach(b=>b.onclick=()=>{
+  const k=b.dataset.pref, v=b.dataset.val;
+  PREF[k]=k==="help"?v==="true":v; savePrefs(); applyPrefs();
+  if(k==="lang"){ msg(""); applyLang(); }
+});
+$("prefsBtn").onclick=()=>show("prefs");
+$("prefsBack").onclick=()=>show("play");
+
 (async function boot(){
+  applyPrefs(); collectStatic(); LANG=PREF.lang; applyDataLang(); applyStatic();
   show(location.hash.slice(1)||"play");
-  msg("Loading your game…");
+  msg(K("게임을 불러오는 중…","Loading your game…"));
   await connect();
   const st=await store.get("stats").catch(()=>null);
   if(st) ST={...ST,...st};
   migrate(); renderAll(); save("stats",ST);
   const cur=await store.get("current").catch(()=>null);
-  if(validSnap(cur)&&!cur.done){ start(cur); msg("Picked up where you left off."); }
+  if(validSnap(cur)&&!cur.done){ start(cur); msg(K("이어서 플레이해요.","Picked up where you left off.")); }
   else if(!ST.daily[day()]) play("daily");
   else play("normal");
   setupCloud();
