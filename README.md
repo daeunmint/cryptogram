@@ -1,6 +1,6 @@
 # Cryptogram
 
-A browser-based substitution-cipher puzzle game. Each famous quote is encrypted with a random letter-substitution key, and your job is to crack it.
+A browser-based substitution-cipher puzzle game. Each sentence (famous quotes, proverbs, classic songs, animal facts and world trivia) is encrypted with a random letter-substitution key, and your job is to crack it.
 
 **▶ Play:** https://daeunmint.github.io/cryptogram/
 
@@ -23,14 +23,20 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 
 ## Features
 
+- **Themes:** 5 sentence themes with 110 sentences, plus 2 unlockable themes, plus an *All themes* mix
 - **Daily puzzle:** the same puzzle for everyone each day, generated from a date-seeded random key
 - **Difficulty levels:** Easy / Normal / Hard (quote length and number of starting letters)
 - **Scoring:** points from difficulty, speed, hints and misses
 - **Levels and ranks:** XP from every solve, from Novice up to Enigma Master
 - **Daily missions:** three new missions each day with bonus XP
-- **Quote collection:** every solved quote is added to your collection
+- **Collection:** every solved sentence is collected, grouped by theme
 - **Calendar:** month view of the days you played and solved the Daily
-- **Badges:** 15 achievements such as *Flawless*, *Codebreaker* and *Archivist*
+- **Badges:** 19 achievements such as *Flawless*, *Curator* and *Card Shark*
+- **Five pages:** Play, Progress, Museum, Shop and Records
+- **Gold and gems:** gold from every solve and mission; gems from level-ups, badges, streaks and finishing all missions
+- **Cipher Museum:** spend gold to build 6 halls with permanent rewards
+- **Cipher cards:** 34 collectible cards on real ciphers and codebreakers, from Caesar to RSA, shown in the museum
+- **Shop:** hint tickets, vowel reveals and streak freezes (gold); looks, card packs and new themes (gems). Every look you own adds gold to each solve
 - **Letter counts:** frequency panel for each code letter
 - Instant wrong-letter feedback and miss counter
 - Completed letters are marked on the keyboard
@@ -40,7 +46,7 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 
 ## Tech
 
-- A single `index.html` file: HTML, CSS and vanilla JavaScript, no framework or build step
+- `index.html` (HTML, CSS and vanilla JavaScript, no framework or build step) plus `sentences.js` for the puzzle sentences
 - Progress and records are stored in the browser with `localStorage`, and synced across devices with Firebase (Google sign-in + Firestore) when signed in
 - Hosted on GitHub Pages, installable as a PWA (`manifest.webmanifest` + `sw.js` for offline play)
 
@@ -65,6 +71,8 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 7. **Game systems:** added difficulty levels, a daily puzzle, letter-frequency help, scoring and badges.
 8. **Back to auto-fill:** after playtesting, per-cell input felt tedious on long quotes, so matching letters fill together again.
 9. **Long-term goals:** added levels, ranks, daily missions, a quote collection and a play calendar so there is always a next goal.
+10. **Less clutter, more variety:** split the app into Play / Progress / Records pages, moved sentences into an easy-to-edit file and added themed sentence sets.
+11. **Economy:** added gold and gems, a shop, a cipher museum to build and collectible cipher cards. Looks give a flat gold bonus per solve instead of a percentage.
 
 ## Roadmap
 
@@ -73,8 +81,22 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 - [x] Letter-frequency helper panel
 - [x] Daily puzzle, scoring and badges
 - [x] Levels, daily missions, collection and calendar
+- [x] Gold & gems, shop, museum and cipher cards
 - [ ] Korean (Hangul) version with jamo-level substitution
 - [ ] Android build with Capacitor
+
+## Adding sentences
+
+Open `sentences.js` and add a line under any theme:
+
+```
+The early bird catches the worm.
+Knowledge is power. | Francis Bacon
+```
+
+- `sentence | source`: the source is optional and is hidden until the puzzle is solved.
+- Start a new theme with `# Theme name | label`.
+- Difficulty is set by length: up to 11 words is Easy, 12–17 is Normal, 18 or more is Hard.
 
 ## Run locally
 
