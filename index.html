@@ -109,6 +109,29 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
 @keyframes pop{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:480px){.cell{width:24px}.cell .g{font-size:1rem;height:24px}.board{gap:12px 12px;padding:16px 8px}.modes button{font-size:.82rem;padding:8px 2px}}
+@media (max-width:600px){
+  body{padding-block:10px}
+  .wrap{gap:10px;padding-bottom:calc(178px + env(safe-area-inset-bottom,0px))}
+  header{align-items:center}
+  h1{font-size:1.25rem} h1 span{display:none}
+  .stats{gap:10px;font-size:.75rem}
+  .modes button{padding:7px 2px;font-size:.85rem} .modes small{display:none}
+  .board{padding:12px 6px;gap:10px 12px}
+  .word{gap:2px}
+  .cell{width:22px} .cell .g{height:22px;font-size:.95rem;border-bottom-width:2px} .cell .c{font-size:.66rem;margin-top:1px}
+  .p{font-size:.95rem;padding-top:2px}
+  .author{margin-top:-4px;font-size:.78rem}
+  .msg{font-size:.88rem;min-height:1.2em}
+  .controls{gap:6px;flex-wrap:nowrap}
+  .controls button{padding:7px 8px;font-size:.82rem;flex:1;white-space:nowrap}
+  .help{font-size:.78rem}
+  .kb{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--bg);border-top:1px solid var(--line);gap:6px;
+    padding:8px max(4px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))}
+  .kb .row{gap:4px;width:100%;justify-content:center}
+  .kb button{width:calc((100% - 36px)/10);max-width:42px;height:46px;font-size:1.05rem;border-radius:6px}
+  .kb button.wide{width:calc((100% - 36px)/10*1.6);max-width:68px}
+  .toast{bottom:calc(186px + env(safe-area-inset-bottom,0px))}
+}
 </style>
 <style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
