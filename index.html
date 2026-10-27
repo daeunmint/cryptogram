@@ -199,7 +199,7 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
 .cos .pv .cell{width:22px;cursor:default}
 .cos .pv .cell .g{height:22px;font-size:.95rem}
 .cos .pv .cell .c{font-size:.6rem}
-.cos .pv .key{display:inline-grid;place-items:center;width:30px;height:34px;margin:0 2px;font-size:.9rem;font-weight:600;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+:where(.cos .pv) .key{display:inline-grid;place-items:center;width:30px;height:34px;margin:0 2px;font-size:.9rem;font-weight:600;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
 .cos .nm{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
 .cos .nm b{font-size:.85rem}
 .cos .bon{font-size:.72rem;color:var(--muted)}
@@ -555,6 +555,11 @@ html body{font-size:calc(14px * var(--ui-scale,1))}
 .cell{width:calc(30px * var(--ui-scale,1))}
 @media(max-width:600px){ .cell{width:calc(clamp(19px,5.65vw,24px) * min(var(--ui-scale,1),1.1))} }
 @media(max-width:360px){ .cell{width:calc(19px * min(var(--ui-scale,1),1.05))} }
+.coll.locked summary{color:var(--muted);font-weight:600}
+.coll.locked summary .ic{width:16px;height:16px;color:var(--muted)}
+.coll.locked{background:color-mix(in srgb,var(--panel) 60%,var(--bg))}
+.themes button.locked{display:inline-flex;align-items:center;gap:5px}
+.themes button.locked .ic{width:13px;height:13px}
 </style>
 <style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
@@ -582,6 +587,7 @@ html body{font-size:calc(14px * var(--ui-scale,1))}
 <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
 <symbol id="i-bag" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/><path d="M4 12h16"/></symbol>
 <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16"/><path d="M20 20v-4h-4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></symbol>
 <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.8"/></symbol>
 </svg>
 <div class="wrap">
@@ -1254,7 +1260,8 @@ function renderProgress(){
   THEMES.forEach(th=>{
     const list=SENT.filter(s=>s.th===th.id), have=list.filter(s=>ST.found[s.k]).length, isOpen=unlockedTheme(th);
     const det=document.createElement("details"); det.className="coll"; det.dataset.th=th.id; if(open.has(th.id)) det.open=true;
-    const sum=document.createElement("summary"); sum.textContent=th.name+(isOpen?"":K(" · 잠김"," · locked"));
+    if(!isOpen) det.classList.add("locked");
+    const sum=document.createElement("summary"); sum.innerHTML=isOpen?"":ic("lock"); sum.appendChild(document.createTextNode(th.name));
     const cnt=document.createElement("span"); cnt.textContent=`${have}/${list.length}`; sum.appendChild(cnt);
     const bar=document.createElement("div"); bar.className="bar"; bar.innerHTML=`<i style="width:${Math.round(have/list.length*100)}%"></i>`;
     det.append(sum,bar);
@@ -1589,7 +1596,7 @@ function renderThemes(){
   const box=$("themes"); box.innerHTML="";
   [{id:"all",name:K("전체 테마","All themes")},...THEMES].forEach(th=>{
     const b=document.createElement("button"), open=th.id==="all"||unlockedTheme(th);
-    b.textContent=th.name+(open?"":K(" · 잠김"," · locked"));
+    b.textContent=th.name; if(!open) b.insertAdjacentHTML("afterbegin",ic("lock"));
     if(!open) b.className="locked";
     b.setAttribute("aria-pressed",String(mode!=="daily"&&prefTheme===th.id));
     b.disabled=mode==="daily"; if(mode==="daily") b.title=K("데일리 퍼즐은 모든 테마에서 나와요","The Daily puzzle mixes all themes");
