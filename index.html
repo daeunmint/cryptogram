@@ -5,6 +5,14 @@
 <title>Cryptogram</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#12161c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cryptogram">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap">
 <style>
@@ -109,6 +117,45 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
 @keyframes pop{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:480px){.cell{width:24px}.cell .g{font-size:1rem;height:24px}.board{gap:12px 12px;padding:16px 8px}.modes button{font-size:.82rem;padding:8px 2px}}
+.prog{display:flex;flex-direction:column;gap:16px;border-top:1px solid var(--line);padding-top:18px}
+.lvcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.lvtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lvtop b{font-size:1.15rem;font-weight:800}
+.lvtop span,.lvsub{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.lvsub{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.bar{height:8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sel);width:0}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s}}
+.block{display:flex;flex-direction:column;gap:8px}
+.bhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.h{margin:0;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.bhead>span{font-size:.78rem;color:var(--muted)}
+.missions{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.missions li{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.9rem}
+.missions .ck{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:.7rem;box-sizing:border-box}
+.missions li.done{border-color:var(--ok)}
+.missions li.done .ck{background:var(--ok);border-color:var(--ok);color:var(--panel)}
+.missions li.done .mt{text-decoration:line-through;color:var(--muted)}
+.missions .mt{flex:1;min-width:0}
+.missions .mp{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.calnav{display:flex;gap:4px}
+.calnav button{padding:2px 12px;font-size:1rem}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-family:var(--f-mono);font-size:.8rem;max-width:420px;width:100%}
+.cal .dow{color:var(--muted);font-size:.68rem;padding:2px 0}
+.cal .cd{aspect-ratio:1;display:grid;place-items:center;border-radius:6px;background:var(--panel);border:1px solid var(--line);position:relative;color:var(--muted)}
+.cal .cd.did{background:var(--selsoft);border-color:var(--sel);color:var(--ink);font-weight:700}
+.cal .cd.dly::after{content:"★";position:absolute;top:1px;right:3px;font-size:.55rem;color:var(--hint)}
+.cal .cd.today{outline:2px solid var(--ink);outline-offset:-2px}
+.cal .cd.blank{background:none;border:none}
+.coll summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
+.coll summary::-webkit-details-marker{display:none}
+.coll summary span{margin-left:auto;font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.coll summary::after{content:"▾";color:var(--muted)}
+.coll[open] summary::after{content:"▴"}
+.quotes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.quotes li{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.88rem;line-height:1.45}
+.quotes li.lock{border-style:dashed;color:var(--muted)}
+.quotes li small{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:3px}
 @media (max-width:600px){
   body{padding-block:10px}
   .wrap{gap:10px;padding-bottom:calc(178px + env(safe-area-inset-bottom,0px))}
@@ -143,6 +190,7 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
       <div>TIME <b id="time">00:00</b></div>
       <div>HINTS <b id="hints">0</b></div>
       <div>MISSES <b id="miss">0</b></div>
+      <div>LV <b id="lv">1</b></div>
     </div>
   </header>
   <div class="modes" role="group" aria-label="Mode">
@@ -163,6 +211,27 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
   <div class="freq" id="freq" hidden></div>
   <div class="kb" id="kb"></div>
   <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Typing a letter fills every matching code letter at once.</p>
+  <section class="prog" aria-label="Progress">
+    <div class="lvcard">
+      <div class="lvtop"><b id="lvName">Lv.1 Novice</b><span id="xpTotal">0 XP</span></div>
+      <div class="bar"><i id="xpBar"></i></div>
+      <div class="lvsub"><span id="xpText"></span><span id="nextRank"></span></div>
+    </div>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Daily missions</h2><span>+150 XP each · +200 for all three</span></div>
+      <ul class="missions" id="missions"></ul>
+    </div>
+    <div class="block">
+      <div class="bhead"><h2 class="h" id="calTitle">Calendar</h2><span class="calnav"><button id="calPrev" aria-label="Previous month">‹</button><button id="calNext" aria-label="Next month">›</button></span></div>
+      <div class="cal" id="cal"></div>
+      <div class="sub" id="calSub"></div>
+    </div>
+    <details class="block coll">
+      <summary><h2 class="h">Quote collection</h2><span id="collCount">0/0</span></summary>
+      <div class="bar"><i id="collBar"></i></div>
+      <ol class="quotes" id="quotes"></ol>
+    </details>
+  </section>
   <section class="rec" aria-label="Your records">
     <div class="rec-head"><h2>Your records</h2><span id="where">Loading…</span></div>
     <div class="acct" id="acct" hidden>
@@ -270,8 +339,30 @@ const BADGES=[
   {id:"streak7", name:"Week Warrior",  desc:"7-day solving streak"},
   {id:"ten",     name:"Decoder",       desc:"Solve 10 puzzles"},
   {id:"fifty",   name:"Cryptanalyst",  desc:"Solve 50 puzzles"},
-  {id:"high",    name:"High Roller",   desc:"Score 1,500 or more in one puzzle"}
+  {id:"high",    name:"High Roller",   desc:"Score 1,500 or more in one puzzle"},
+  {id:"missions",name:"Mission Ready", desc:"Finish all three daily missions"},
+  {id:"level10", name:"Rising Star",   desc:"Reach level 10"},
+  {id:"collector",name:"Archivist",    desc:"Collect every quote"}
 ];
+const MISSION_XP=150, ALL_BONUS=200;
+const MISSIONS={
+  solve2:  {text:"Solve 2 puzzles",target:2,add:()=>1},
+  solve3:  {text:"Solve 3 puzzles",target:3,add:()=>1},
+  hard1:   {text:"Solve a Hard puzzle",target:1,add:c=>c.diff==="hard"?1:0},
+  normal2: {text:"Solve 2 Normal puzzles",target:2,add:c=>c.diff==="normal"?1:0},
+  easyfast:{text:"Solve an Easy puzzle in under 1 minute",target:1,add:c=>c.diff==="easy"&&c.t<60?1:0},
+  fast:    {text:"Solve any puzzle in under 2 minutes",target:1,add:c=>c.t<120?1:0},
+  nohint:  {text:"Solve a puzzle without hints",target:1,add:c=>c.hints?0:1},
+  nomiss:  {text:"Solve a puzzle with no misses",target:1,add:c=>c.miss?0:1},
+  daily:   {text:"Solve today's Daily puzzle",target:1,add:c=>c.mode==="daily"?1:0},
+  points:  {text:"Earn 1,500 points today",target:1500,add:c=>c.sc}
+};
+const RANKS=[[1,"Novice"],[3,"Apprentice"],[6,"Decoder"],[10,"Cryptanalyst"],[15,"Codebreaker"],[20,"Cipher Sage"],[30,"Enigma Master"]];
+const xpFor=L=>250*L*(L-1);
+function levelOf(xp){ let L=1; while(xp>=xpFor(L+1)) L++; return L; }
+function rankOf(L){ let r=RANKS[0][1]; RANKS.forEach(([min,n])=>{ if(L>=min) r=n; }); return r; }
+function qkey(q){ let h=2166136261; for(const ch of q.t){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); } return "q"+(h>>>0).toString(36); }
+
 
 let S=null, timer=null, mode="normal";
 const $=id=>document.getElementById(id);
@@ -317,8 +408,9 @@ function saveCurrent(){ clearTimeout(saveT); saveT=setTimeout(()=>save("current"
 
 /* ---------- stats, score, badges ---------- */
 let ST={played:0,solved:0,total:0,noHint:0,noMiss:0,streak:0,bestStreak:0,lastDay:null,recent:[],
-        totalScore:0,by:{},badges:{},daily:{}};
+        totalScore:0,by:{},badges:{},daily:{},xp:null,days:{},found:{},mission:null};
 function renderStats(){
+  migrate();
   $("sSolved").textContent=num(ST.solved);
   $("sScore").textContent=num(ST.totalScore||0);
   $("sBadges").textContent=Object.keys(ST.badges||{}).length+"/"+BADGES.length;
@@ -351,6 +443,7 @@ function renderStats(){
   $("where").textContent=store.kind==="db"?"Saved to your account":store.kind==="cloud"?"Synced to your Google account":"Saved in this browser";
   const done=ST.daily&&ST.daily[day()];
   $("dailyTag").textContent=done?"solved ✓":"today";
+  renderProgress();
 }
 function scoreFor(diff,t,hints,miss){
   const D=DIFF[diff];
@@ -358,6 +451,7 @@ function scoreFor(diff,t,hints,miss){
   return Math.max(Math.round(D.base*0.1), D.base+bonus-hints*Math.round(D.base/10)-miss*Math.round(D.base/30));
 }
 function recordSolve(){
+  migrate(); const lvBefore=levelOf(ST.xp);
   const t=elapsed(), d=day(), diff=S.diff, sc=scoreFor(diff,t,S.hints,S.mistakes);
   ST.solved++; ST.total+=t; ST.totalScore=(ST.totalScore||0)+sc;
   if(!S.hints) ST.noHint++; if(!S.mistakes) ST.noMiss=(ST.noMiss||0)+1;
@@ -366,6 +460,18 @@ function recordSolve(){
   b.solved++; if(b.score==null||sc>b.score) b.score=sc; if(b.time==null||t<b.time) b.time=t;
   if(ST.lastDay!==d){ ST.streak=ST.lastDay===yesterday()?ST.streak+1:1; ST.lastDay=d; }
   ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
+  ST.xp+=sc;
+  ST.days[d]=(ST.days[d]||0)+1;
+  const dk=Object.keys(ST.days).sort(); while(dk.length>400) delete ST.days[dk.shift()];
+  const fk=qkey(QUOTES[S.qi]), newQuote=!ST.found[fk]; if(newQuote) ST.found[fk]=d;
+  const M=ensureMissions(), ctx={diff,mode:S.mode,t,hints:S.hints,miss:S.mistakes,sc}, missionDone=[];
+  M.ids.forEach(id=>{
+    const def=MISSIONS[id]; if(M.claimed[id]) return;
+    M.prog[id]=Math.min(def.target,(M.prog[id]||0)+def.add(ctx));
+    if(M.prog[id]>=def.target){ M.claimed[id]=true; ST.xp+=MISSION_XP; missionDone.push(def.text); }
+  });
+  let allBonus=false;
+  if(!M.bonus&&M.ids.every(id=>M.claimed[id])){ M.bonus=true; ST.xp+=ALL_BONUS; allBonus=true; }
   if(S.mode==="daily"){ ST.daily=ST.daily||{}; ST.daily[S.date]={time:t,score:sc,hints:S.hints,miss:S.mistakes};
     const keys=Object.keys(ST.daily).sort(); while(keys.length>90) delete ST.daily[keys.shift()]; }
   ST.recent.unshift({a:QUOTES[S.qi].a,mode:S.mode==="daily"?"daily":diff,time:t,hints:S.hints,miss:S.mistakes,score:sc,day:d});
@@ -376,8 +482,14 @@ function recordSolve(){
   give("first",true); give("nohint",!S.hints); give("flawless",!S.hints&&!S.mistakes); give("quick",t<60);
   give("hard",diff==="hard"); give("enigma",diff==="hard"&&!S.hints); give("daily",S.mode==="daily");
   give("streak3",ST.streak>=3); give("streak7",ST.streak>=7); give("ten",ST.solved>=10); give("fifty",ST.solved>=50);
-  give("high",sc>=1500);
+  give("high",sc>=1500); give("missions",M.bonus); give("level10",levelOf(ST.xp)>=10);
+  give("collector",QUOTES.every(q=>ST.found[qkey(q)]));
   save("stats",ST); renderStats();
+  missionDone.forEach(m=>toast(`Mission complete: ${m} · +${MISSION_XP} XP`));
+  if(allBonus) toast(`All daily missions done · +${ALL_BONUS} XP`);
+  const lvAfter=levelOf(ST.xp);
+  if(lvAfter>lvBefore) toast(`Level up! Lv.${lvAfter} · ${rankOf(lvAfter)}`);
+  if(newQuote) toast(`New quote collected · ${Object.keys(ST.found).length}/${QUOTES.length}`);
   earned.forEach(id=>toast("Badge unlocked: "+BADGES.find(x=>x.id===id).name));
   return {sc,pbScore};
 }
@@ -654,6 +766,73 @@ async function setupCloud(){
   });
 }
 
+/* ---------- progression: level, missions, calendar, collection ---------- */
+function migrate(){
+  if(ST.xp==null) ST.xp=ST.totalScore||0;
+  ST.days=ST.days||{}; ST.found=ST.found||{}; ST.badges=ST.badges||{}; ST.daily=ST.daily||{};
+  Object.keys(ST.daily).forEach(k=>{ if(!ST.days[k]) ST.days[k]=1; });
+  if(ST.lastDay&&!ST.days[ST.lastDay]) ST.days[ST.lastDay]=1;
+}
+function ensureMissions(){
+  const d=day();
+  if(!ST.mission||ST.mission.date!==d){
+    const r=seeded("missions-"+d), ids=Object.keys(MISSIONS);
+    for(let i=ids.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [ids[i],ids[j]]=[ids[j],ids[i]]; }
+    ST.mission={date:d,ids:ids.slice(0,3),prog:{},claimed:{},bonus:false};
+  }
+  return ST.mission;
+}
+let calY=new Date().getFullYear(), calM=new Date().getMonth();
+function renderProgress(){
+  const xp=ST.xp||0, L=levelOf(xp), lo=xpFor(L), hi=xpFor(L+1);
+  $("lv").textContent=L;
+  $("lvName").textContent=`Lv.${L} ${rankOf(L)}`;
+  $("xpTotal").textContent=num(xp)+" XP";
+  $("xpBar").style.width=Math.round((xp-lo)/(hi-lo)*100)+"%";
+  $("xpText").textContent=`${num(xp-lo)} / ${num(hi-lo)} XP to Lv.${L+1}`;
+  const nr=RANKS.find(([min])=>min>L);
+  $("nextRank").textContent=nr?`Next rank: ${nr[1]} at Lv.${nr[0]}`:"Top rank reached";
+  // missions
+  const M=ensureMissions(); $("missions").innerHTML="";
+  M.ids.forEach(id=>{
+    const def=MISSIONS[id], p=Math.min(def.target,M.prog[id]||0), done=!!M.claimed[id];
+    const li=document.createElement("li"); li.className=done?"done":"";
+    const ck=document.createElement("span"); ck.className="ck"; ck.textContent=done?"✓":"";
+    const mt=document.createElement("span"); mt.className="mt"; mt.textContent=def.text;
+    const mp=document.createElement("span"); mp.className="mp"; mp.textContent=done?"+"+MISSION_XP+" XP":`${num(p)}/${num(def.target)}`;
+    li.append(ck,mt,mp); $("missions").appendChild(li);
+  });
+  // calendar
+  const first=new Date(calY,calM,1), days=new Date(calY,calM+1,0).getDate(), today=day();
+  $("calTitle").textContent=first.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  const cal=$("cal"); cal.innerHTML="";
+  ["S","M","T","W","T","F","S"].forEach(w=>{ const e=document.createElement("div"); e.className="dow"; e.textContent=w; cal.appendChild(e); });
+  for(let i=0;i<first.getDay();i++){ const e=document.createElement("div"); e.className="cd blank"; cal.appendChild(e); }
+  let played=0;
+  for(let n=1;n<=days;n++){
+    const key=day(new Date(calY,calM,n)), e=document.createElement("div");
+    const did=!!(ST.days&&ST.days[key]); if(did) played++;
+    e.className="cd"+(did?" did":"")+(ST.daily&&ST.daily[key]?" dly":"")+(key===today?" today":"");
+    e.textContent=n; e.title=did?`${key}: ${ST.days[key]} solved`+(ST.daily[key]?" · Daily done":""):key;
+    cal.appendChild(e);
+  }
+  $("calSub").textContent=`${played} day${played===1?"":"s"} played this month · ★ Daily solved`;
+  const now=new Date(); $("calNext").disabled=calY>now.getFullYear()||(calY===now.getFullYear()&&calM>=now.getMonth());
+  // collection
+  const got=QUOTES.filter(q=>ST.found&&ST.found[qkey(q)]).length;
+  $("collCount").textContent=`${got}/${QUOTES.length}`;
+  $("collBar").style.width=Math.round(got/QUOTES.length*100)+"%";
+  $("quotes").innerHTML="";
+  QUOTES.forEach(q=>{
+    const f=ST.found&&ST.found[qkey(q)], li=document.createElement("li"), sm=document.createElement("small");
+    if(f){ li.textContent=q.t; sm.textContent=`${q.a} · ${DIFF[tierOf(q)].label} · collected ${f.slice(5)}`; }
+    else { li.className="lock"; li.textContent="Locked quote"; sm.textContent=`${DIFF[tierOf(q)].label} · ${words(q)} words`; }
+    li.appendChild(sm); $("quotes").appendChild(li);
+  });
+}
+$("calPrev").onclick=()=>{ calM--; if(calM<0){calM=11;calY--;} renderProgress(); };
+$("calNext").onclick=()=>{ calM++; if(calM>11){calM=0;calY++;} renderProgress(); };
+
 (async function boot(){
   msg("Loading your game…");
   await connect();
@@ -668,5 +847,10 @@ async function setupCloud(){
 })();
 </script>
 
+<script>
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 A browser-based substitution-cipher puzzle game. Each famous quote is encrypted with a random letter-substitution key, and your job is to crack it.
 
-**▶ Play:** https://daeunmint.github.io/cryptogram/
+**▶ Play:** https://YOUR-GITHUB-ID.github.io/cryptogram/
 
 <!-- Add a screenshot: upload screenshot.png to the repo and uncomment the line below -->
 <!-- ![Cryptogram screenshot](screenshot.png) -->
@@ -26,7 +26,11 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 - **Daily puzzle:** the same puzzle for everyone each day, generated from a date-seeded random key
 - **Difficulty levels:** Easy / Normal / Hard (quote length and number of starting letters)
 - **Scoring:** points from difficulty, speed, hints and misses
-- **Badges:** 12 achievements such as *Flawless*, *Codebreaker* and *Week Warrior*
+- **Levels and ranks:** XP from every solve, from Novice up to Enigma Master
+- **Daily missions:** three new missions each day with bonus XP
+- **Quote collection:** every solved quote is added to your collection
+- **Calendar:** month view of the days you played and solved the Daily
+- **Badges:** 15 achievements such as *Flawless*, *Codebreaker* and *Archivist*
 - **Letter counts:** frequency panel for each code letter
 - Instant wrong-letter feedback and miss counter
 - Completed letters are marked on the keyboard
@@ -38,7 +42,7 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 
 - A single `index.html` file: HTML, CSS and vanilla JavaScript, no framework or build step
 - Progress and records are stored in the browser with `localStorage`, and synced across devices with Firebase (Google sign-in + Firestore) when signed in
-- Hosted on GitHub Pages
+- Hosted on GitHub Pages, installable as a PWA (`manifest.webmanifest` + `sw.js` for offline play)
 
 ### Core logic
 
@@ -60,13 +64,15 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 6. **Miss counter and keyboard marks:** show how many wrong letters were entered and which letters are fully solved.
 7. **Game systems:** added difficulty levels, a daily puzzle, letter-frequency help, scoring and badges.
 8. **Back to auto-fill:** after playtesting, per-cell input felt tedious on long quotes, so matching letters fill together again.
+9. **Long-term goals:** added levels, ranks, daily missions, a quote collection and a play calendar so there is always a next goal.
 
 ## Roadmap
 
-- [ ] PWA support (install to home screen, offline play)
+- [x] PWA support (install to home screen, offline play)
 - [x] Difficulty levels
 - [x] Letter-frequency helper panel
 - [x] Daily puzzle, scoring and badges
+- [x] Levels, daily missions, collection and calendar
 - [ ] Korean (Hangul) version with jamo-level substitution
 - [ ] Android build with Capacitor
 
