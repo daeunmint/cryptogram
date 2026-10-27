@@ -1,0 +1,329 @@
+<title>Cryptogram</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap">
+<style>
+/* Layout: one centered play column — header strip, puzzle board, controls, on-screen keyboard */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#1b2430; --muted:#6a7584; --line:#cfd6de;
+  --sel:#ffd34d; --selsoft:#fff2c2; --wrong:#d64545; --ok:#2f8f5b; --hint:#3c6fd1;
+  --f-ui:"Archivo",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161c; --panel:#1b2129; --ink:#e7ecf2; --muted:#8a96a5; --line:#2f3844;
+  --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161c; --panel:#1b2129; --ink:#e7ecf2; --muted:#8a96a5; --line:#2f3844;
+  --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-weight:800;font-size:1.6rem;letter-spacing:.02em;text-wrap:balance}
+h1 span{font-family:var(--f-mono);font-weight:400;color:var(--muted);font-size:.9rem;margin-left:8px}
+.stats{display:flex;gap:16px;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:700}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 14px;
+  display:flex;flex-wrap:wrap;gap:16px 18px;justify-content:center}
+.word{display:flex;gap:3px}
+.cell{width:30px;display:flex;flex-direction:column;align-items:center;cursor:pointer;border-radius:4px;padding:2px 0;user-select:none}
+.cell .g{height:28px;width:100%;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);
+  font-weight:700;font-size:1.15rem;border-bottom:2px solid var(--ink)}
+.cell .c{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);margin-top:3px}
+.cell.same{background:var(--selsoft)}
+.cell.cur{background:var(--sel)}
+.cell.cur .c{color:var(--ink)}
+.cell.rev .g{color:var(--hint)}
+.cell.wrong .g{color:var(--wrong)}
+.cell:focus-visible{outline:2px solid var(--hint);outline-offset:2px}
+.p{font-family:var(--f-mono);font-weight:700;font-size:1.15rem;align-self:flex-start;padding-top:4px}
+.author{text-align:right;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);margin-top:-8px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+button{font-family:var(--f-ui);font-weight:600;font-size:.95rem;border:1px solid var(--line);background:var(--panel);
+  color:var(--ink);border-radius:8px;padding:9px 16px;cursor:pointer}
+button:hover{border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--hint);outline-offset:2px}
+button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.msg{text-align:center;min-height:1.4em;font-weight:600}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--wrong)}
+.kb{display:flex;flex-direction:column;gap:6px;align-items:center}
+.kb .row{display:flex;gap:5px;max-width:100%}
+.kb button{font-family:var(--f-mono);padding:0;width:min(34px,8.4vw);height:44px;font-size:1rem}
+.kb button.used{opacity:.4}
+.kb button.wide{width:min(64px,16vw);font-family:var(--f-ui);font-size:.8rem}
+.help{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.5}
+.rec{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
+.rec-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rec h2{margin:0;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.rec-head span{font-size:.8rem;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.tile span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tile b{font-family:var(--f-mono);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.sub{font-size:.85rem;color:var(--muted)}
+.recent{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;font-size:.88rem}
+.recent li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.recent li span:last-child{font-family:var(--f-mono);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.recent li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.cell{width:24px}.cell .g{font-size:1rem;height:24px}.board{gap:12px 12px;padding:16px 8px}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>CRYPTOGRAM<span>A→?</span></h1>
+    <div class="stats">
+      <div>TIME <b id="time">00:00</b></div>
+      <div>HINTS <b id="hints">0</b></div>
+      <div>#<b id="num">1</b></div>
+    </div>
+  </header>
+  <div class="board" id="board" aria-label="Puzzle"></div>
+  <div class="author" id="author"></div>
+  <div class="msg" id="msg"></div>
+  <div class="controls">
+    <button id="hint">Hint</button>
+    <button id="clear">Clear</button>
+    <button id="next" class="primary">New puzzle</button>
+  </div>
+  <div class="kb" id="kb"></div>
+  <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Matching code letters are highlighted, but you fill each one in yourself.</p>
+  <section class="rec" aria-label="Your records">
+    <div class="rec-head"><h2>Your records</h2><span id="where">Loading…</span></div>
+    <div class="tiles">
+      <div class="tile"><span>Solved</span><b id="sSolved">0</b></div>
+      <div class="tile"><span>Best time</span><b id="sBest">–</b></div>
+      <div class="tile"><span>Average</span><b id="sAvg">–</b></div>
+      <div class="tile"><span>Day streak</span><b id="sStreak">0</b></div>
+    </div>
+    <div class="sub" id="sSub"></div>
+    <ol class="recent" id="recent"></ol>
+  </section>
+</div>
+
+<script>
+const QUOTES=[
+ {t:"Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less.",a:"Marie Curie"},
+ {t:"If I have seen further, it is by standing on the shoulders of giants.",a:"Isaac Newton"},
+ {t:"Life is like riding a bicycle. To keep your balance you must keep moving.",a:"Albert Einstein"},
+ {t:"The important thing is not to stop questioning. Curiosity has its own reason for existing.",a:"Albert Einstein"},
+ {t:"Logic will get you from A to B. Imagination will take you everywhere.",a:"Albert Einstein"},
+ {t:"Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",a:"Thomas Edison"},
+ {t:"I have not failed. I have just found ten thousand ways that will not work.",a:"Thomas Edison"},
+ {t:"Engineering is the art of directing the great sources of power in nature for the use and convenience of man.",a:"Thomas Tredgold"},
+ {t:"The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.",a:"Isaac Asimov"},
+ {t:"Any sufficiently advanced technology is indistinguishable from magic.",a:"Arthur C. Clarke"},
+ {t:"Education is the most powerful weapon which you can use to change the world.",a:"Nelson Mandela"},
+ {t:"It always seems impossible until it is done.",a:"Nelson Mandela"},
+ {t:"In three words I can sum up everything I have learned about life: it goes on.",a:"Robert Frost"},
+ {t:"Ask not what your country can do for you; ask what you can do for your country.",a:"John F. Kennedy"},
+ {t:"That is one small step for man, one giant leap for mankind.",a:"Neil Armstrong"},
+ {t:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.",a:"Will Durant"},
+ {t:"Keep your face always toward the sunshine, and shadows will fall behind you.",a:"Walt Whitman"},
+ {t:"The best way to predict the future is to invent it.",a:"Alan Kay"},
+ {t:"Genius is one percent inspiration and ninety nine percent perspiration.",a:"Thomas Edison"},
+ {t:"An investment in knowledge pays the best interest.",a:"Benjamin Franklin"},
+ {t:"Tell me and I forget. Teach me and I remember. Involve me and I learn.",a:"Benjamin Franklin"},
+ {t:"The only thing we have to fear is fear itself.",a:"Franklin D. Roosevelt"}
+];
+const AZ="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let S=null, timer=null;
+const $=id=>document.getElementById(id);
+const fmt=s=>s==null?"–":String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+const day=(d=new Date())=>d.toLocaleDateString("en-CA");
+const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return day(d);};
+
+/* ---------- storage: account (db) when available, else this browser ---------- */
+let store={
+  kind:"local",
+  async get(k){try{return JSON.parse(localStorage.getItem("cg_"+k));}catch(e){return null;}},
+  async set(k,v){try{localStorage.setItem("cg_"+k,JSON.stringify(v));}catch(e){}}
+};
+async function connect(){
+  try{
+    if(!window.claude||!window.claude.use) return;
+    const timeout=new Promise(r=>setTimeout(()=>r([null,null]),5000));
+    const [db,user]=await Promise.race([Promise.all([claude.use("db"),claude.use("user")]),timeout]);
+    const id=user?await user.id():null;
+    if(!db||!id) return;
+    const ref=k=>db.collection("data/users/"+id).doc(k);
+    store={kind:"db",
+      async get(k){const s=await ref(k).get();return s.exists?JSON.parse(JSON.stringify(s.data())):null;},
+      async set(k,v){await ref(k).set(v);}};
+  }catch(e){}
+}
+const Q={},busy={};
+async function save(k,v){
+  Q[k]=v; if(busy[k]) return; busy[k]=true;
+  while(Q[k]!==undefined){const x=Q[k];delete Q[k];try{await store.set(k,x);}catch(e){}}
+  busy[k]=false;
+}
+let saveT=null;
+function saveCurrent(){ clearTimeout(saveT); saveT=setTimeout(()=>save("current",snapshot()),500); }
+
+/* ---------- stats ---------- */
+let ST={played:0,solved:0,best:null,total:0,noHint:0,streak:0,bestStreak:0,lastDay:null,recent:[]};
+function renderStats(){
+  $("sSolved").textContent=ST.solved;
+  $("sBest").textContent=fmt(ST.best);
+  $("sAvg").textContent=ST.solved?fmt(Math.round(ST.total/ST.solved)):"–";
+  const live=ST.lastDay===day()||ST.lastDay===yesterday();
+  $("sStreak").textContent=live?ST.streak:0;
+  $("sSub").textContent=ST.played?`${ST.played} started · ${ST.noHint} solved without hints · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
+  $("recent").innerHTML="";
+  ST.recent.forEach(r=>{
+    const li=document.createElement("li");
+    const a=document.createElement("span"); a.textContent=r.a;
+    const b=document.createElement("span"); b.textContent=`${fmt(r.time)} · ${r.hints} hint${r.hints===1?"":"s"} · ${r.day.slice(5)}`;
+    li.append(a,b); $("recent").appendChild(li);
+  });
+  $("where").textContent=store.kind==="db"?"Saved to your account":"Saved in this browser";
+}
+function recordSolve(){
+  const t=elapsed(), d=day();
+  ST.solved++; ST.total+=t; const pb=ST.best!=null&&t<ST.best; if(ST.best==null||t<ST.best) ST.best=t; if(!S.hints) ST.noHint++;
+  if(ST.lastDay!==d){ ST.streak=ST.lastDay===yesterday()?ST.streak+1:1; ST.lastDay=d; }
+  ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
+  ST.recent.unshift({a:QUOTES[S.qi].a,time:t,hints:S.hints,day:d}); ST.recent=ST.recent.slice(0,8);
+  save("stats",ST); renderStats();
+  return pb;
+}
+
+/* ---------- game: every cell is filled on its own ---------- */
+function derange(){
+  let a;
+  do{ a=[...AZ]; for(let i=25;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
+  while(a.some((x,i)=>x===AZ[i]));
+  return a.join("");
+}
+function elapsed(){ return Math.floor((S.base+(S.done?0:Date.now()-S.t0))/1000); }
+function snapshot(){ return {v:2,qi:S.qi,key:S.key,guess:S.guess,rev:[...S.rev],hints:S.hints,ms:S.base+(S.done?0:Date.now()-S.t0),done:S.done}; }
+
+function start(saved){
+  const q=QUOTES[saved.qi], enc={};
+  [...AZ].forEach((p,i)=>enc[p]=saved.key[i]);
+  const cells=[]; // {c: code letter, p: real letter}
+  const words=q.t.toUpperCase().split(" ").map(w=>[...w].map(ch=>{
+    if(!enc[ch]) return {punct:ch};
+    cells.push({c:enc[ch],p:ch}); return {i:cells.length-1};
+  }));
+  S={qi:saved.qi,key:saved.key,q,cells,words,guess:{...saved.guess},rev:new Set(saved.rev),hints:saved.hints,
+     base:saved.ms||0,t0:Date.now(),done:false};
+  S.sel=nextEmpty(-1);
+  $("num").textContent=ST.played; $("hints").textContent=S.hints; msg("");
+  $("author").textContent="— "+q.a.replace(/[A-Za-zÀ-ÿ]/g,"•");
+  build(); update();
+  clearInterval(timer); timer=setInterval(tick,1000); tick();
+}
+function newPuzzle(){
+  let i; const prev=S?S.qi:-1;
+  do{ i=Math.floor(Math.random()*QUOTES.length); }while(QUOTES.length>1&&i===prev);
+  const key=derange(), up=QUOTES[i].t.toUpperCase();
+  const plains=[...new Set([...up].filter(c=>AZ.includes(c)))];
+  const given=plains.length>14?2:1, pick=[...plains].sort(()=>Math.random()-.5).slice(0,given);
+  const guess={}, rev=[]; let n=0;
+  [...up].forEach(ch=>{ if(!AZ.includes(ch)) return; if(pick.includes(ch)){guess[n]=ch;rev.push(n);} n++; });
+  ST.played++; save("stats",ST); renderStats();
+  start({qi:i,key,guess,rev,hints:0,ms:0});
+  saveCurrent();
+}
+function tick(){ $("time").textContent=fmt(elapsed()); }
+
+function build(){
+  const b=$("board"); b.innerHTML="";
+  S.words.forEach(w=>{
+    const wd=document.createElement("div"); wd.className="word";
+    w.forEach(x=>{
+      if(x.punct!==undefined){ const p=document.createElement("span"); p.className="p"; p.textContent=x.punct; wd.appendChild(p); return; }
+      const c=document.createElement("div"); c.className="cell"; c.dataset.i=x.i; c.tabIndex=0;
+      c.innerHTML='<span class="g"></span><span class="c">'+S.cells[x.i].c+'</span>';
+      c.onclick=()=>{S.sel=x.i;update();};
+      wd.appendChild(c);
+    });
+    b.appendChild(wd);
+  });
+}
+
+function update(){
+  const selC=S.sel!=null?S.cells[S.sel].c:null;
+  document.querySelectorAll(".cell").forEach(el=>{
+    const i=+el.dataset.i, cell=S.cells[i], g=S.guess[i]||"";
+    el.querySelector(".g").textContent=g;
+    el.classList.toggle("same",!S.done&&cell.c===selC&&i!==S.sel);
+    el.classList.toggle("cur",!S.done&&i===S.sel);
+    el.classList.toggle("rev",S.rev.has(i));
+    el.classList.toggle("wrong",!!g&&g!==cell.p);
+  });
+}
+
+function msg(t,cls){ $("msg").textContent=t; $("msg").className="msg"+(cls?" "+cls:""); }
+
+function nextEmpty(from){
+  const n=S.cells.length;
+  for(let k=1;k<=n;k++){ const i=(from+k+n)%n; if(!S.guess[i]) return i; }
+  return from<0?0:from;
+}
+function assign(L){
+  if(!S||S.done||S.sel==null) return;
+  if(S.rev.has(S.sel)){ S.sel=nextEmpty(S.sel); update(); return; }
+  S.guess[S.sel]=L; msg("");
+  S.sel=nextEmpty(S.sel); update(); checkWin(); saveCurrent();
+}
+function erase(){
+  if(!S||S.done) return;
+  if(!S.guess[S.sel]||S.rev.has(S.sel)){ // step back to the previous editable cell
+    for(let i=S.sel-1;i>=0;i--) if(!S.rev.has(i)){ S.sel=i; break; }
+  }
+  if(!S.rev.has(S.sel)) delete S.guess[S.sel];
+  update(); saveCurrent();
+}
+function move(d){ if(!S) return; const n=S.cells.length; S.sel=(S.sel+d+n)%n; update(); }
+
+function checkWin(){
+  if(!S.cells.every((c,i)=>S.guess[i])) return;
+  if(S.cells.every((c,i)=>S.guess[i]===c.p)){
+    S.base+=Date.now()-S.t0; S.done=true; clearInterval(timer); tick(); update();
+    $("author").textContent="— "+S.q.a;
+    const pb=recordSolve();
+    msg((pb?"New best time! ":"")+"Solved in "+fmt(elapsed())+(S.hints?" with "+S.hints+" hint"+(S.hints>1?"s":""):" with no hints")+".","ok");
+  } else msg("Every letter is filled, but some are wrong. Fix the red letters.","bad");
+}
+function hint(){
+  if(!S||S.done) return;
+  const open=S.cells.map((c,i)=>i).filter(i=>S.guess[i]!==S.cells[i].p);
+  if(!open.length) return;
+  const i=open.includes(S.sel)?S.sel:open[Math.floor(Math.random()*open.length)];
+  S.guess[i]=S.cells[i].p; S.rev.add(i); S.hints++; $("hints").textContent=S.hints; msg("");
+  S.sel=nextEmpty(i); update(); checkWin(); saveCurrent();
+}
+function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.has(+k)) delete S.guess[k]; msg(""); S.sel=nextEmpty(-1); update(); saveCurrent(); }
+
+// on-screen keyboard
+["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((r,ri)=>{
+  const row=document.createElement("div"); row.className="row";
+  [...r].forEach(L=>{const b=document.createElement("button");b.textContent=L;b.dataset.k=L;b.onclick=()=>assign(L);row.appendChild(b);});
+  if(ri===2){const b=document.createElement("button");b.className="wide";b.textContent="Erase";b.onclick=erase;row.appendChild(b);}
+  $("kb").appendChild(row);
+});
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const k=e.key.toUpperCase();
+  if(/^[A-Z]$/.test(k)){assign(k);e.preventDefault();}
+  else if(e.key==="Backspace"||e.key==="Delete"){erase();e.preventDefault();}
+  else if(e.key==="ArrowRight"){move(1);e.preventDefault();}
+  else if(e.key==="ArrowLeft"){move(-1);e.preventDefault();}
+});
+document.addEventListener("visibilitychange",()=>{ if(document.hidden&&S&&!S.done) save("current",snapshot()); });
+$("hint").onclick=hint; $("clear").onclick=clearAll; $("next").onclick=newPuzzle;
+
+(async function boot(){
+  msg("Loading your game…");
+  await connect();
+  const st=await store.get("stats").catch(()=>null);
+  if(st) ST={...ST,...st};
+  renderStats();
+  const cur=await store.get("current").catch(()=>null);
+  if(cur&&cur.v===2&&!cur.done&&QUOTES[cur.qi]&&typeof cur.key==="string"&&cur.key.length===26){ start(cur); msg("Picked up where you left off."); }
+  else newPuzzle();
+})();
+</script>
