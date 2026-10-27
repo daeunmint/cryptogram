@@ -12,6 +12,9 @@
      - Start a line with #, then the theme name, then | and the label
        shown under each sentence:
          # Space | Space fact
+     - Add a third part to lock a theme until it is unlocked:
+         # Shakespeare | Shakespeare | gems:30     (bought in the Shop with gems)
+         # Cipher Stories | Cipher story | museum:3 (opens when museum hall 3 is built)
 
    Difficulty is decided automatically by length:
      11 words or fewer = Easy, 12–17 = Normal, 18 or more = Hard.
@@ -137,4 +140,39 @@ Swing low, sweet chariot, coming for to carry me home. | Swing Low, Sweet Chario
 Shall we gather at the river, where bright angel feet have trod? | Shall We Gather at the River
 Daisy, Daisy, give me your answer, do. I'm half crazy, all for the love of you. | Daisy Bell
 Oh! Susanna, don't you cry for me, for I come from Alabama with my banjo on my knee. | Oh! Susanna
+
+# Shakespeare | Shakespeare | gems:30
+Brevity is the soul of wit. | Hamlet
+Parting is such sweet sorrow. | Romeo and Juliet
+Our doubts are traitors. | Measure for Measure
+If music be the food of love, play on. | Twelfth Night
+Uneasy lies the head that wears a crown. | Henry IV, Part 2
+This above all: to thine own self be true. | Hamlet
+The course of true love never did run smooth. | A Midsummer Night's Dream
+Love all, trust a few, do wrong to none. | All's Well That Ends Well
+To be, or not to be: that is the question. | Hamlet
+The lady doth protest too much, methinks. | Hamlet
+We know what we are, but know not what we may be. | Hamlet
+There is nothing either good or bad, but thinking makes it so. | Hamlet
+All the world's a stage, and all the men and women merely players. | As You Like It
+The fault, dear Brutus, is not in our stars, but in ourselves. | Julius Caesar
+What's in a name? That which we call a rose by any other name would smell as sweet. | Romeo and Juliet
+Cowards die many times before their deaths; the valiant never taste of death but once. | Julius Caesar
+Some are born great, some achieve greatness, and some have greatness thrust upon them. | Twelfth Night
+
+# Cipher Stories | Cipher story | museum:3
+Julius Caesar hid his messages by shifting every letter three places.
+Spartan soldiers read secret messages by winding a strip of leather around a rod.
+In the ninth century, al-Kindi showed how counting letters can break a cipher.
+The Vigenere cipher was called unbreakable for almost three hundred years.
+A broken cipher in her letters led to the execution of Mary, Queen of Scots.
+A decoded German telegram helped bring the United States into the First World War.
+The Enigma machine changed its cipher with every key press by turning its rotors.
+Alan Turing and the team at Bletchley Park helped break the Enigma code.
+Navajo code talkers sent messages in the Second World War that were never broken.
+A one-time pad cannot be broken if its random key is used only once.
+In Morse code, SOS is three dots, three dashes and three dots.
+The fourth passage of the Kryptos sculpture at the CIA is still unsolved.
+The Zodiac killer's 340-character cipher was finally solved by amateurs in 2020.
+Nobody has ever read the strange writing in the Voynich manuscript.
 `;
