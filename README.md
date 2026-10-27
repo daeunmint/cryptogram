@@ -42,6 +42,7 @@ A browser-based substitution-cipher puzzle game. Each sentence (famous quotes, p
 - Completed letters are marked on the keyboard
 - Google sign-in sync across browsers and devices, plus a manual save code
 - Saved progress and personal records (best score and time per level, daily streak, recent solves)
+- **Settings:** Korean / English interface, text size, light / dark / system theme and help text toggle (puzzle sentences stay in English)
 - Mobile-friendly layout with light and dark themes
 
 ## Tech
@@ -74,6 +75,7 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 10. **Less clutter, more variety:** split the app into Play / Progress / Records pages, moved sentences into an easy-to-edit file and added themed sentence sets.
 11. **Economy:** added gold and gems, a shop, a cipher museum to build and collectible cipher cards. Looks give a flat gold bonus per solve instead of a percentage.
 12. **Artwork:** added museum illustrations (made with ChatGPT image generation) that change as halls are built, plus an SVG icon set.
+13. **Settings & Korean UI:** added a settings page and a full Korean translation of menus, missions, badges and cipher cards.
 
 ## Roadmap
 
