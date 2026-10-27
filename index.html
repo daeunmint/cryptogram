@@ -139,7 +139,7 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
   </div>
   <div class="freq" id="freq" hidden></div>
   <div class="kb" id="kb"></div>
-  <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Matching code letters are highlighted, but you fill each one in yourself.</p>
+  <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Typing a letter fills every matching code letter at once.</p>
   <section class="rec" aria-label="Your records">
     <div class="rec-head"><h2>Your records</h2><span id="where">Loading…</span></div>
     <div class="acct" id="acct" hidden>
@@ -496,7 +496,9 @@ function after(){ update(); renderFreq(); checkWin(); saveCurrent(); }
 function assign(L){
   if(!S||S.done||S.sel==null) return;
   if(S.rev.has(S.sel)){ S.sel=nextEmpty(S.sel); update(); renderFreq(); return; }
-  S.guess[S.sel]=L; msg("");
+  const code=S.cells[S.sel].c;
+  S.cells.forEach((c,i)=>{ if(c.c===code&&!S.rev.has(i)) S.guess[i]=L; });
+  msg("");
   if(L!==S.cells[S.sel].p){ S.mistakes++; $("miss").textContent=S.mistakes; }
   S.sel=nextEmpty(S.sel); after();
 }
@@ -505,7 +507,7 @@ function erase(){
   if(!S.guess[S.sel]||S.rev.has(S.sel)){
     for(let i=S.sel-1;i>=0;i--) if(!S.rev.has(i)){ S.sel=i; break; }
   }
-  if(!S.rev.has(S.sel)) delete S.guess[S.sel];
+  if(!S.rev.has(S.sel)){ const code=S.cells[S.sel].c; S.cells.forEach((c,i)=>{ if(c.c===code&&!S.rev.has(i)) delete S.guess[i]; }); }
   update(); renderFreq(); saveCurrent();
 }
 function move(d){ if(!S||S.done) return; const n=S.cells.length; S.sel=(S.sel+d+n)%n; update(); renderFreq(); }
@@ -524,7 +526,7 @@ function hint(){
   const open=S.cells.map((c,i)=>i).filter(i=>S.guess[i]!==S.cells[i].p);
   if(!open.length) return;
   const i=open.includes(S.sel)?S.sel:open[Math.floor(Math.random()*open.length)];
-  S.guess[i]=S.cells[i].p; S.rev.add(i); S.hints++; $("hints").textContent=S.hints; msg("");
+  const code=S.cells[i].c; S.cells.forEach((c,j)=>{ if(c.c===code){ S.guess[j]=c.p; S.rev.add(j); } }); S.hints++; $("hints").textContent=S.hints; msg("");
   S.sel=nextEmpty(i); after();
 }
 function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.has(+k)) delete S.guess[k]; msg(""); S.sel=nextEmpty(-1); update(); renderFreq(); saveCurrent(); }
