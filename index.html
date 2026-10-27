@@ -500,24 +500,71 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
 .cos .pv .board{padding:8px}
 @media(max-width:600px){.board{gap:12px 14px}.word{gap:2px}}
 @media(max-width:360px){.board{gap:10px 10px}}
+
+/* ---- icons ---- */
+.ic{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em}
+.ic.coin{color:var(--gold)} .ic.gem{color:var(--gem)}
+.tabs button{display:flex;align-items:center;justify-content:center;gap:6px}
+.tabs button .ic{width:17px;height:17px}
+.chip .ic{width:15px;height:15px}
+#walletChip{gap:5px} #walletChip .j-txt{margin-left:4px}
+.h{display:flex;align-items:center;gap:8px}
+.h .ic{width:17px;height:17px;color:var(--gold)}
+.wallet .tile span{display:flex;align-items:center;gap:6px}
+.wallet .tile .ic{width:18px;height:18px}
+.row2 .icbox{width:38px;height:38px;flex:none;border-radius:10px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;color:var(--gold)}
+.row2 .icbox .ic{width:21px;height:21px}
+#hint,#vowelBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#hint .ic,#vowelBtn .ic{width:16px;height:16px}
+.lvtop b{display:flex;align-items:center;gap:8px}
+.lvtop b .ic{width:20px;height:20px;color:var(--gold)}
+@media(max-width:600px){
+  .tabs button{flex-direction:column;gap:2px;font-size:.66rem;padding:6px 1px}
+  .tabs button .ic{width:19px;height:19px}
+  #hint .ic{display:none}
+}
 </style>
 <style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+<symbol id="i-progress" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/><path d="M3 21h18"/></symbol>
+<symbol id="i-museum" viewBox="0 0 24 24"><path d="M3 9l9-5 9 5"/><path d="M4 9.5h16"/><path d="M6.5 12v6M10.5 12v6M13.5 12v6M17.5 12v6"/><path d="M3 20.5h18"/></symbol>
+<symbol id="i-shop" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12.5H6.2z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></symbol>
+<symbol id="i-records" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3.5 4M16 6h3a3 3 0 0 1-3.5 4"/><path d="M12 13v4M8.5 20.5h7M9.5 17h5"/></symbol>
+<symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="6.5" style="stroke:rgba(0,0,0,.28)"/><path d="M14.5 9.5a3 3 0 1 0 0 5" style="stroke:rgba(0,0,0,.35)"/></symbol>
+<symbol id="i-gem" viewBox="0 0 24 24"><path d="M6.5 4h11l4.5 5.5L12 21 2 9.5z" fill="currentColor" stroke="none"/><path d="M2 9.5h20M8.5 4l3.5 17 3.5-17" style="stroke:rgba(255,255,255,.55)"/></symbol>
+<symbol id="i-hint" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M8 10.5a2.5 2.5 0 0 1 2.5-2.5"/></symbol>
+<symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 7h18v3.2a1.8 1.8 0 0 0 0 3.6V17H3v-3.2a1.8 1.8 0 0 0 0-3.6z"/><path d="M15 7.5v9" stroke-dasharray="1.6 2"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-freeze" viewBox="0 0 24 24"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6"/><path d="M9.5 4L12 6.2 14.5 4M9.5 20l2.5-2.2 2.5 2.2"/></symbol>
+<symbol id="i-cards" viewBox="0 0 24 24"><rect x="8" y="3" width="12" height="16" rx="2"/><path d="M5 6.5v12a2.5 2.5 0 0 0 2.5 2.5H16"/><path d="M14 8l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17.5h2"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></symbol>
+<symbol id="i-level" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/><path d="M5 21.5h14"/></symbol>
+<symbol id="i-medal" viewBox="0 0 24 24"><circle cx="12" cy="15" r="6"/><path d="M8.5 3l3.5 6 3.5-6"/><path d="M12 12.5l.9 1.8 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></symbol>
+<symbol id="i-brush" viewBox="0 0 24 24"><path d="M14.5 4.5l5 5-8 8-5-5z"/><path d="M6.5 12.5c-2 .5-3 2.5-3 4.5 0 1.5-.5 2.5-1 3 3 .5 6-.5 7-3"/></symbol>
+<symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+<symbol id="i-bag" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/><path d="M4 12h16"/></symbol>
+<symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16"/><path d="M20 20v-4h-4"/></symbol>
+</svg>
 <div class="wrap">
   <header>
     <h1>CRYPTOGRAM<span>A→?</span></h1>
     <div class="chips">
-      <button class="chip" id="lvChip" aria-label="Open progress"><b id="chipLv">Lv.1</b><span id="chipMis">0/3</span></button>
-      <button class="chip" id="walletChip" aria-label="Open shop"><span class="g-txt" id="chipGold">0 G</span><span class="j-txt" id="chipGems">0 ◆</span></button>
+      <button class="chip" id="lvChip" aria-label="Open progress"><svg class="ic" aria-hidden="true"><use href="#i-level"/></svg><b id="chipLv">Lv.1</b><span id="chipMis">0/3</span></button>
+      <button class="chip" id="walletChip" aria-label="Open shop"><svg class="ic coin" aria-hidden="true"><use href="#i-coin"/></svg><span class="g-txt" id="chipGold">0</span><svg class="ic gem" aria-hidden="true"><use href="#i-gem"/></svg><span class="j-txt" id="chipGems">0</span></button>
     </div>
   </header>
   <nav class="tabs" aria-label="Pages">
-    <button data-view="play">Play</button>
-    <button data-view="progress">Progress</button>
-    <button data-view="museum">Museum</button>
-    <button data-view="shop">Shop</button>
-    <button data-view="records">Records</button>
+    <button data-view="play"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg><span>Play</span></button>
+    <button data-view="progress"><svg class="ic" aria-hidden="true"><use href="#i-progress"/></svg><span>Progress</span></button>
+    <button data-view="museum"><svg class="ic" aria-hidden="true"><use href="#i-museum"/></svg><span>Museum</span></button>
+    <button data-view="shop"><svg class="ic" aria-hidden="true"><use href="#i-shop"/></svg><span>Shop</span></button>
+    <button data-view="records"><svg class="ic" aria-hidden="true"><use href="#i-records"/></svg><span>Records</span></button>
   </nav>
 
   <!-- ===== PLAY ===== -->
@@ -552,21 +599,21 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
   <!-- ===== PROGRESS ===== -->
   <section class="view" id="view-progress" aria-label="Progress" hidden>
     <div class="card0">
-      <div class="lvtop"><b id="lvName">Lv.1 Novice</b><span id="xpTotal">0 XP</span></div>
+      <div class="lvtop"><b><svg class="ic" aria-hidden="true"><use href="#i-level"/></svg><span id="lvName">Lv.1 Novice</span></b><span id="xpTotal">0 XP</span></div>
       <div class="bar"><i id="xpBar"></i></div>
       <div class="lvsub"><span id="xpText"></span><span id="nextRank"></span></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Daily missions</h2><span>+150 XP and +300 G each · +2 ◆ for all three</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg>Daily missions</h2><span>+150 XP and +300 G each · +2 ◆ for all three</span></div>
       <ul class="missions" id="missions"></ul>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h" id="calTitle">Calendar</h2><span class="calnav"><button id="calPrev" aria-label="Previous month">‹</button><button id="calNext" aria-label="Next month">›</button></span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span id="calTitle">Calendar</span></h2><span class="calnav"><button id="calPrev" aria-label="Previous month">‹</button><button id="calNext" aria-label="Next month">›</button></span></div>
       <div class="cal" id="cal"></div>
       <div class="sub" id="calSub"></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Collection</h2><span id="collCount">0/0</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>Collection</h2><span id="collCount">0/0</span></div>
       <div id="collection" class="block"></div>
     </div>
   </section>
@@ -574,7 +621,7 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
   <!-- ===== MUSEUM ===== -->
   <section class="view" id="view-museum" aria-label="Museum" hidden>
     <div class="card0">
-      <div class="lvtop"><b>Cipher Museum</b><span id="musCount">0/6 halls</span></div>
+      <div class="lvtop"><b><svg class="ic" aria-hidden="true"><use href="#i-museum"/></svg>Cipher Museum</b><span id="musCount">0/6 halls</span></div>
       <div class="sub" id="musNext"></div>
       <div class="bar goldbar"><i id="musBar"></i></div>
       <div class="lvsub"><span id="musProg"></span><button id="buildBtn" class="primary">Build</button></div>
@@ -586,36 +633,36 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
   <!-- ===== SHOP ===== -->
   <section class="view" id="view-shop" aria-label="Shop" hidden>
     <div class="wallet">
-      <div class="tile"><span>Gold</span><b class="g-txt" id="wGold">0</b></div>
-      <div class="tile"><span>Gems</span><b class="j-txt" id="wGems">0</b></div>
+      <div class="tile"><span><svg class="ic coin" aria-hidden="true"><use href="#i-coin"/></svg>Gold</span><b class="g-txt" id="wGold">0</b></div>
+      <div class="tile"><span><svg class="ic gem" aria-hidden="true"><use href="#i-gem"/></svg>Gems</span><b class="j-txt" id="wGems">0</b></div>
     </div>
     <div class="sub" id="bonusLine"></div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Items</h2><span>Paid with gold</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>Items</h2><span>Paid with gold</span></div>
       <div class="rows" id="items"></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Cipher cards</h2><span>Paid with gems · shown in the Museum</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-cards"/></svg>Cipher cards</h2><span>Paid with gems · shown in the Museum</span></div>
       <div class="rows" id="packs"></div>
       <div class="pull" id="pull"></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Looks</h2><span>Every look you own adds gold to each solve</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-brush"/></svg>Looks</h2><span>Every look you own adds gold to each solve</span></div>
       <div id="cosmetics" class="block"></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Content</h2><span>New sentence themes</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>Content</h2><span>New sentence themes</span></div>
       <div class="rows" id="content"></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Exchange</h2><span>Gems → gold only</span></div>
+      <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-swap"/></svg>Exchange</h2><span>Gems → gold only</span></div>
       <div class="rows" id="exchange"></div>
     </div>
   </section>
 
   <!-- ===== RECORDS ===== -->
   <section class="view" id="view-records" aria-label="Records" hidden>
-    <div class="bhead"><h2 class="h">Your records</h2><span id="where">Loading…</span></div>
+    <div class="bhead"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-records"/></svg>Your records</h2><span id="where">Loading…</span></div>
     <div class="acct" id="acct" hidden>
       <span id="acctText">Sign in to sync your progress across browsers and devices.</span>
       <button id="signIn" class="primary">Sign in with Google</button>
@@ -632,10 +679,10 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
       <tbody id="bests"></tbody>
     </table></div>
     <div class="sub" id="sSub"></div>
-    <div class="block"><h2 class="h">Badges</h2><div class="badges" id="badges"></div></div>
-    <div class="block"><h2 class="h">Recent solves</h2><ol class="recent" id="recent"></ol></div>
+    <div class="block"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-medal"/></svg>Badges</h2><div class="badges" id="badges"></div></div>
+    <div class="block"><h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Recent solves</h2><ol class="recent" id="recent"></ol></div>
     <div class="block">
-      <h2 class="h">Move to another browser</h2>
+      <h2 class="h"><svg class="ic" aria-hidden="true"><use href="#i-sync"/></svg>Move to another browser</h2>
       <p class="sub" style="margin:0">Copy your save code here, then load it in the other browser or on your phone. It carries your records and the puzzle in progress.</p>
       <div class="xfer"><button id="copyCode">Copy save code</button><button id="showLoad">Load save code</button></div>
       <textarea id="codeOut" class="code" rows="3" readonly hidden aria-label="Your save code"></textarea>
@@ -799,6 +846,8 @@ function rankOf(L){ let r=RANKS[0][1]; RANKS.forEach(([min,n])=>{ if(L>=min) r=n
 
 let S=null, timer=null, mode="normal", prefTheme="all";
 const $=id=>document.getElementById(id);
+const ic=(n,c)=>`<svg class="ic${c?" "+c:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+function icBox(n){ const d=document.createElement("div"); d.className="icbox"; d.innerHTML=ic(n); return d; }
 const fmt=s=>s==null?"–":String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
 const day=(d=new Date())=>d.toLocaleDateString("en-CA");
 const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return day(d);};
@@ -910,8 +959,8 @@ function renderHeader(){
   const L=levelOf(ST.xp), M=ensureMissions(), done=M.ids.filter(id=>M.claimed[id]).length;
   $("chipLv").textContent=`Lv.${L} ${rankOf(L)}`;
   $("chipMis").textContent=`${done}/3`;
-  $("chipGold").textContent=num(ST.gold)+" G";
-  $("chipGems").textContent=num(ST.gems)+" ◆";
+  $("chipGold").textContent=num(ST.gold);
+  $("chipGems").textContent=num(ST.gems);
   $("dailyTag").textContent=ST.daily[day()]?"solved ✓":"today";
 }
 function applyLooks(){ const v=$("view-play"); v.dataset.board=ST.equip.board; v.dataset.cell=ST.equip.cell; v.dataset.kb=ST.equip.kb; }
@@ -1076,7 +1125,7 @@ function renderShop(){
     t.querySelector("span").textContent=x.id==="hint"?`${x.desc} Free today: ${free}/${FREE_HINTS}.`:x.desc;
     const b=document.createElement("button"); b.textContent=`${num(x.price)} G`; b.disabled=ST.gold<x.price;
     b.onclick=()=>{ if(ST.gold<x.price) return; ST.gold-=x.price; ST.inv[x.id]++; toast(`Bought: ${x.name}`); commit(); };
-    r.append(t,b); it.appendChild(r);
+    r.append(icBox({hint:"ticket",vowel:"eye",freeze:"freeze"}[x.id]),t,b); it.appendChild(r);
   });
   const pk=$("packs"); pk.innerHTML="";
   PACKS.forEach(p=>{
@@ -1086,7 +1135,7 @@ function renderShop(){
     t.querySelector("b").textContent=`Card pack · ${p.label}`;
     const b=document.createElement("button"); b.textContent=`${p.price} ◆`; b.disabled=ST.gems<p.price;
     b.onclick=()=>buyPack(p);
-    r.append(t,b); pk.appendChild(r);
+    r.append(icBox("cards"),t,b); pk.appendChild(r);
   });
   const cs=$("cosmetics"); cs.innerHTML="";
   Object.keys(SLOTS).forEach(slot=>{
@@ -1138,7 +1187,7 @@ function renderShop(){
       b.onclick=()=>{ if(ST.gems<th.lock.val) return; ST.gems-=th.lock.val; ST.unlocked[th.id]=day(); toast(`Unlocked: ${th.name}`); commit(); if(S) renderThemes(); };
     }
     else { b.textContent="Museum"; b.onclick=()=>show("museum"); }
-    r.append(t,b); ct.appendChild(r);
+    r.append(icBox("book"),t,b); ct.appendChild(r);
   });
   const ex=$("exchange"); ex.innerHTML="";
   [1,10].forEach(n=>{
@@ -1147,7 +1196,7 @@ function renderShop(){
     t.querySelector("b").textContent=`${n} ◆ → ${num(n*GEM_TO_GOLD)} G`;
     const b=document.createElement("button"); b.textContent="Trade"; b.disabled=ST.gems<n;
     b.onclick=()=>{ if(ST.gems<n) return; ST.gems-=n; ST.gold+=n*GEM_TO_GOLD; toast(`+${num(n*GEM_TO_GOLD)} G`); commit(); };
-    r.append(t,b); ex.appendChild(r);
+    r.append(icBox("swap"),t,b); ex.appendChild(r);
   });
 }
 function pullCard(force){
@@ -1373,10 +1422,10 @@ function update(){
 function renderHintBtn(){
   if(!S||!ST.freeHint) return;
   const free=Math.max(0,FREE_HINTS-ST.freeHint.used), tix=ST.inv.hint||0;
-  $("hint").textContent=free?`Hint · ${free} free`:tix?`Hint · ${tix} ticket${tix===1?"":"s"}`:"Hint";
+  $("hint").innerHTML=ic("hint")+"<span>"+(free?`Hint · ${free} free`:tix?`Hint · ${tix} ticket${tix===1?"":"s"}`:"Hint")+"</span>";
   $("hint").disabled=S.done;
   $("itemRow").hidden=!(ST.inv.vowel>0)||S.done;
-  $("vowelBtn").textContent=`Reveal vowels · ${ST.inv.vowel||0} left`;
+  $("vowelBtn").innerHTML=ic("eye")+`<span>Reveal vowels · ${ST.inv.vowel||0} left</span>`;
 }
 
 let showFreq=false;
