@@ -2,7 +2,7 @@
 
 A browser-based substitution-cipher puzzle game. Each famous quote is encrypted with a random letter-substitution key, and your job is to crack it.
 
-**▶ Play:** https://daeunmint.github.io/cryptogram/
+**▶ Play:** https://YOUR-GITHUB-ID.github.io/cryptogram/
 
 <!-- Add a screenshot: upload screenshot.png to the repo and uncomment the line below -->
 <!-- ![Cryptogram screenshot](screenshot.png) -->
@@ -23,24 +23,29 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 
 ## Features
 
-- 22 quotes, mostly 12–25 words long
-- Random derangement cipher for every new puzzle
-- Instant wrong-letter feedback
-- Timer and hint counter
-- Saved progress: leave mid-puzzle and pick up where you stopped
-- Personal records: puzzles solved, best time, average time, daily streak, recent solves
+- **Daily puzzle:** the same puzzle for everyone each day, generated from a date-seeded random key
+- **Difficulty levels:** Easy / Normal / Hard (quote length and number of starting letters)
+- **Scoring:** points from difficulty, speed, hints and misses
+- **Badges:** 12 achievements such as *Flawless*, *Codebreaker* and *Week Warrior*
+- **Letter counts:** frequency panel for each code letter
+- Instant wrong-letter feedback and miss counter
+- Completed letters are marked on the keyboard
+- Google sign-in sync across browsers and devices, plus a manual save code
+- Saved progress and personal records (best score and time per level, daily streak, recent solves)
 - Mobile-friendly layout with light and dark themes
 
 ## Tech
 
 - A single `index.html` file: HTML, CSS and vanilla JavaScript, no framework or build step
-- Progress and records are stored in the browser with `localStorage`
+- Progress and records are stored in the browser with `localStorage`, and synced across devices with Firebase (Google sign-in + Firestore) when signed in
 - Hosted on GitHub Pages
 
 ### Core logic
 
 - **Derangement key:** shuffle `A–Z` with Fisher–Yates and reshuffle until no letter maps to itself.
 - **Per-cell state:** guesses are stored by cell index, not by code letter, so matching letters are highlighted without being auto-filled.
+- **Daily seed:** the date string is hashed into a seeded PRNG, so the quote, key and starting letters are identical for a given day.
+- **Score:** `base + speed bonus − hint penalty − miss penalty`, with a higher base for harder levels.
 - **Persistence:** game state is serialized to JSON on every move (debounced) and restored on load.
 
 ## Development notes
@@ -52,12 +57,15 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 3. **Saved records:** added progress saving and personal stats so it feels like a real game.
 4. **Longer quotes:** switched to longer quotes for more letter-frequency clues and a better challenge.
 5. **Per-cell input:** changed from auto-filling every matching letter to highlighting them only, so the player does the solving.
+6. **Miss counter and keyboard marks:** show how many wrong letters were entered and which letters are fully solved.
+7. **Game systems:** added difficulty levels, a daily puzzle, letter-frequency help, scoring and badges.
 
 ## Roadmap
 
 - [ ] PWA support (install to home screen, offline play)
-- [ ] Difficulty levels (short / long quotes, number of starting letters)
-- [ ] Letter-frequency helper panel
+- [x] Difficulty levels
+- [x] Letter-frequency helper panel
+- [x] Daily puzzle, scoring and badges
 - [ ] Korean (Hangul) version with jamo-level substitution
 - [ ] Android build with Capacitor
 
