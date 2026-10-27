@@ -14,47 +14,104 @@
 <meta name="apple-mobile-web-app-title" content="Cryptogram">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;600;800&family=Special+Elite&family=Press+Start+2P&display=swap">
 <style>
-/* Layout: one centered play column — header strip, mode switch, puzzle board, controls, keyboard, records */
+/* Layout: app shell — header with level and wallet chips, five views (Play / Progress / Museum / Shop / Records) switched by tabs */
 :root{
   --bg:#eef1f4; --panel:#ffffff; --ink:#1b2430; --muted:#6a7584; --line:#cfd6de;
   --sel:#ffd34d; --selsoft:#fff2c2; --wrong:#d64545; --ok:#2f8f5b; --hint:#3c6fd1;
+  --gold:#b7860b; --gem:#7b4fd6;
+  --r-c:#6a7584; --r-r:#2f6fd6; --r-e:#8a46cf; --r-l:#c98a00;
   --f-ui:"Archivo",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#12161c; --panel:#1b2129; --ink:#e7ecf2; --muted:#8a96a5; --line:#2f3844;
-  --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff; color-scheme:dark}}
+  --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff;
+  --gold:#f0c24b; --gem:#b69bff; --r-c:#8a96a5; --r-r:#6ea2ff; --r-e:#c08bff; --r-l:#ffc94d; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#12161c; --panel:#1b2129; --ink:#e7ecf2; --muted:#8a96a5; --line:#2f3844;
-  --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff; color-scheme:dark}
+  --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff;
+  --gold:#f0c24b; --gem:#b69bff; --r-c:#8a96a5; --r-r:#6ea2ff; --r-e:#c08bff; --r-l:#ffc94d; color-scheme:dark}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
-.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-h1{margin:0;font-weight:800;font-size:1.6rem;letter-spacing:.02em;text-wrap:balance}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.view{display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-weight:800;font-size:1.6rem;letter-spacing:.02em}
 h1 span{font-family:var(--f-mono);font-weight:400;color:var(--muted);font-size:.9rem;margin-left:8px}
-.stats{display:flex;gap:16px;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:flex;gap:8px;align-items:center;padding:6px 12px;border-radius:99px;font-size:.82rem}
+.chip b{font-weight:800}
+.chip span{font-family:var(--f-mono);color:var(--muted);font-size:.75rem}
+.chip span.g-txt{color:var(--gold)} .chip span.j-txt{color:var(--gem)}
+.g-txt{color:var(--gold);font-family:var(--f-mono);font-weight:700}
+.j-txt{color:var(--gem);font-family:var(--f-mono);font-weight:700}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px}
+.tabs button{flex:1;border:none;background:none;padding:8px 4px;border-radius:7px;font-size:.9rem}
+.tabs button[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.stats{display:flex;gap:16px;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;flex-wrap:wrap}
 .stats b{color:var(--ink);font-weight:700}
 .modes{display:flex;gap:6px}
 .modes button{flex:1;padding:9px 6px;font-size:.9rem}
 .modes button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .modes small{display:block;font-family:var(--f-mono);font-size:.68rem;font-weight:400;opacity:.75;margin-top:2px}
+.themes{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.themes::-webkit-scrollbar{display:none}
+.themes button{flex:none;padding:6px 12px;border-radius:99px;font-size:.82rem}
+.themes button[aria-pressed="true"]{background:var(--selsoft);border-color:var(--sel)}
+.themes button.locked{border-style:dashed;color:var(--muted)}
+.themes button:disabled{opacity:.4}
+
+/* ---- puzzle board (skins set --bink/--bmuted/--bsame/--bhint on .board) ---- */
 .board{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 14px;
-  display:flex;flex-wrap:wrap;gap:16px 18px;justify-content:center}
+  display:flex;flex-wrap:wrap;gap:16px 18px;justify-content:center;color:var(--bink,var(--ink))}
 .word{display:flex;gap:3px}
 .cell{width:30px;display:flex;flex-direction:column;align-items:center;cursor:pointer;border-radius:4px;padding:2px 0;user-select:none}
 .cell .g{height:28px;width:100%;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);
-  font-weight:700;font-size:1.15rem;border-bottom:2px solid var(--ink)}
-.cell .c{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);margin-top:3px}
-.cell.same{background:var(--selsoft)}
+  font-weight:700;font-size:1.15rem;border-bottom:2px solid var(--bink,var(--ink));color:var(--bink,var(--ink));box-sizing:border-box}
+.cell .c{font-family:var(--f-mono);font-size:.78rem;color:var(--bmuted,var(--muted));margin-top:3px}
+.cell.same{background:var(--bsame,var(--selsoft))}
 .cell.cur{background:var(--sel)}
-.cell.cur .c{color:var(--ink)}
-.cell.rev .g{color:var(--hint)}
+.cell.cur .g,.cell.cur .c{color:#1b2430;border-bottom-color:#1b2430}
+.cell.rev .g{color:var(--bhint,var(--hint))}
 .cell.wrong .g{color:var(--wrong)}
-.cell:focus-visible{outline:2px solid var(--hint);outline-offset:2px}
-.p{font-family:var(--f-mono);font-weight:700;font-size:1.15rem;align-self:flex-start;padding-top:4px}
-.author{text-align:right;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);margin-top:-6px}
+.p{font-family:var(--f-mono);font-weight:700;font-size:1.15rem;align-self:flex-start;padding-top:4px;color:var(--bink,var(--ink))}
+.meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--f-mono);font-size:.8rem;color:var(--muted);margin-top:-6px}
+.meta span:first-child{text-transform:uppercase;letter-spacing:.06em}
+
+/* board skins */
+[data-board="graph"] .board{background-color:var(--panel);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:18px 18px}
+[data-board="parchment"] .board{background:#f1e4c3;border-color:#d8c497;--bink:#3b2f1e;--bmuted:#8a7350;--bsame:#e8d29a;--bhint:#2b5aa8}
+[data-board="blueprint"] .board{background-color:#1d4e89;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:20px 20px;border-color:#123a68;--bink:#f4f8ff;--bmuted:#a9c4e8;--bsame:rgba(255,211,77,.28);--bhint:#ffd34d}
+[data-board="terminal"] .board{background:#0d1a10;border-color:#1f3a25;--bink:#6dff8f;--bmuted:#3f8f55;--bsame:rgba(109,255,143,.18);--bhint:#ffd34d}
+[data-board="starfield"] .board{background-color:#0b1020;background-image:radial-gradient(1.5px 1.5px at 20% 30%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 70% 20%,#cfd8ff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 40% 80%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 85% 65%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 10% 90%,#cfd8ff 50%,transparent 51%);background-size:120px 120px;border-color:#232a4a;--bink:#f2f4ff;--bmuted:#8c96c8;--bsame:rgba(255,211,77,.25);--bhint:#ffd34d}
+[data-board="aurora"] .board{background:linear-gradient(120deg,#0f2a3a,#1b5e57,#3b2b6b,#0f2a3a);background-size:300% 300%;border-color:#25485a;--bink:#f4fbff;--bmuted:#b8d4e0;--bsame:rgba(255,211,77,.25);--bhint:#ffd34d}
+/* letter styles */
+[data-cell="tiles"] .cell .g{border:1.5px solid var(--bink,var(--ink));border-radius:6px;background:rgba(127,127,127,.08)}
+[data-cell="typewriter"] .cell .g{font-family:"Special Elite",var(--f-mono);font-weight:400;font-size:1.25rem}
+[data-cell="neon"] .cell .g{text-shadow:0 0 6px #ff4fd8,0 0 12px #ff4fd8;border-bottom-color:#ff4fd8}
+[data-cell="pixel"] .cell .g{font-family:"Press Start 2P",var(--f-mono);font-weight:400;font-size:.72rem;border-bottom-style:dashed}
+[data-cell="goldleaf"] .cell:not(.wrong):not(.rev):not(.cur) .g{background:linear-gradient(90deg,#9a6b00,#ffe08a,#c99400,#ffe08a,#9a6b00);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;border-bottom-color:#c99400}
+[data-cell="prism"] .cell .g{text-shadow:-1px 0 #ff4f7a,1px 0 #3fd3ff;border-bottom-color:#9b6bff}
+/* keyboard skins */
+.key{font-family:var(--f-mono)}
+[data-kb="mint"] .key{background:#d9f5e8;color:#134d36;border-color:#9fdcc0}
+[data-kb="retro"] .key{background:#efe6d2;color:#3a2f22;border-color:#b8a888;box-shadow:0 3px 0 #b8a888}
+[data-kb="midnight"] .key{background:#1f2a44;color:#e6ecff;border-color:#33406a}
+[data-kb="sakura"] .key{background:#ffe3ec;color:#7a2945;border-color:#f3b3c8}
+[data-kb="holo"] .key{background:linear-gradient(120deg,#a6c1ee,#fbc2eb,#c2f0e0,#a6c1ee);background-size:300% 300%;color:#1b2430;border-color:#b7a6e8}
+[data-kb="ember"] .key{background:#2a1206;color:#ffb37a;border-color:#ff7a2f;box-shadow:0 0 6px rgba(255,122,47,.45)}
+@media (prefers-reduced-motion:no-preference){
+  [data-board="aurora"] .board{animation:flow 12s ease infinite}
+  [data-board="starfield"] .board{animation:drift 40s linear infinite}
+  [data-cell="goldleaf"] .cell .g{animation:shine 3s linear infinite}
+  [data-kb="holo"] .key{animation:flow 6s ease infinite}
+}
+@keyframes flow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes drift{from{background-position:0 0}to{background-position:120px 240px}}
+@keyframes shine{from{background-position:200% 0}to{background-position:0 0}}
+
 .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 button{font-family:var(--f-ui);font-weight:600;font-size:.95rem;border:1px solid var(--line);background:var(--panel);
   color:var(--ink);border-radius:8px;padding:9px 16px;cursor:pointer}
@@ -63,25 +120,114 @@ button:focus-visible{outline:2px solid var(--hint);outline-offset:2px}
 button:disabled{opacity:.45;cursor:default}
 button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--selsoft)}
+.itemrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.itemrow button{font-size:.82rem;padding:6px 12px;border-style:dashed}
 .msg{text-align:center;min-height:1.4em;font-weight:600}
 .msg.ok{color:var(--ok)} .msg.bad{color:var(--wrong)}
 .freq{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .freq button{padding:4px 8px;font-family:var(--f-mono);font-size:.85rem;display:flex;gap:6px;align-items:baseline;border-radius:6px}
-.freq button i{font-style:normal;color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums}
+.freq button i{font-style:normal;color:var(--muted);font-size:.75rem}
 .freq button.done{opacity:.4;text-decoration:line-through}
 .freq button.on{background:var(--sel);border-color:var(--sel);color:#1b2430}
 .freq button.on i{color:#1b2430}
 .kb{display:flex;flex-direction:column;gap:6px;align-items:center}
 .kb .row{display:flex;gap:5px;max-width:100%}
-.kb button{font-family:var(--f-mono);padding:0;width:min(34px,8.4vw);height:44px;font-size:1rem}
-.kb button.done{background:var(--bg);color:var(--muted);border-style:dashed;text-decoration:line-through;opacity:.55}
+.kb button{padding:0;width:min(34px,8.4vw);height:44px;font-size:1rem}
+.kb button.done{opacity:.35;text-decoration:line-through;border-style:dashed}
 .kb button.wide{width:min(64px,16vw);font-family:var(--f-ui);font-size:.8rem}
 .help{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.5;margin:0}
-.rec{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
-.rec-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
-.rec h2{margin:0;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-.rec h3{margin:6px 0 0;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.rec-head span{font-size:.8rem;color:var(--muted)}
+
+/* ---- shared blocks ---- */
+.h{margin:0;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.block{display:flex;flex-direction:column;gap:8px}
+.bhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.bhead>span{font-size:.78rem;color:var(--muted)}
+.sub{font-size:.85rem;color:var(--muted)}
+.card0{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.lvtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lvtop b{font-size:1.15rem;font-weight:800}
+.lvtop span,.lvsub{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.lvsub{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.bar{height:8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sel);width:0}
+.bar.goldbar i{background:var(--gold)}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s}}
+.missions{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.missions li{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.9rem}
+.missions .ck{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:.7rem;box-sizing:border-box}
+.missions li.done{border-color:var(--ok)}
+.missions li.done .ck{background:var(--ok);border-color:var(--ok);color:var(--panel)}
+.missions li.done .mt{text-decoration:line-through;color:var(--muted)}
+.missions .mt{flex:1;min-width:0}
+.missions .mp{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);white-space:nowrap}
+.calnav{display:flex;gap:4px}
+.calnav button{padding:2px 12px;font-size:1rem}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-family:var(--f-mono);font-size:.8rem;max-width:420px;width:100%}
+.cal .dow{color:var(--muted);font-size:.68rem;padding:2px 0}
+.cal .cd{aspect-ratio:1;display:grid;place-items:center;border-radius:6px;background:var(--panel);border:1px solid var(--line);position:relative;color:var(--muted)}
+.cal .cd.did{background:var(--selsoft);border-color:var(--sel);color:var(--ink);font-weight:700}
+.cal .cd.dly::after{content:"★";position:absolute;top:1px;right:3px;font-size:.55rem;color:var(--hint)}
+.cal .cd.today{outline:2px solid var(--ink);outline-offset:-2px}
+.cal .cd.blank{background:none;border:none}
+.coll{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 12px}
+.coll summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;font-weight:700}
+.coll summary::-webkit-details-marker{display:none}
+.coll summary span{margin-left:auto;font-family:var(--f-mono);font-size:.82rem;color:var(--muted);font-weight:400}
+.coll summary::after{content:"▾";color:var(--muted)}
+.coll[open] summary::after{content:"▴"}
+.coll>.bar{margin:8px 0}
+.coll .note{font-size:.8rem;color:var(--muted);margin:6px 0}
+.quotes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.quotes li{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.88rem;line-height:1.45}
+.quotes li.lock{border-style:dashed;color:var(--muted)}
+.quotes li small{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:3px}
+
+/* ---- shop ---- */
+.wallet{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wallet .tile b{font-size:1.4rem}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row2{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.row2 .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row2 .txt b{font-size:.92rem}
+.row2 .txt span{font-size:.78rem;color:var(--muted)}
+.row2 button{flex:none;padding:7px 12px;font-size:.85rem;font-family:var(--f-mono)}
+.cosgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cos{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.cos.eq{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.cos .pv{height:58px;display:flex;align-items:center;justify-content:center;border-radius:6px;overflow:hidden}
+.cos .pv .board{padding:8px;gap:2px;border-radius:6px;width:100%;height:100%;box-sizing:border-box;align-items:center;flex-wrap:nowrap}
+.cos .pv .cell{width:22px;cursor:default}
+.cos .pv .cell .g{height:22px;font-size:.95rem}
+.cos .pv .cell .c{font-size:.6rem}
+.cos .pv .key{display:inline-grid;place-items:center;width:30px;height:34px;margin:0 2px;font-size:.9rem;font-weight:600;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.cos .nm{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+.cos .nm b{font-size:.85rem}
+.cos .bon{font-size:.72rem;color:var(--muted)}
+.cos button{padding:6px 8px;font-size:.8rem;font-family:var(--f-mono)}
+.tag{font-family:var(--f-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.t-c{color:var(--r-c)} .t-r{color:var(--r-r)} .t-e{color:var(--r-e)} .t-l{color:var(--r-l)}
+.pull{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+
+/* ---- museum & cards ---- */
+.hall{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px 12px}
+.hall summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
+.hall summary::-webkit-details-marker{display:none}
+.hall summary b{font-size:.95rem}
+.hall summary .st{margin-left:auto;font-size:.75rem;font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
+.hall.built{border-color:var(--gold)}
+.hall .rw{font-size:.8rem;color:var(--muted);margin:6px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px}
+.ccard{border:1.5px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px;background:var(--bg)}
+.ccard.r-c{border-color:var(--r-c)} .ccard.r-r{border-color:var(--r-r)} .ccard.r-e{border-color:var(--r-e)} .ccard.r-l{border-color:var(--r-l);box-shadow:0 0 0 2px var(--selsoft)}
+.ccard.miss{border-style:dashed;border-color:var(--line);color:var(--muted);box-shadow:none}
+.ccard .top{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+.ccard b{font-size:.9rem}
+.ccard .era{font-size:.72rem;color:var(--muted);font-family:var(--f-mono)}
+.ccard p{margin:0;font-size:.8rem;line-height:1.45}
+.ccard code{font-family:var(--f-mono);font-size:.75rem;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;display:block;overflow-wrap:anywhere}
+.ccard .cnt{font-size:.7rem;color:var(--muted);font-family:var(--f-mono)}
+
+/* ---- records ---- */
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
 .tile span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
@@ -91,19 +237,16 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
 .bests th{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 .bests td{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .bests td:first-child{font-family:var(--f-ui);font-weight:600}
-.sub{font-size:.85rem;color:var(--muted)}
 .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .badge{border:1px dashed var(--line);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:2px;color:var(--muted)}
-.badge b{font-size:.88rem;color:var(--muted)}
+.badge b{font-size:.88rem}
 .badge span{font-size:.75rem;line-height:1.35}
 .badge.got{border:1px solid var(--sel);background:var(--selsoft);color:var(--ink)}
-.badge.got b{color:var(--ink)}
 .badge.got b::before{content:"★ ";color:var(--sel)}
 .recent{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;font-size:.88rem}
 .recent li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}
-.recent li span:last-child{font-family:var(--f-mono);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.recent li span:last-child{font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
 .recent li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-[hidden]{display:none!important}
 .acct{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.88rem}
 .acct span{flex:1;min-width:180px}
 .xfer{display:flex;gap:8px;flex-wrap:wrap}
@@ -116,58 +259,22 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
 @media (prefers-reduced-motion:no-preference){.toast{animation:pop .25s ease-out}}
 @keyframes pop{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:480px){.cell{width:24px}.cell .g{font-size:1rem;height:24px}.board{gap:12px 12px;padding:16px 8px}.modes button{font-size:.82rem;padding:8px 2px}}
-.prog{display:flex;flex-direction:column;gap:16px;border-top:1px solid var(--line);padding-top:18px}
-.lvcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-.lvtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.lvtop b{font-size:1.15rem;font-weight:800}
-.lvtop span,.lvsub{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.lvsub{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.bar{height:8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--sel);width:0}
-@media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s}}
-.block{display:flex;flex-direction:column;gap:8px}
-.bhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.h{margin:0;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-.bhead>span{font-size:.78rem;color:var(--muted)}
-.missions{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.missions li{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.9rem}
-.missions .ck{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:.7rem;box-sizing:border-box}
-.missions li.done{border-color:var(--ok)}
-.missions li.done .ck{background:var(--ok);border-color:var(--ok);color:var(--panel)}
-.missions li.done .mt{text-decoration:line-through;color:var(--muted)}
-.missions .mt{flex:1;min-width:0}
-.missions .mp{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.calnav{display:flex;gap:4px}
-.calnav button{padding:2px 12px;font-size:1rem}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-family:var(--f-mono);font-size:.8rem;max-width:420px;width:100%}
-.cal .dow{color:var(--muted);font-size:.68rem;padding:2px 0}
-.cal .cd{aspect-ratio:1;display:grid;place-items:center;border-radius:6px;background:var(--panel);border:1px solid var(--line);position:relative;color:var(--muted)}
-.cal .cd.did{background:var(--selsoft);border-color:var(--sel);color:var(--ink);font-weight:700}
-.cal .cd.dly::after{content:"★";position:absolute;top:1px;right:3px;font-size:.55rem;color:var(--hint)}
-.cal .cd.today{outline:2px solid var(--ink);outline-offset:-2px}
-.cal .cd.blank{background:none;border:none}
-.coll summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
-.coll summary::-webkit-details-marker{display:none}
-.coll summary span{margin-left:auto;font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
-.coll summary::after{content:"▾";color:var(--muted)}
-.coll[open] summary::after{content:"▴"}
-.quotes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.quotes li{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.88rem;line-height:1.45}
-.quotes li.lock{border-style:dashed;color:var(--muted)}
-.quotes li small{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:3px}
 @media (max-width:600px){
   body{padding-block:10px}
-  .wrap{gap:10px;padding-bottom:calc(178px + env(safe-area-inset-bottom,0px))}
-  header{align-items:center}
+  .wrap{gap:10px} .view{gap:10px}
+  body.view-play .wrap{padding-bottom:calc(178px + env(safe-area-inset-bottom,0px))}
   h1{font-size:1.25rem} h1 span{display:none}
+  .chip{padding:5px 10px;font-size:.78rem}
   .stats{gap:10px;font-size:.75rem}
+  .tabs button{padding:7px 2px;font-size:.78rem}
   .modes button{padding:7px 2px;font-size:.85rem} .modes small{display:none}
+  .themes button{padding:5px 10px;font-size:.78rem}
   .board{padding:12px 6px;gap:10px 12px}
   .word{gap:2px}
-  .cell{width:22px} .cell .g{height:22px;font-size:.95rem;border-bottom-width:2px} .cell .c{font-size:.66rem;margin-top:1px}
+  .cell{width:22px} .cell .g{height:22px;font-size:.95rem} .cell .c{font-size:.66rem;margin-top:1px}
+  [data-cell="pixel"] .cell .g{font-size:.6rem}
   .p{font-size:.95rem;padding-top:2px}
-  .author{margin-top:-4px;font-size:.78rem}
+  .meta{margin-top:-4px;font-size:.72rem}
   .msg{font-size:.88rem;min-height:1.2em}
   .controls{gap:6px;flex-wrap:nowrap}
   .controls button{padding:7px 8px;font-size:.82rem;flex:1;white-space:nowrap}
@@ -177,7 +284,7 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
   .kb .row{gap:4px;width:100%;justify-content:center}
   .kb button{width:calc((100% - 36px)/10);max-width:42px;height:46px;font-size:1.05rem;border-radius:6px}
   .kb button.wide{width:calc((100% - 36px)/10*1.6);max-width:68px}
-  .toast{bottom:calc(186px + env(safe-area-inset-bottom,0px))}
+  body.view-play .toast{bottom:calc(186px + env(safe-area-inset-bottom,0px))}
 }
 </style>
 <style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
@@ -186,39 +293,57 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
 <div class="wrap">
   <header>
     <h1>CRYPTOGRAM<span>A→?</span></h1>
+    <div class="chips">
+      <button class="chip" id="lvChip" aria-label="Open progress"><b id="chipLv">Lv.1</b><span id="chipMis">0/3</span></button>
+      <button class="chip" id="walletChip" aria-label="Open shop"><span class="g-txt" id="chipGold">0 G</span><span class="j-txt" id="chipGems">0 ◆</span></button>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Pages">
+    <button data-view="play">Play</button>
+    <button data-view="progress">Progress</button>
+    <button data-view="museum">Museum</button>
+    <button data-view="shop">Shop</button>
+    <button data-view="records">Records</button>
+  </nav>
+
+  <!-- ===== PLAY ===== -->
+  <section class="view" id="view-play" aria-label="Play">
     <div class="stats">
       <div>TIME <b id="time">00:00</b></div>
       <div>HINTS <b id="hints">0</b></div>
       <div>MISSES <b id="miss">0</b></div>
-      <div>LV <b id="lv">1</b></div>
     </div>
-  </header>
-  <div class="modes" role="group" aria-label="Mode">
-    <button id="m-daily" data-mode="daily">Daily<small id="dailyTag">today</small></button>
-    <button id="m-easy" data-mode="easy">Easy<small>×1 score</small></button>
-    <button id="m-normal" data-mode="normal">Normal<small>×2 score</small></button>
-    <button id="m-hard" data-mode="hard">Hard<small>×3 score</small></button>
-  </div>
-  <div class="board" id="board" aria-label="Puzzle"></div>
-  <div class="author" id="author"></div>
-  <div class="msg" id="msg" aria-live="polite"></div>
-  <div class="controls">
-    <button id="hint">Hint</button>
-    <button id="clear">Clear</button>
-    <button id="freqBtn" class="toggle" aria-pressed="false">Letter counts</button>
-    <button id="next" class="primary">New puzzle</button>
-  </div>
-  <div class="freq" id="freq" hidden></div>
-  <div class="kb" id="kb"></div>
-  <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Typing a letter fills every matching code letter at once.</p>
-  <section class="prog" aria-label="Progress">
-    <div class="lvcard">
+    <div class="modes" role="group" aria-label="Mode">
+      <button data-mode="daily">Daily<small id="dailyTag">today</small></button>
+      <button data-mode="easy">Easy<small>×1 score</small></button>
+      <button data-mode="normal">Normal<small>×2 score</small></button>
+      <button data-mode="hard">Hard<small>×3 score</small></button>
+    </div>
+    <div class="themes" id="themes" role="group" aria-label="Theme"></div>
+    <div class="board" id="board" aria-label="Puzzle"></div>
+    <div class="meta"><span id="themeName"></span><span id="author"></span></div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+    <div class="controls">
+      <button id="hint">Hint</button>
+      <button id="clear">Clear</button>
+      <button id="freqBtn" class="toggle" aria-pressed="false">Letter counts</button>
+      <button id="next" class="primary">New puzzle</button>
+    </div>
+    <div class="itemrow" id="itemRow" hidden><button id="vowelBtn">Reveal vowels</button></div>
+    <div class="freq" id="freq" hidden></div>
+    <div class="kb" id="kb"></div>
+    <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Typing a letter fills every matching code letter at once.</p>
+  </section>
+
+  <!-- ===== PROGRESS ===== -->
+  <section class="view" id="view-progress" aria-label="Progress" hidden>
+    <div class="card0">
       <div class="lvtop"><b id="lvName">Lv.1 Novice</b><span id="xpTotal">0 XP</span></div>
       <div class="bar"><i id="xpBar"></i></div>
       <div class="lvsub"><span id="xpText"></span><span id="nextRank"></span></div>
     </div>
     <div class="block">
-      <div class="bhead"><h2 class="h">Daily missions</h2><span>+150 XP each · +200 for all three</span></div>
+      <div class="bhead"><h2 class="h">Daily missions</h2><span>+150 XP and +300 G each · +2 ◆ for all three</span></div>
       <ul class="missions" id="missions"></ul>
     </div>
     <div class="block">
@@ -226,14 +351,57 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
       <div class="cal" id="cal"></div>
       <div class="sub" id="calSub"></div>
     </div>
-    <details class="block coll">
-      <summary><h2 class="h">Quote collection</h2><span id="collCount">0/0</span></summary>
-      <div class="bar"><i id="collBar"></i></div>
-      <ol class="quotes" id="quotes"></ol>
-    </details>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Collection</h2><span id="collCount">0/0</span></div>
+      <div id="collection" class="block"></div>
+    </div>
   </section>
-  <section class="rec" aria-label="Your records">
-    <div class="rec-head"><h2>Your records</h2><span id="where">Loading…</span></div>
+
+  <!-- ===== MUSEUM ===== -->
+  <section class="view" id="view-museum" aria-label="Museum" hidden>
+    <div class="card0">
+      <div class="lvtop"><b>Cipher Museum</b><span id="musCount">0/6 halls</span></div>
+      <div class="sub" id="musNext"></div>
+      <div class="bar goldbar"><i id="musBar"></i></div>
+      <div class="lvsub"><span id="musProg"></span><button id="buildBtn" class="primary">Build</button></div>
+    </div>
+    <div class="sub" id="musPerk"></div>
+    <div class="block" id="halls"></div>
+  </section>
+
+  <!-- ===== SHOP ===== -->
+  <section class="view" id="view-shop" aria-label="Shop" hidden>
+    <div class="wallet">
+      <div class="tile"><span>Gold</span><b class="g-txt" id="wGold">0</b></div>
+      <div class="tile"><span>Gems</span><b class="j-txt" id="wGems">0</b></div>
+    </div>
+    <div class="sub" id="bonusLine"></div>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Items</h2><span>Paid with gold</span></div>
+      <div class="rows" id="items"></div>
+    </div>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Cipher cards</h2><span>Paid with gems · shown in the Museum</span></div>
+      <div class="rows" id="packs"></div>
+      <div class="pull" id="pull"></div>
+    </div>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Looks</h2><span>Every look you own adds gold to each solve</span></div>
+      <div id="cosmetics" class="block"></div>
+    </div>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Content</h2><span>New sentence themes</span></div>
+      <div class="rows" id="content"></div>
+    </div>
+    <div class="block">
+      <div class="bhead"><h2 class="h">Exchange</h2><span>Gems → gold only</span></div>
+      <div class="rows" id="exchange"></div>
+    </div>
+  </section>
+
+  <!-- ===== RECORDS ===== -->
+  <section class="view" id="view-records" aria-label="Records" hidden>
+    <div class="bhead"><h2 class="h">Your records</h2><span id="where">Loading…</span></div>
     <div class="acct" id="acct" hidden>
       <span id="acctText">Sign in to sync your progress across browsers and devices.</span>
       <button id="signIn" class="primary">Sign in with Google</button>
@@ -250,72 +418,43 @@ button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--sels
       <tbody id="bests"></tbody>
     </table></div>
     <div class="sub" id="sSub"></div>
-    <h3>Badges</h3>
-    <div class="badges" id="badges"></div>
-    <h3>Recent solves</h3>
-    <ol class="recent" id="recent"></ol>
-    <h3>Move to another browser</h3>
-    <p class="sub" style="margin:0">Copy your save code here, then load it in the other browser or on your phone. It carries your records and the puzzle in progress.</p>
-    <div class="xfer"><button id="copyCode">Copy save code</button><button id="showLoad">Load save code</button></div>
-    <textarea id="codeOut" class="code" rows="3" readonly hidden aria-label="Your save code"></textarea>
-    <div class="loadbox" id="loadBox" hidden>
-      <textarea id="codeIn" class="code" rows="3" placeholder="Paste a save code" aria-label="Save code to load"></textarea>
-      <div class="xfer"><button id="doLoad" class="primary">Replace my records</button><button id="cancelLoad">Cancel</button></div>
+    <div class="block"><h2 class="h">Badges</h2><div class="badges" id="badges"></div></div>
+    <div class="block"><h2 class="h">Recent solves</h2><ol class="recent" id="recent"></ol></div>
+    <div class="block">
+      <h2 class="h">Move to another browser</h2>
+      <p class="sub" style="margin:0">Copy your save code here, then load it in the other browser or on your phone. It carries your records and the puzzle in progress.</p>
+      <div class="xfer"><button id="copyCode">Copy save code</button><button id="showLoad">Load save code</button></div>
+      <textarea id="codeOut" class="code" rows="3" readonly hidden aria-label="Your save code"></textarea>
+      <div class="loadbox" id="loadBox" hidden>
+        <textarea id="codeIn" class="code" rows="3" placeholder="Paste a save code" aria-label="Save code to load"></textarea>
+        <div class="xfer"><button id="doLoad" class="primary">Replace my records</button><button id="cancelLoad">Cancel</button></div>
+      </div>
+      <div class="sub" id="xmsg" aria-live="polite"></div>
     </div>
-    <div class="sub" id="xmsg" aria-live="polite"></div>
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
 
+<script src="sentences.js"></script>
 <script>
-const QUOTES=[
- {t:"Knowledge is power.",a:"Francis Bacon"},
- {t:"Simplicity is the ultimate sophistication.",a:"Leonardo da Vinci"},
- {t:"Well done is better than well said.",a:"Benjamin Franklin"},
- {t:"I think, therefore I am.",a:"René Descartes"},
- {t:"Stay hungry, stay foolish.",a:"Stewart Brand"},
- {t:"The unexamined life is not worth living.",a:"Socrates"},
- {t:"Talk is cheap. Show me the code.",a:"Linus Torvalds"},
- {t:"Imagination is more important than knowledge.",a:"Albert Einstein"},
- {t:"Whatever you are, be a good one.",a:"Abraham Lincoln"},
- {t:"Fortune favors the bold.",a:"Virgil"},
- {t:"Electricity is really just organized lightning.",a:"George Carlin"},
- {t:"What I cannot create, I do not understand.",a:"Richard Feynman"},
- {t:"Any sufficiently advanced technology is indistinguishable from magic.",a:"Arthur C. Clarke"},
- {t:"It always seems impossible until it is done.",a:"Nelson Mandela"},
- {t:"Genius is one percent inspiration and ninety nine percent perspiration.",a:"Thomas Edison"},
- {t:"An investment in knowledge pays the best interest.",a:"Benjamin Franklin"},
- {t:"The only thing we have to fear is fear itself.",a:"Franklin D. Roosevelt"},
- {t:"If I have seen further, it is by standing on the shoulders of giants.",a:"Isaac Newton"},
- {t:"Life is like riding a bicycle. To keep your balance you must keep moving.",a:"Albert Einstein"},
- {t:"The important thing is not to stop questioning. Curiosity has its own reason for existing.",a:"Albert Einstein"},
- {t:"Logic will get you from A to B. Imagination will take you everywhere.",a:"Albert Einstein"},
- {t:"I have not failed. I have just found ten thousand ways that will not work.",a:"Thomas Edison"},
- {t:"The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.",a:"Isaac Asimov"},
- {t:"Education is the most powerful weapon which you can use to change the world.",a:"Nelson Mandela"},
- {t:"In three words I can sum up everything I have learned about life: it goes on.",a:"Robert Frost"},
- {t:"Ask not what your country can do for you; ask what you can do for your country.",a:"John F. Kennedy"},
- {t:"That is one small step for man, one giant leap for mankind.",a:"Neil Armstrong"},
- {t:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.",a:"Will Durant"},
- {t:"Keep your face always toward the sunshine, and shadows will fall behind you.",a:"Walt Whitman"},
- {t:"The best way to predict the future is to invent it.",a:"Alan Kay"},
- {t:"Tell me and I forget. Teach me and I remember. Involve me and I learn.",a:"Benjamin Franklin"},
- {t:"If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.",a:"Nikola Tesla"},
- {t:"The present is theirs; the future, for which I really worked, is mine.",a:"Nikola Tesla"},
- {t:"Research is to see what everybody else has seen, and to think what nobody else has thought.",a:"Albert Szent-Györgyi"},
- {t:"Study hard what interests you the most in the most undisciplined, irreverent and original manner possible.",a:"Richard Feynman"},
- {t:"I would rather have questions that cannot be answered than answers that cannot be questioned.",a:"Richard Feynman"},
- {t:"Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less.",a:"Marie Curie"},
- {t:"Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",a:"Thomas Edison"},
- {t:"Engineering is the art of directing the great sources of power in nature for the use and convenience of man.",a:"Thomas Tredgold"},
- {t:"It is not the critic who counts; not the man who points out how the strong man stumbles, or where the doer of deeds could have done them better.",a:"Theodore Roosevelt"},
- {t:"The most beautiful thing we can experience is the mysterious. It is the source of all true art and science.",a:"Albert Einstein"},
- {t:"Do not go where the path may lead, go instead where there is no path and leave a trail.",a:"Ralph Waldo Emerson"},
- {t:"Our virtues and our failings are inseparable, like force and matter. When they separate, man is no more.",a:"Nikola Tesla"},
- {t:"The first principle is that you must not fool yourself, and you are the easiest person to fool.",a:"Richard Feynman"},
- {t:"Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.",a:"Martin Luther King Jr."},
- {t:"I am among those who think that science has great beauty. A scientist in his laboratory is not only a technician: he is also a child placed before natural phenomena which impress him like a fairy tale.",a:"Marie Curie"}
-];
+/* ---------- sentences: parsed from sentences.js ---------- */
+const THEMES=[], SENT=[];
+(function parse(){
+  let th=null;
+  String(window.SENTENCE_TEXT||"").split("\n").forEach(raw=>{
+    const line=raw.trim(); if(!line) return;
+    if(line.startsWith("#")){
+      const [name,label,lock]=line.replace(/^#+\s*/,"").split("|").map(s=>s.trim());
+      const id=name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+      let lk=null; if(lock){ const [type,val]=lock.split(":"); lk={type,val:Number(val)||0}; }
+      th={id,name,label:label||name,lock:lk}; THEMES.push(th); return;
+    }
+    if(!th){ th={id:"general",name:"General",label:"General",lock:null}; THEMES.push(th); }
+    const [t,a]=line.split("|").map(s=>s.trim());
+    if(t&&/[A-Za-z]/.test(t)) SENT.push({t,a:a||"",th:th.id});
+  });
+})();
+const themeOf=id=>THEMES.find(x=>x.id===id)||{id,name:id,label:id,lock:null};
 const AZ="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const DIFF={
   easy:  {label:"Easy",  give:3,base:300, target:90},
@@ -324,8 +463,84 @@ const DIFF={
 };
 const words=q=>q.t.split(/\s+/).length;
 const tierOf=q=>words(q)<=11?"easy":words(q)<=17?"normal":"hard";
-const POOL={easy:[],normal:[],hard:[]};
-QUOTES.forEach((q,i)=>POOL[tierOf(q)].push(i));
+function qkey(q){ let h=2166136261; for(const ch of q.t){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); } return "q"+(h>>>0).toString(36); }
+SENT.forEach(s=>s.k=qkey(s));
+
+/* ---------- catalog: halls, cards, looks, items ---------- */
+const HALLS=[
+  {id:"entrance",name:"Entrance Hall",theme:"Codes & signals",cost:5000,reward:"+10 ◆",apply:()=>{ ST.gems+=10; }},
+  {id:"ancient", name:"Ancient Ciphers",theme:"Caesar, Sparta, Greece",cost:10000,reward:"+100 G on every solve",apply:()=>{}},
+  {id:"medieval",name:"Medieval & Renaissance",theme:"Vigenère, Playfair, Mary Queen of Scots",cost:20000,reward:"Unlocks the Cipher Stories theme",apply:()=>{}},
+  {id:"war",     name:"Wartime Codebreaking",theme:"Enigma, Bletchley Park, Navajo code talkers",cost:35000,reward:"+30 ◆",apply:()=>{ ST.gems+=30; }},
+  {id:"modern",  name:"Modern Cryptography",theme:"RSA, AES, one-time pads",cost:50000,reward:"+200 G on every solve",apply:()=>{}},
+  {id:"unsolved",name:"Unsolved Mysteries",theme:"Voynich, Kryptos, Beale",cost:80000,reward:"A guaranteed Legendary card",apply:()=>{ const c=pullCard("L"); toast(`Legendary card: ${c.name}`); }}
+];
+const RAR={C:{name:"Common",cls:"c"},R:{name:"Rare",cls:"r"},E:{name:"Epic",cls:"e"},L:{name:"Legendary",cls:"l"}};
+const CARDS=[
+  {id:"morse",hall:"entrance",r:"C",name:"Morse Code",era:"1840s · USA",d:"Letters sent as short and long signals over telegraph wires.",ex:"SOS = ··· ––– ···"},
+  {id:"braille",hall:"entrance",r:"C",name:"Braille",era:"1824 · France",d:"Raised dots in a 2 × 3 cell let blind readers feel each letter.",ex:"⠁ = A, ⠃ = B"},
+  {id:"nato",hall:"entrance",r:"C",name:"NATO Phonetic Alphabet",era:"1956",d:"Code words for letters so names survive a noisy radio call.",ex:"C = Charlie, Q = Quebec"},
+  {id:"semaphore",hall:"entrance",r:"R",name:"Flag Semaphore",era:"19th century",d:"Two flags held at set angles stand for letters, sent ship to ship before radio.",ex:"Each letter = one pair of arm angles"},
+  {id:"caesar",hall:"ancient",r:"C",name:"Caesar Cipher",era:"1st century BC · Rome",d:"Shift every letter three places down the alphabet.",ex:"HELLO → KHOOR"},
+  {id:"atbash",hall:"ancient",r:"C",name:"Atbash",era:"c. 500 BC · Hebrew",d:"Flip the alphabet so A becomes Z and B becomes Y.",ex:"HELLO → SVOOL"},
+  {id:"scytale",hall:"ancient",r:"R",name:"Scytale",era:"7th century BC · Sparta",d:"A strip wound around a rod. Only a rod of the same thickness lines the letters up again.",ex:"Read along the rod, not the strip"},
+  {id:"polybius",hall:"ancient",r:"R",name:"Polybius Square",era:"2nd century BC · Greece",d:"Letters sit in a 5 × 5 grid and are sent as row and column numbers.",ex:"H → 23"},
+  {id:"alkindi",hall:"ancient",r:"E",name:"Al-Kindi",era:"9th century · Baghdad",d:"First known description of frequency analysis, the method that breaks substitution ciphers.",ex:"E, T, A are the most common English letters"},
+  {id:"pigpen",hall:"medieval",r:"C",name:"Pigpen Cipher",era:"18th century · Freemasons",d:"Each letter becomes the piece of grid around it, with or without a dot.",ex:"Shapes instead of letters"},
+  {id:"bacon",hall:"medieval",r:"C",name:"Bacon's Cipher",era:"1605 · England",d:"Each letter is written as five A or B marks, easy to hide in two typefaces.",ex:"A = AAAAA, B = AAAAB"},
+  {id:"alberti",hall:"medieval",r:"R",name:"Alberti Cipher Disk",era:"1467 · Italy",d:"Two rotating disks: the first cipher to switch alphabets mid-message.",ex:"Turn the disk, change the code"},
+  {id:"vigenere",hall:"medieval",r:"R",name:"Vigenère Cipher",era:"16th century · France",d:"A keyword shifts each letter by a different amount. Called unbreakable for 300 years.",ex:"ATTACK + key LEMON → LXFOPV"},
+  {id:"playfair",hall:"medieval",r:"R",name:"Playfair Cipher",era:"1854 · Britain",d:"Encrypts letters in pairs using a 5 × 5 key square. Used in the Boer War and WWI.",ex:"Pairs, not single letters"},
+  {id:"mary",hall:"medieval",r:"E",name:"Mary, Queen of Scots",era:"1586 · England",d:"Her cipher letters in the Babington Plot were broken, which led to her execution.",ex:"A nomenclator: symbols for letters and words"},
+  {id:"adfgvx",hall:"war",r:"R",name:"ADFGVX Cipher",era:"1918 · Germany",d:"A field cipher that used only six letters, chosen because they sound distinct in Morse.",ex:"Every message: only A D F G V X"},
+  {id:"lorenz",hall:"war",r:"R",name:"Lorenz (Tunny)",era:"1941 · Germany",d:"The German high command's teleprinter cipher, broken with help from Colossus.",ex:"12 wheels scrambling teleprinter code"},
+  {id:"purple",hall:"war",r:"R",name:"Purple",era:"1939 · Japan",d:"A diplomatic cipher machine rebuilt by US codebreakers without ever seeing one.",ex:"Broken in 1940"},
+  {id:"zimmermann",hall:"war",r:"E",name:"Zimmermann Telegram",era:"1917",d:"A decoded German telegram that helped bring the United States into the First World War.",ex:"Broken by Britain's Room 40"},
+  {id:"enigma",hall:"war",r:"E",name:"Enigma",era:"1930s–1945 · Germany",d:"Rotors turned with every key press, so the same letter encrypted differently each time.",ex:"A A A A → four different letters"},
+  {id:"turing",hall:"war",r:"E",name:"Alan Turing",era:"1912–1954 · Britain",d:"Designed the Bombe that sped up breaking Enigma, and laid the ground for computer science.",ex:"The Bombe ran through rotor settings"},
+  {id:"navajo",hall:"war",r:"E",name:"Navajo Code Talkers",era:"1942–1945 · USA",d:"Messages in a code built on the Navajo language. It was never broken.",ex:"Tortoise = tank"},
+  {id:"hash",hall:"modern",r:"C",name:"Hash Function",era:"1990s–today",d:"A fingerprint of data. Change one letter and the whole hash changes.",ex:"cat and bat → completely different hashes"},
+  {id:"des",hall:"modern",r:"R",name:"DES",era:"1977 · USA",d:"The first public encryption standard, with a 56-bit key. Too short today.",ex:"Cracked by brute force in 1998"},
+  {id:"aes",hall:"modern",r:"R",name:"AES",era:"2001 · USA",d:"The block cipher behind Wi-Fi, HTTPS and most stored data.",ex:"128, 192 or 256-bit keys"},
+  {id:"otp",hall:"modern",r:"E",name:"One-Time Pad",era:"1917 onward",d:"A random key as long as the message, used once. Mathematically unbreakable.",ex:"Reuse the key and it fails"},
+  {id:"dh",hall:"modern",r:"E",name:"Diffie–Hellman",era:"1976 · USA",d:"Two strangers agree on a shared secret over a public channel.",ex:"Mix colors that are hard to un-mix"},
+  {id:"quantum",hall:"modern",r:"E",name:"Quantum Key Distribution",era:"1984 · BB84",d:"Sends keys as single photons. Any eavesdropper disturbs them and gets noticed.",ex:"Physics as the lock"},
+  {id:"rsa",hall:"modern",r:"L",name:"RSA",era:"1977 · Rivest, Shamir, Adleman",d:"Public-key cryptography built on how hard it is to factor huge numbers.",ex:"Easy: p × q. Hard: undo it"},
+  {id:"zodiac",hall:"unsolved",r:"R",name:"Zodiac 340",era:"1969 · solved 2020",d:"A killer's cipher that stayed unread for 51 years until amateurs cracked it.",ex:"340 symbols"},
+  {id:"beale",hall:"unsolved",r:"R",name:"Beale Ciphers",era:"1885 · USA",d:"Three number ciphers said to lead to buried treasure. Only one has been solved.",ex:"Key: the Declaration of Independence"},
+  {id:"dorabella",hall:"unsolved",r:"R",name:"Dorabella Cipher",era:"1897 · England",d:"A note from composer Edward Elgar made of little curved squiggles. Still unread.",ex:"87 symbols, 24 shapes"},
+  {id:"voynich",hall:"unsolved",r:"L",name:"Voynich Manuscript",era:"15th century",d:"A whole illustrated book in a script nobody has ever read.",ex:"About 240 pages"},
+  {id:"kryptos",hall:"unsolved",r:"L",name:"Kryptos",era:"1990 · CIA, Virginia",d:"A sculpture with four encrypted passages. The fourth is still unsolved.",ex:"Clues released: BERLIN, CLOCK"}
+];
+const LOOKS=[
+  {id:"graph",slot:"board",tier:"basic",name:"Graph Paper"},
+  {id:"parchment",slot:"board",tier:"basic",name:"Parchment"},
+  {id:"blueprint",slot:"board",tier:"basic",name:"Blueprint"},
+  {id:"terminal",slot:"board",tier:"basic",name:"Terminal"},
+  {id:"starfield",slot:"board",tier:"rare",name:"Starfield"},
+  {id:"aurora",slot:"board",tier:"rare",name:"Aurora"},
+  {id:"tiles",slot:"cell",tier:"basic",name:"Tiles"},
+  {id:"typewriter",slot:"cell",tier:"basic",name:"Typewriter"},
+  {id:"neon",slot:"cell",tier:"basic",name:"Neon"},
+  {id:"pixel",slot:"cell",tier:"basic",name:"Pixel"},
+  {id:"goldleaf",slot:"cell",tier:"rare",name:"Gold Leaf"},
+  {id:"prism",slot:"cell",tier:"rare",name:"Prism"},
+  {id:"mint",slot:"kb",tier:"basic",name:"Mint"},
+  {id:"retro",slot:"kb",tier:"basic",name:"Retro"},
+  {id:"midnight",slot:"kb",tier:"basic",name:"Midnight"},
+  {id:"sakura",slot:"kb",tier:"basic",name:"Sakura"},
+  {id:"holo",slot:"kb",tier:"rare",name:"Holo"},
+  {id:"ember",slot:"kb",tier:"rare",name:"Ember"}
+];
+const TIER={basic:{price:30,gold:50,xp:0,label:"Basic"},rare:{price:60,gold:100,xp:20,label:"Rare"}};
+const SLOTS={board:"Puzzle board",cell:"Letters",kb:"Keyboard"};
+const ITEMS=[
+  {id:"hint",name:"Hint ticket",desc:"One extra hint after your 3 free hints a day.",price:300},
+  {id:"vowel",name:"Vowel reveal",desc:"Shows every A, E, I, O and U in a puzzle. Counts as one hint.",price:800},
+  {id:"freeze",name:"Streak freeze",desc:"Keeps your day streak alive if you miss a day. Used automatically.",price:1500}
+];
+const PACKS=[{n:1,price:10,label:"1 card"},{n:6,price:50,label:"5 + 1 cards"}];
+const GEM_TO_GOLD=300, FREE_HINTS=3;
 
 const BADGES=[
   {id:"first",   name:"First Crack",   desc:"Solve your first puzzle"},
@@ -342,9 +557,13 @@ const BADGES=[
   {id:"high",    name:"High Roller",   desc:"Score 1,500 or more in one puzzle"},
   {id:"missions",name:"Mission Ready", desc:"Finish all three daily missions"},
   {id:"level10", name:"Rising Star",   desc:"Reach level 10"},
-  {id:"collector",name:"Archivist",    desc:"Collect every quote"}
+  {id:"explorer",name:"Explorer",      desc:"Solve a puzzle in every open theme"},
+  {id:"collector",name:"Archivist",    desc:"Collect every sentence"},
+  {id:"curator", name:"Curator",       desc:"Build the first museum hall"},
+  {id:"cards10", name:"Card Shark",    desc:"Collect 10 different cipher cards"},
+  {id:"stylist", name:"Stylist",       desc:"Own one look in every slot"}
 ];
-const MISSION_XP=150, ALL_BONUS=200;
+const MISSION_XP=150, MISSION_GOLD=300, ALL_GEMS=2;
 const MISSIONS={
   solve2:  {text:"Solve 2 puzzles",target:2,add:()=>1},
   solve3:  {text:"Solve 3 puzzles",target:3,add:()=>1},
@@ -355,28 +574,44 @@ const MISSIONS={
   nohint:  {text:"Solve a puzzle without hints",target:1,add:c=>c.hints?0:1},
   nomiss:  {text:"Solve a puzzle with no misses",target:1,add:c=>c.miss?0:1},
   daily:   {text:"Solve today's Daily puzzle",target:1,add:c=>c.mode==="daily"?1:0},
-  points:  {text:"Earn 1,500 points today",target:1500,add:c=>c.sc}
+  points:  {text:"Earn 1,500 points today",target:1500,add:c=>c.sc},
+  themes2: {text:"Solve puzzles from 2 different themes",target:2,add:(c,M)=>{ M.th=M.th||{}; if(M.th[c.th]) return 0; M.th[c.th]=1; return 1; }},
+  newone:  {text:"Collect a new sentence",target:1,add:c=>c.isNew?1:0}
 };
 const RANKS=[[1,"Novice"],[3,"Apprentice"],[6,"Decoder"],[10,"Cryptanalyst"],[15,"Codebreaker"],[20,"Cipher Sage"],[30,"Enigma Master"]];
 const xpFor=L=>250*L*(L-1);
 function levelOf(xp){ let L=1; while(xp>=xpFor(L+1)) L++; return L; }
 function rankOf(L){ let r=RANKS[0][1]; RANKS.forEach(([min,n])=>{ if(L>=min) r=n; }); return r; }
-function qkey(q){ let h=2166136261; for(const ch of q.t){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); } return "q"+(h>>>0).toString(36); }
 
-
-let S=null, timer=null, mode="normal";
+let S=null, timer=null, mode="normal", prefTheme="all";
 const $=id=>document.getElementById(id);
 const fmt=s=>s==null?"–":String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
 const day=(d=new Date())=>d.toLocaleDateString("en-CA");
 const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return day(d);};
-const num=n=>n.toLocaleString("en-US");
+const daysBetween=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/86400000);
+const num=n=>Number(n||0).toLocaleString("en-US");
+try{ prefTheme=localStorage.getItem("cg_theme")||"all"; }catch(e){}
 
-/* ---------- seeded random for the daily puzzle ---------- */
 function seeded(str){
   let h=2166136261;
   for(const ch of str){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); }
   return function(){ h+=0x6D2B79F5; let t=h; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
 }
+
+/* ---------- views (tabs) ---------- */
+const VIEWS=["play","progress","museum","shop","records"];
+function show(v){
+  if(!VIEWS.includes(v)) v="play";
+  VIEWS.forEach(x=>$("view-"+x).hidden=x!==v);
+  document.querySelectorAll(".tabs button").forEach(b=>{ if(b.dataset.view===v) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  document.body.classList.toggle("view-play",v==="play");
+  if(location.hash!=="#"+v){ try{ history.replaceState(null,"","#"+v); }catch(e){ location.hash=v; } }
+  window.scrollTo(0,0);
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
+$("lvChip").onclick=()=>show("progress");
+$("walletChip").onclick=()=>show("shop");
+window.addEventListener("hashchange",()=>show(location.hash.slice(1)));
 
 /* ---------- storage: account (db) when available, else this browser ---------- */
 let store={
@@ -405,35 +640,88 @@ async function save(k,v){
 }
 let saveT=null;
 function saveCurrent(){ clearTimeout(saveT); saveT=setTimeout(()=>save("current",snapshot()),500); }
+function commit(){ save("stats",ST); renderAll(); }
 
-/* ---------- stats, score, badges ---------- */
+/* ---------- state ---------- */
 let ST={played:0,solved:0,total:0,noHint:0,noMiss:0,streak:0,bestStreak:0,lastDay:null,recent:[],
-        totalScore:0,by:{},badges:{},daily:{},xp:null,days:{},found:{},mission:null};
-function renderStats(){
-  migrate();
+        totalScore:0,by:{},badges:{},daily:{},xp:null,days:{},found:{},mission:null,themesSolved:{},
+        gold:null,gems:0,inv:{},owned:{},equip:{},built:0,cards:{},unlocked:{},freeHint:null};
+function migrate(){
+  if(ST.xp==null) ST.xp=ST.totalScore||0;
+  ["days","found","badges","daily","by","themesSolved","inv","owned","equip","cards","unlocked"].forEach(k=>{ ST[k]=ST[k]||{}; });
+  ST.recent=ST.recent||[];
+  Object.keys(ST.daily).forEach(k=>{ if(!ST.days[k]) ST.days[k]=1; });
+  if(ST.lastDay&&!ST.days[ST.lastDay]) ST.days[ST.lastDay]=1;
+  if(ST.gold==null){ // first time with currencies: pay back earlier play
+    ST.gold=ST.totalScore||0;
+    ST.gems=(ST.gems||0)+Object.keys(ST.badges).length*5+(levelOf(ST.xp)-1)*3;
+  }
+  ST.gems=ST.gems||0; ST.built=ST.built||0;
+  ["hint","vowel","freeze"].forEach(k=>{ ST.inv[k]=ST.inv[k]||0; });
+  ["board","cell","kb"].forEach(k=>{ if(!ST.equip[k]) ST.equip[k]="default"; });
+  if(!ST.freeHint||ST.freeHint.date!==day()) ST.freeHint={date:day(),used:0};
+}
+const unlockedTheme=th=>!th.lock||(th.lock.type==="gems"&&!!ST.unlocked[th.id])||(th.lock.type==="museum"&&ST.built>=th.lock.val);
+const openThemes=()=>THEMES.filter(unlockedTheme);
+function pickPool(diff,theme){
+  const ok=new Set((theme==="all"?openThemes():[themeOf(theme)]).map(t=>t.id));
+  const all=SENT.map((s,i)=>i).filter(i=>ok.has(SENT[i].th));
+  const tier=all.filter(i=>tierOf(SENT[i])===diff);
+  return tier.length?tier:(all.length?all:SENT.map((s,i)=>i));
+}
+function bonuses(){
+  let gold=0,xp=0,basic=0,rare=0;
+  LOOKS.forEach(l=>{ if(ST.owned[l.id]){ gold+=TIER[l.tier].gold; xp+=TIER[l.tier].xp; if(l.tier==="rare") rare++; else basic++; } });
+  const hall=(ST.built>=2?100:0)+(ST.built>=5?200:0);
+  return {gold:gold+hall,xp,basic,rare,hall};
+}
+function ensureMissions(){
+  const d=day();
+  if(!ST.mission||ST.mission.date!==d){
+    const r=seeded("missions-"+d), ids=Object.keys(MISSIONS);
+    for(let i=ids.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [ids[i],ids[j]]=[ids[j],ids[i]]; }
+    ST.mission={date:d,ids:ids.slice(0,3),prog:{},claimed:{},bonus:false};
+  }
+  return ST.mission;
+}
+function streakAlive(){
+  if(!ST.lastDay) return false;
+  const gap=daysBetween(ST.lastDay,day());
+  return gap<=1||gap-1<=ST.inv.freeze;
+}
+
+/* ---------- rendering ---------- */
+function renderAll(){ migrate(); renderHeader(); renderRecords(); renderProgress(); renderMuseum(); renderShop(); applyLooks(); renderHintBtn(); }
+function renderHeader(){
+  const L=levelOf(ST.xp), M=ensureMissions(), done=M.ids.filter(id=>M.claimed[id]).length;
+  $("chipLv").textContent=`Lv.${L} ${rankOf(L)}`;
+  $("chipMis").textContent=`${done}/3`;
+  $("chipGold").textContent=num(ST.gold)+" G";
+  $("chipGems").textContent=num(ST.gems)+" ◆";
+  $("dailyTag").textContent=ST.daily[day()]?"solved ✓":"today";
+}
+function applyLooks(){ const v=$("view-play"); v.dataset.board=ST.equip.board; v.dataset.cell=ST.equip.cell; v.dataset.kb=ST.equip.kb; }
+function renderRecords(){
   $("sSolved").textContent=num(ST.solved);
-  $("sScore").textContent=num(ST.totalScore||0);
-  $("sBadges").textContent=Object.keys(ST.badges||{}).length+"/"+BADGES.length;
-  const live=ST.lastDay===day()||ST.lastDay===yesterday();
-  $("sStreak").textContent=live?ST.streak:0;
+  $("sScore").textContent=num(ST.totalScore);
+  $("sBadges").textContent=Object.keys(ST.badges).length+"/"+BADGES.length;
+  $("sStreak").textContent=streakAlive()?ST.streak:0;
   $("bests").innerHTML="";
   ["easy","normal","hard"].forEach(d=>{
-    const b=(ST.by||{})[d]||{};
-    const tr=document.createElement("tr");
+    const b=ST.by[d]||{}, tr=document.createElement("tr");
     [DIFF[d].label,b.solved||0,b.score!=null?num(b.score):"–",fmt(b.time)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.appendChild(td);});
     $("bests").appendChild(tr);
   });
-  const dailyCount=Object.keys(ST.daily||{}).length;
-  $("sSub").textContent=ST.played?`${ST.played} started · ${dailyCount} daily · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
+  $("sSub").textContent=ST.played?`${ST.played} started · ${Object.keys(ST.daily).length} daily · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
   $("badges").innerHTML="";
   BADGES.forEach(b=>{
-    const got=(ST.badges||{})[b.id];
-    const el=document.createElement("div"); el.className="badge"+(got?" got":"");
+    const got=ST.badges[b.id], el=document.createElement("div"); el.className="badge"+(got?" got":"");
     const n=document.createElement("b"); n.textContent=b.name;
-    const s=document.createElement("span"); s.textContent=got?b.desc+" · "+got.slice(5):b.desc;
+    const s=document.createElement("span"); s.textContent=(got?b.desc+" · "+got.slice(5):b.desc)+" · +5 ◆";
     el.append(n,s); $("badges").appendChild(el);
   });
   $("recent").innerHTML="";
+  if(!ST.recent.length){ const li=document.createElement("li"); li.innerHTML="<span>No solves yet. Your last 8 puzzles appear here.</span>"; $("recent").appendChild(li); }
   ST.recent.forEach(r=>{
     const li=document.createElement("li");
     const a=document.createElement("span"); a.textContent=(r.mode?(r.mode==="daily"?"Daily":DIFF[r.mode].label)+" · ":"")+r.a;
@@ -441,67 +729,308 @@ function renderStats(){
     li.append(a,b); $("recent").appendChild(li);
   });
   $("where").textContent=store.kind==="db"?"Saved to your account":store.kind==="cloud"?"Synced to your Google account":"Saved in this browser";
-  const done=ST.daily&&ST.daily[day()];
-  $("dailyTag").textContent=done?"solved ✓":"today";
-  renderProgress();
 }
+let calY=new Date().getFullYear(), calM=new Date().getMonth();
+function renderProgress(){
+  const xp=ST.xp||0, L=levelOf(xp), lo=xpFor(L), hi=xpFor(L+1);
+  $("lvName").textContent=`Lv.${L} ${rankOf(L)}`;
+  $("xpTotal").textContent=num(xp)+" XP";
+  $("xpBar").style.width=Math.round((xp-lo)/(hi-lo)*100)+"%";
+  const nr=RANKS.find(([min])=>min>L);
+  $("xpText").textContent=`${num(xp-lo)} / ${num(hi-lo)} XP to Lv.${L+1} (+${3+Math.floor((L+1)/5)} ◆)`;
+  $("nextRank").textContent=nr?`Next rank: ${nr[1]} at Lv.${nr[0]} (+15 ◆)`:"Top rank reached";
+  const M=ensureMissions(); $("missions").innerHTML="";
+  M.ids.forEach(id=>{
+    const def=MISSIONS[id]; if(!def) return;
+    const p=Math.min(def.target,M.prog[id]||0), done=!!M.claimed[id];
+    const li=document.createElement("li"); li.className=done?"done":"";
+    const ck=document.createElement("span"); ck.className="ck"; ck.textContent=done?"✓":"";
+    const mt=document.createElement("span"); mt.className="mt"; mt.textContent=def.text;
+    const mp=document.createElement("span"); mp.className="mp"; mp.textContent=done?"Done":`${num(p)}/${num(def.target)}`;
+    li.append(ck,mt,mp); $("missions").appendChild(li);
+  });
+  const first=new Date(calY,calM,1), days=new Date(calY,calM+1,0).getDate(), today=day();
+  $("calTitle").textContent=first.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  const cal=$("cal"); cal.innerHTML="";
+  ["S","M","T","W","T","F","S"].forEach(w=>{ const e=document.createElement("div"); e.className="dow"; e.textContent=w; cal.appendChild(e); });
+  for(let i=0;i<first.getDay();i++){ const e=document.createElement("div"); e.className="cd blank"; cal.appendChild(e); }
+  let played=0;
+  for(let n=1;n<=days;n++){
+    const key=day(new Date(calY,calM,n)), e=document.createElement("div"), did=!!ST.days[key];
+    if(did) played++;
+    e.className="cd"+(did?" did":"")+(ST.daily[key]?" dly":"")+(key===today?" today":"");
+    e.textContent=n; e.title=did?`${key}: ${ST.days[key]} solved`+(ST.daily[key]?" · Daily done":""):key;
+    cal.appendChild(e);
+  }
+  $("calSub").textContent=`${played} day${played===1?"":"s"} played this month · ★ Daily solved`;
+  const now=new Date(); $("calNext").disabled=calY>now.getFullYear()||(calY===now.getFullYear()&&calM>=now.getMonth());
+  const got=SENT.filter(s=>ST.found[s.k]).length;
+  $("collCount").textContent=`${got}/${SENT.length} collected`;
+  const box=$("collection"), open=new Set([...box.querySelectorAll("details[open]")].map(d=>d.dataset.th));
+  box.innerHTML="";
+  THEMES.forEach(th=>{
+    const list=SENT.filter(s=>s.th===th.id), have=list.filter(s=>ST.found[s.k]).length, isOpen=unlockedTheme(th);
+    const det=document.createElement("details"); det.className="coll"; det.dataset.th=th.id; if(open.has(th.id)) det.open=true;
+    const sum=document.createElement("summary"); sum.textContent=th.name+(isOpen?"":" · locked");
+    const cnt=document.createElement("span"); cnt.textContent=`${have}/${list.length}`; sum.appendChild(cnt);
+    const bar=document.createElement("div"); bar.className="bar"; bar.innerHTML=`<i style="width:${Math.round(have/list.length*100)}%"></i>`;
+    det.append(sum,bar);
+    if(!isOpen){ const n=document.createElement("p"); n.className="note"; n.textContent=lockText(th); det.appendChild(n); }
+    const ol=document.createElement("ol"); ol.className="quotes";
+    list.forEach(s=>{
+      const f=ST.found[s.k], li=document.createElement("li"), sm=document.createElement("small");
+      if(f){ li.textContent=s.t; sm.textContent=`${s.a||th.label} · ${DIFF[tierOf(s)].label} · ${f.slice(5)}`; }
+      else { li.className="lock"; li.textContent="Not collected yet"; sm.textContent=`${DIFF[tierOf(s)].label} · ${words(s)} words`; }
+      li.appendChild(sm); ol.appendChild(li);
+    });
+    det.appendChild(ol); box.appendChild(det);
+  });
+}
+function lockText(th){
+  if(!th.lock) return "";
+  return th.lock.type==="gems"?`Unlock in the Shop for ${th.lock.val} ◆.`:`Opens when museum hall ${th.lock.val} (${HALLS[th.lock.val-1]?HALLS[th.lock.val-1].name:""}) is built.`;
+}
+$("calPrev").onclick=()=>{ calM--; if(calM<0){calM=11;calY--;} renderProgress(); };
+$("calNext").onclick=()=>{ calM++; if(calM>11){calM=0;calY++;} renderProgress(); };
+
+function cardEl(c,count){
+  const el=document.createElement("div"), R=RAR[c.r];
+  el.className="ccard r-"+R.cls+(count?"":" miss");
+  const top=document.createElement("div"); top.className="top";
+  const n=document.createElement("b"); n.textContent=count?c.name:"???";
+  const t=document.createElement("span"); t.className="tag t-"+R.cls; t.textContent=R.name;
+  top.append(n,t); el.appendChild(top);
+  const era=document.createElement("div"); era.className="era"; era.textContent=count?c.era:"Not collected yet"; el.appendChild(era);
+  if(count){
+    const p=document.createElement("p"); p.textContent=c.d;
+    const ex=document.createElement("code"); ex.textContent=c.ex;
+    el.append(p,ex);
+    if(count>1){ const k=document.createElement("div"); k.className="cnt"; k.textContent=`×${count}`; el.appendChild(k); }
+  }
+  return el;
+}
+function renderMuseum(){
+  const b=ST.built, next=HALLS[b], bon=bonuses();
+  $("musCount").textContent=`${b}/${HALLS.length} halls`;
+  if(next){
+    $("musNext").textContent=`Next: ${next.name} · ${next.reward}`;
+    $("musBar").style.width=Math.min(100,Math.round(ST.gold/next.cost*100))+"%";
+    $("musProg").textContent=`${num(Math.min(ST.gold,next.cost))} / ${num(next.cost)} G`;
+    $("buildBtn").hidden=false; $("buildBtn").disabled=ST.gold<next.cost;
+    $("buildBtn").textContent=ST.gold>=next.cost?`Build for ${num(next.cost)} G`:"Build";
+  } else {
+    $("musNext").textContent="Every hall is built. The museum is complete.";
+    $("musBar").style.width="100%"; $("musProg").textContent=""; $("buildBtn").hidden=true;
+  }
+  const have=CARDS.filter(c=>ST.cards[c.id]).length;
+  $("musPerk").textContent=`${have}/${CARDS.length} cipher cards collected · Halls add +${num(bon.hall)} G to every solve`;
+  const box=$("halls"), open=new Set([...box.querySelectorAll("details[open]")].map(d=>d.dataset.h));
+  box.innerHTML="";
+  HALLS.forEach((h,i)=>{
+    const built=i<b, list=CARDS.filter(c=>c.hall===h.id), own=list.filter(c=>ST.cards[c.id]).length;
+    const det=document.createElement("details"); det.className="hall"+(built?" built":""); det.dataset.h=h.id;
+    if(open.has(h.id)) det.open=true;
+    const sum=document.createElement("summary");
+    const nm=document.createElement("b"); nm.textContent=`${i+1}. ${h.name}`;
+    const st=document.createElement("span"); st.className="st"; st.textContent=built?`Open · ${own}/${list.length} cards`:`${num(h.cost)} G · ${own}/${list.length} cards`;
+    sum.append(nm,st); det.appendChild(sum);
+    const rw=document.createElement("div"); rw.className="rw"; rw.textContent=`${h.theme} · Reward: ${h.reward}${built?" ✓":""}`; det.appendChild(rw);
+    if(!built){ const n=document.createElement("div"); n.className="rw"; n.textContent="Build this hall to put its cards on show. Cards you pull now are kept for it."; det.appendChild(n); }
+    const g=document.createElement("div"); g.className="cards";
+    list.forEach(c=>g.appendChild(cardEl(c,built?ST.cards[c.id]:0)));
+    det.appendChild(g); box.appendChild(det);
+  });
+}
+$("buildBtn").onclick=()=>{
+  const h=HALLS[ST.built]; if(!h||ST.gold<h.cost) return;
+  ST.gold-=h.cost; ST.built++; h.apply();
+  if(!ST.badges.curator){ ST.badges.curator=day(); ST.gems+=5; toast("Badge unlocked: Curator · +5 ◆"); }
+  toast(`${h.name} is open! ${h.reward}`);
+  commit(); if(S) renderThemes();
+};
+
+function renderShop(){
+  const bon=bonuses();
+  $("wGold").textContent=num(ST.gold); $("wGems").textContent=num(ST.gems);
+  $("bonusLine").textContent=`Bonus on every solve: +${num(bon.gold)} G${bon.xp?` and +${bon.xp} XP`:""} (${bon.basic} basic look${bon.basic===1?"":"s"}, ${bon.rare} rare, museum +${bon.hall} G)`;
+  const it=$("items"); it.innerHTML="";
+  const free=FREE_HINTS-ST.freeHint.used;
+  ITEMS.forEach(x=>{
+    const r=document.createElement("div"); r.className="row2";
+    const t=document.createElement("div"); t.className="txt"; t.innerHTML="<b></b><span></span>";
+    t.querySelector("b").textContent=`${x.name} · owned ${ST.inv[x.id]}`;
+    t.querySelector("span").textContent=x.id==="hint"?`${x.desc} Free today: ${free}/${FREE_HINTS}.`:x.desc;
+    const b=document.createElement("button"); b.textContent=`${num(x.price)} G`; b.disabled=ST.gold<x.price;
+    b.onclick=()=>{ if(ST.gold<x.price) return; ST.gold-=x.price; ST.inv[x.id]++; toast(`Bought: ${x.name}`); commit(); };
+    r.append(t,b); it.appendChild(r);
+  });
+  const pk=$("packs"); pk.innerHTML="";
+  PACKS.forEach(p=>{
+    const r=document.createElement("div"); r.className="row2";
+    const t=document.createElement("div"); t.className="txt";
+    t.innerHTML="<b></b><span>Common 60% · Rare 30% · Epic 9% · Legendary 1%. A duplicate gives back 2 ◆.</span>";
+    t.querySelector("b").textContent=`Card pack · ${p.label}`;
+    const b=document.createElement("button"); b.textContent=`${p.price} ◆`; b.disabled=ST.gems<p.price;
+    b.onclick=()=>buyPack(p);
+    r.append(t,b); pk.appendChild(r);
+  });
+  const cs=$("cosmetics"); cs.innerHTML="";
+  Object.keys(SLOTS).forEach(slot=>{
+    const h=document.createElement("div"); h.className="sub"; h.style.fontWeight="700"; h.textContent=SLOTS[slot]; cs.appendChild(h);
+    const grid=document.createElement("div"); grid.className="cosgrid";
+    [{id:"default",slot,tier:null,name:"Classic"},...LOOKS.filter(l=>l.slot===slot)].forEach(l=>{
+      const own=l.id==="default"||!!ST.owned[l.id], eq=ST.equip[slot]===l.id;
+      const c=document.createElement("div"); c.className="cos"+(eq?" eq":"");
+      const pv=document.createElement("div"); pv.className="pv"; pv.dataset[slot]=l.id;
+      if(slot==="kb"){ ["C","O","D","E"].forEach(k=>{ const kb=document.createElement("span"); kb.className="key"; kb.textContent=k; pv.appendChild(kb); }); }
+      else{
+        if(slot==="cell") pv.dataset.board=ST.equip.board;
+        const bd=document.createElement("div"); bd.className="board";
+        [["K","Q"],["E","T"],["Y","A"]].forEach(([p,cc],i)=>{ const ce=document.createElement("div"); ce.className="cell"+(i===1?" same":""); ce.innerHTML=`<span class="g">${p}</span><span class="c">${cc}</span>`; bd.appendChild(ce); });
+        pv.appendChild(bd);
+      }
+      const nm=document.createElement("div"); nm.className="nm";
+      const b=document.createElement("b"); b.textContent=l.name; nm.appendChild(b);
+      if(l.tier){ const t=document.createElement("span"); t.className="tag "+(l.tier==="rare"?"t-l":"t-c"); t.textContent=TIER[l.tier].label; nm.appendChild(t); }
+      const bon2=document.createElement("div"); bon2.className="bon";
+      bon2.textContent=l.tier?`+${TIER[l.tier].gold} G${TIER[l.tier].xp?` · +${TIER[l.tier].xp} XP`:""} per solve`:"Default look";
+      const btn=document.createElement("button");
+      if(eq){ btn.textContent="In use"; btn.disabled=true; }
+      else if(own){ btn.textContent="Use"; btn.onclick=()=>{ ST.equip[slot]=l.id; commit(); }; }
+      else{
+        const pr=TIER[l.tier].price; btn.textContent=`${pr} ◆`; btn.disabled=ST.gems<pr;
+        btn.onclick=()=>{
+          if(ST.gems<pr) return; ST.gems-=pr; ST.owned[l.id]=day(); ST.equip[slot]=l.id;
+          toast(`New look: ${l.name} · +${TIER[l.tier].gold} G per solve`);
+          if(!ST.badges.stylist&&Object.keys(SLOTS).every(s=>LOOKS.some(x=>x.slot===s&&ST.owned[x.id]))){ ST.badges.stylist=day(); ST.gems+=5; toast("Badge unlocked: Stylist · +5 ◆"); }
+          commit();
+        };
+      }
+      c.append(pv,nm,bon2,btn); grid.appendChild(c);
+    });
+    cs.appendChild(grid);
+  });
+  const ct=$("content"); ct.innerHTML="";
+  THEMES.filter(t=>t.lock).forEach(th=>{
+    const r=document.createElement("div"); r.className="row2";
+    const t=document.createElement("div"); t.className="txt"; t.innerHTML="<b></b><span></span>";
+    const cnt=SENT.filter(s=>s.th===th.id).length;
+    t.querySelector("b").textContent=`${th.name} · ${cnt} sentences`;
+    t.querySelector("span").textContent=unlockedTheme(th)?"Unlocked. Pick it from the theme list on the Play page.":lockText(th);
+    const b=document.createElement("button");
+    if(unlockedTheme(th)){ b.textContent="Owned"; b.disabled=true; }
+    else if(th.lock.type==="gems"){
+      b.textContent=`${th.lock.val} ◆`; b.disabled=ST.gems<th.lock.val;
+      b.onclick=()=>{ if(ST.gems<th.lock.val) return; ST.gems-=th.lock.val; ST.unlocked[th.id]=day(); toast(`Unlocked: ${th.name}`); commit(); if(S) renderThemes(); };
+    }
+    else { b.textContent="Museum"; b.onclick=()=>show("museum"); }
+    r.append(t,b); ct.appendChild(r);
+  });
+  const ex=$("exchange"); ex.innerHTML="";
+  [1,10].forEach(n=>{
+    const r=document.createElement("div"); r.className="row2";
+    const t=document.createElement("div"); t.className="txt"; t.innerHTML="<b></b><span>Gold can't be turned back into gems.</span>";
+    t.querySelector("b").textContent=`${n} ◆ → ${num(n*GEM_TO_GOLD)} G`;
+    const b=document.createElement("button"); b.textContent="Trade"; b.disabled=ST.gems<n;
+    b.onclick=()=>{ if(ST.gems<n) return; ST.gems-=n; ST.gold+=n*GEM_TO_GOLD; toast(`+${num(n*GEM_TO_GOLD)} G`); commit(); };
+    r.append(t,b); ex.appendChild(r);
+  });
+}
+function pullCard(force){
+  let r=force;
+  if(!r){ const x=Math.random(); r=x<0.01?"L":x<0.10?"E":x<0.40?"R":"C"; }
+  const pool=CARDS.filter(c=>c.r===r), fresh=pool.filter(c=>!ST.cards[c.id]);
+  const from=force&&fresh.length?fresh:pool;
+  const c=from[Math.floor(Math.random()*from.length)];
+  if(ST.cards[c.id]) ST.gems+=2;
+  ST.cards[c.id]=(ST.cards[c.id]||0)+1;
+  return c;
+}
+function buyPack(p){
+  if(ST.gems<p.price) return;
+  ST.gems-=p.price;
+  const got=[]; for(let i=0;i<p.n;i++) got.push(pullCard());
+  if(!ST.badges.cards10&&CARDS.filter(c=>ST.cards[c.id]).length>=10){ ST.badges.cards10=day(); ST.gems+=5; toast("Badge unlocked: Card Shark · +5 ◆"); }
+  commit();
+  const pl=$("pull"); pl.innerHTML="";
+  got.forEach(c=>pl.appendChild(cardEl(c,ST.cards[c.id])));
+  const best=got.reduce((a,c)=>"CREL".indexOf(c.r)>"CREL".indexOf(a.r)?c:a,got[0]);
+  toast(`${RAR[best.r].name}: ${best.name}${got.length>1?` and ${got.length-1} more`:""}`);
+}
+
+/* ---------- solve rewards ---------- */
 function scoreFor(diff,t,hints,miss){
   const D=DIFF[diff];
   const bonus=Math.round(D.base*Math.max(0,(D.target-t)/D.target));
   return Math.max(Math.round(D.base*0.1), D.base+bonus-hints*Math.round(D.base/10)-miss*Math.round(D.base/30));
 }
 function recordSolve(){
-  migrate(); const lvBefore=levelOf(ST.xp);
+  migrate();
+  const lvBefore=levelOf(ST.xp), s=SENT[S.qi], bon=bonuses();
   const t=elapsed(), d=day(), diff=S.diff, sc=scoreFor(diff,t,S.hints,S.mistakes);
+  let gold=sc+bon.gold, gems=0; const notes=[];
   ST.solved++; ST.total+=t; ST.totalScore=(ST.totalScore||0)+sc;
   if(!S.hints) ST.noHint++; if(!S.mistakes) ST.noMiss=(ST.noMiss||0)+1;
-  ST.by=ST.by||{}; const b=ST.by[diff]=ST.by[diff]||{solved:0,score:null,time:null};
+  const b=ST.by[diff]=ST.by[diff]||{solved:0,score:null,time:null};
   const pbScore=b.score!=null&&sc>b.score;
   b.solved++; if(b.score==null||sc>b.score) b.score=sc; if(b.time==null||t<b.time) b.time=t;
-  if(ST.lastDay!==d){ ST.streak=ST.lastDay===yesterday()?ST.streak+1:1; ST.lastDay=d; }
+  if(ST.lastDay!==d){
+    gold+=100; notes.push("First solve today · +100 G");
+    const gap=ST.lastDay?daysBetween(ST.lastDay,d):99;
+    if(gap===1) ST.streak++;
+    else if(ST.lastDay&&gap>1&&gap-1<=ST.inv.freeze){ ST.inv.freeze-=gap-1; ST.streak++; notes.push(`Streak freeze used ×${gap-1}`); }
+    else ST.streak=1;
+    ST.lastDay=d;
+    if(ST.streak%30===0){ gems+=30; notes.push(`${ST.streak}-day streak · +30 ◆`); }
+    else if(ST.streak%7===0){ gems+=10; notes.push(`${ST.streak}-day streak · +10 ◆`); }
+  }
   ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
-  ST.xp+=sc;
+  ST.xp+=sc+bon.xp;
   ST.days[d]=(ST.days[d]||0)+1;
   const dk=Object.keys(ST.days).sort(); while(dk.length>400) delete ST.days[dk.shift()];
-  const fk=qkey(QUOTES[S.qi]), newQuote=!ST.found[fk]; if(newQuote) ST.found[fk]=d;
-  const M=ensureMissions(), ctx={diff,mode:S.mode,t,hints:S.hints,miss:S.mistakes,sc}, missionDone=[];
+  const isNew=!ST.found[s.k]; if(isNew){ ST.found[s.k]=d; gold+=100; }
+  ST.themesSolved[s.th]=(ST.themesSolved[s.th]||0)+1;
+  if(diff==="hard"&&!S.hints){ gems+=1; notes.push("Hard without hints · +1 ◆"); }
+  const M=ensureMissions(), ctx={diff,mode:S.mode,t,hints:S.hints,miss:S.mistakes,sc,th:s.th,isNew};
   M.ids.forEach(id=>{
-    const def=MISSIONS[id]; if(M.claimed[id]) return;
-    M.prog[id]=Math.min(def.target,(M.prog[id]||0)+def.add(ctx));
-    if(M.prog[id]>=def.target){ M.claimed[id]=true; ST.xp+=MISSION_XP; missionDone.push(def.text); }
+    const def=MISSIONS[id]; if(!def||M.claimed[id]) return;
+    M.prog[id]=Math.min(def.target,(M.prog[id]||0)+def.add(ctx,M));
+    if(M.prog[id]>=def.target){ M.claimed[id]=true; ST.xp+=MISSION_XP; gold+=MISSION_GOLD; notes.push(`Mission done: ${def.text} · +${MISSION_GOLD} G`); }
   });
-  let allBonus=false;
-  if(!M.bonus&&M.ids.every(id=>M.claimed[id])){ M.bonus=true; ST.xp+=ALL_BONUS; allBonus=true; }
-  if(S.mode==="daily"){ ST.daily=ST.daily||{}; ST.daily[S.date]={time:t,score:sc,hints:S.hints,miss:S.mistakes};
+  if(!M.bonus&&M.ids.every(id=>M.claimed[id])){ M.bonus=true; gems+=ALL_GEMS; notes.push(`All missions done · +${ALL_GEMS} ◆`); }
+  const lvAfter=levelOf(ST.xp);
+  for(let L=lvBefore+1;L<=lvAfter;L++){
+    const g=3+Math.floor(L/5); gems+=g; notes.push(`Level up! Lv.${L} · +${g} ◆`);
+    if(rankOf(L)!==rankOf(L-1)){ gems+=15; notes.push(`New rank: ${rankOf(L)} · +15 ◆`); }
+  }
+  if(S.mode==="daily"){ ST.daily[S.date]={time:t,score:sc,hints:S.hints,miss:S.mistakes};
     const keys=Object.keys(ST.daily).sort(); while(keys.length>90) delete ST.daily[keys.shift()]; }
-  ST.recent.unshift({a:QUOTES[S.qi].a,mode:S.mode==="daily"?"daily":diff,time:t,hints:S.hints,miss:S.mistakes,score:sc,day:d});
+  ST.recent.unshift({a:s.a||themeOf(s.th).label,mode:S.mode==="daily"?"daily":diff,time:t,hints:S.hints,miss:S.mistakes,score:sc,day:d,th:s.th});
   ST.recent=ST.recent.slice(0,8);
-  // badges
-  ST.badges=ST.badges||{}; const earned=[];
-  const give=(id,cond)=>{ if(cond&&!ST.badges[id]){ ST.badges[id]=d; earned.push(id);} };
+  const earned=[];
+  const give=(id,cond)=>{ if(cond&&!ST.badges[id]){ ST.badges[id]=d; earned.push(id); gems+=5; } };
   give("first",true); give("nohint",!S.hints); give("flawless",!S.hints&&!S.mistakes); give("quick",t<60);
   give("hard",diff==="hard"); give("enigma",diff==="hard"&&!S.hints); give("daily",S.mode==="daily");
   give("streak3",ST.streak>=3); give("streak7",ST.streak>=7); give("ten",ST.solved>=10); give("fifty",ST.solved>=50);
-  give("high",sc>=1500); give("missions",M.bonus); give("level10",levelOf(ST.xp)>=10);
-  give("collector",QUOTES.every(q=>ST.found[qkey(q)]));
-  save("stats",ST); renderStats();
-  missionDone.forEach(m=>toast(`Mission complete: ${m} · +${MISSION_XP} XP`));
-  if(allBonus) toast(`All daily missions done · +${ALL_BONUS} XP`);
-  const lvAfter=levelOf(ST.xp);
-  if(lvAfter>lvBefore) toast(`Level up! Lv.${lvAfter} · ${rankOf(lvAfter)}`);
-  if(newQuote) toast(`New quote collected · ${Object.keys(ST.found).length}/${QUOTES.length}`);
-  earned.forEach(id=>toast("Badge unlocked: "+BADGES.find(x=>x.id===id).name));
-  return {sc,pbScore};
+  give("high",sc>=1500); give("missions",M.bonus); give("level10",lvAfter>=10);
+  give("explorer",openThemes().every(th=>ST.themesSolved[th.id]));
+  give("collector",SENT.every(x=>ST.found[x.k]));
+  ST.gold+=gold; ST.gems+=gems;
+  commit();
+  notes.forEach(n=>toast(n));
+  if(isNew) toast("New sentence collected · +100 G");
+  earned.forEach(id=>toast(`Badge unlocked: ${BADGES.find(x=>x.id===id).name} · +5 ◆`));
+  return {sc,pbScore,gold,gems};
 }
 const toastQ=[]; let toasting=false;
 function toast(t){ toastQ.push(t); if(!toasting) nextToast(); }
 function nextToast(){
   const t=toastQ.shift(); if(!t){toasting=false;$("toast").hidden=true;return;}
   toasting=true; const el=$("toast"); el.hidden=true; el.textContent=t; void el.offsetWidth; el.hidden=false;
-  setTimeout(nextToast,2600);
+  setTimeout(nextToast,2300);
 }
 
-/* ---------- puzzle creation ---------- */
+/* ---------- puzzle ---------- */
 function derange(rand){
   let a;
   do{ a=[...AZ]; for(let i=25;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
@@ -510,60 +1039,90 @@ function derange(rand){
 }
 function makePuzzle(m){
   const isDaily=m==="daily", diff=isDaily?"normal":m, date=day();
+  if(prefTheme!=="all"&&!openThemes().some(t=>t.id===prefTheme)) prefTheme="all";
+  const theme=isDaily?"all":prefTheme;
   const rand=isDaily?seeded("cryptogram-"+date):Math.random;
-  const pool=POOL[diff]; let qi;
-  if(isDaily) qi=pool[Math.floor(rand()*pool.length)];
-  else { const prev=S?S.qi:-1; do{ qi=pool[Math.floor(rand()*pool.length)]; }while(pool.length>1&&qi===prev); }
-  const key=derange(rand), up=QUOTES[qi].t.toUpperCase();
+  let qi;
+  if(isDaily){ // only themes everyone has, so it is the same puzzle for every player
+    const base=new Set(THEMES.filter(t=>!t.lock).map(t=>t.id));
+    let pool=SENT.map((s,i)=>i).filter(i=>base.has(SENT[i].th)&&tierOf(SENT[i])==="normal");
+    if(!pool.length) pool=SENT.map((s,i)=>i);
+    qi=pool[Math.floor(rand()*pool.length)];
+  } else {
+    const pool=pickPool(diff,theme);
+    const fresh=pool.filter(i=>!ST.found[SENT[i].k]&&(!S||i!==S.qi));
+    const from=fresh.length&&Math.random()<0.7?fresh:pool;
+    const prev=S?S.qi:-1; do{ qi=from[Math.floor(rand()*from.length)]; }while(from.length>1&&qi===prev);
+  }
+  const key=derange(rand), up=SENT[qi].t.toUpperCase();
   const plains=[...new Set([...up].filter(c=>AZ.includes(c)))];
-  const shuffled=[...plains]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
-  const pick=shuffled.slice(0,Math.min(DIFF[diff].give,plains.length-1));
+  const sh=[...plains]; for(let i=sh.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]];}
+  const pick=sh.slice(0,Math.min(DIFF[diff].give,plains.length-1));
   const guess={}, rev=[]; let n=0;
   [...up].forEach(ch=>{ if(!AZ.includes(ch)) return; if(pick.includes(ch)){guess[n]=ch;rev.push(n);} n++; });
-  return {v:3,mode:isDaily?"daily":diff,diff,date,qi,key,guess,rev,hints:0,mistakes:0,ms:0,done:false};
+  return {v:4,mode:isDaily?"daily":diff,diff,theme,date,qk:SENT[qi].k,key,guess,rev,hints:0,mistakes:0,ms:0,done:false};
 }
-
-/* ---------- game ---------- */
 function elapsed(){ return Math.floor((S.base+(S.done?0:Date.now()-S.t0))/1000); }
-function snapshot(){ return {v:3,mode:S.mode,diff:S.diff,date:S.date,qi:S.qi,key:S.key,guess:S.guess,rev:[...S.rev],
+function snapshot(){ return {v:4,mode:S.mode,diff:S.diff,theme:S.theme,date:S.date,qk:SENT[S.qi].k,key:S.key,guess:S.guess,rev:[...S.rev],
   hints:S.hints,mistakes:S.mistakes,ms:S.base+(S.done?0:Date.now()-S.t0),done:S.done}; }
+function validSnap(c){ return c&&c.v===4&&DIFF[c.diff]&&typeof c.key==="string"&&c.key.length===26&&SENT.some(s=>s.k===c.qk); }
 
 function start(saved){
-  const q=QUOTES[saved.qi], enc={};
+  const qi=SENT.findIndex(s=>s.k===saved.qk), q=SENT[qi], enc={};
   [...AZ].forEach((p,i)=>enc[p]=saved.key[i]);
   const cells=[];
-  const wds=q.t.toUpperCase().split(" ").map(w=>[...w].map(ch=>{
+  const wds=q.t.toUpperCase().split(/\s+/).map(w=>[...w].map(ch=>{
     if(!enc[ch]) return {punct:ch};
     cells.push({c:enc[ch],p:ch}); return {i:cells.length-1};
   }));
-  S={mode:saved.mode,diff:saved.diff,date:saved.date,qi:saved.qi,key:saved.key,q,cells,words:wds,
+  S={mode:saved.mode,diff:saved.diff,theme:saved.theme||"all",date:saved.date,qi,key:saved.key,q,cells,words:wds,
      guess:{...saved.guess},rev:new Set(saved.rev),hints:saved.hints||0,mistakes:saved.mistakes||0,
      base:saved.ms||0,t0:Date.now(),done:!!saved.done};
   mode=S.mode;
   S.sel=S.done?null:nextEmpty(-1);
   $("hints").textContent=S.hints; $("miss").textContent=S.mistakes; msg("");
-  $("author").textContent="— "+(S.done?q.a:q.a.replace(/[A-Za-zÀ-ÿ]/g,"•"));
+  renderMeta();
   document.querySelectorAll(".modes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
+  renderThemes();
   $("next").textContent=mode==="daily"?"Practice":"New puzzle";
   build(); update(); renderFreq();
   clearInterval(timer); if(!S.done) timer=setInterval(tick,1000); tick();
 }
+function renderMeta(){
+  const th=themeOf(S.q.th);
+  $("themeName").textContent=th.name;
+  const src=S.q.a||th.label;
+  $("author").textContent="— "+(S.done||!S.q.a?src:src.replace(/[A-Za-zÀ-ÿ]/g,"•"));
+}
+function renderThemes(){
+  const box=$("themes"); box.innerHTML="";
+  [{id:"all",name:"All themes"},...THEMES].forEach(th=>{
+    const b=document.createElement("button"), open=th.id==="all"||unlockedTheme(th);
+    b.textContent=th.name+(open?"":" · locked");
+    if(!open) b.className="locked";
+    b.setAttribute("aria-pressed",String(mode!=="daily"&&prefTheme===th.id));
+    b.disabled=mode==="daily"; if(mode==="daily") b.title="The Daily puzzle mixes all themes";
+    b.onclick=()=>{
+      if(!open){ msg(lockText(th),"bad"); return; }
+      prefTheme=th.id; try{localStorage.setItem("cg_theme",th.id);}catch(e){} play(mode==="daily"?"normal":mode);
+    };
+    box.appendChild(b);
+  });
+}
 function play(m){
   if(m==="daily"){
-    const res=ST.daily&&ST.daily[day()];
+    const res=ST.daily[day()];
     if(res){
-      const p=makePuzzle("daily");
-      p.cells=null; const up=QUOTES[p.qi].t.toUpperCase(); let n=0;
+      const p=makePuzzle("daily"), up=SENT.find(s=>s.k===p.qk).t.toUpperCase(); let n=0;
       [...up].forEach(ch=>{ if(AZ.includes(ch)) p.guess[n++]=ch; });
       p.done=true; p.ms=res.time*1000; p.hints=res.hints; p.mistakes=res.miss;
       start(p);
       msg(`Today's puzzle is solved: ${num(res.score)} pts in ${fmt(res.time)}. A new one arrives tomorrow.`,"ok");
-      save("current",snapshot());
-      return;
+      save("current",snapshot()); return;
     }
-    if(S&&S.mode==="daily"&&S.date===day()&&!S.done){ return; }
+    if(S&&S.mode==="daily"&&S.date===day()&&!S.done) return;
   }
-  ST.played++; save("stats",ST); renderStats();
+  ST.played++; save("stats",ST); renderRecords();
   start(makePuzzle(m)); saveCurrent();
 }
 function tick(){ $("time").textContent=fmt(elapsed()); }
@@ -574,7 +1133,7 @@ function build(){
     const wd=document.createElement("div"); wd.className="word";
     w.forEach(x=>{
       if(x.punct!==undefined){ const p=document.createElement("span"); p.className="p"; p.textContent=x.punct; wd.appendChild(p); return; }
-      const c=document.createElement("div"); c.className="cell"; c.dataset.i=x.i; c.tabIndex=0;
+      const c=document.createElement("div"); c.className="cell"; c.dataset.i=x.i;
       c.innerHTML='<span class="g"></span><span class="c">'+S.cells[x.i].c+'</span>';
       c.onclick=()=>{ if(S.done) return; S.sel=x.i; update(); renderFreq(); };
       wd.appendChild(c);
@@ -582,10 +1141,9 @@ function build(){
     b.appendChild(wd);
   });
 }
-
 function update(){
   const selC=S.sel!=null?S.cells[S.sel].c:null;
-  document.querySelectorAll(".cell").forEach(el=>{
+  document.querySelectorAll("#board .cell").forEach(el=>{
     const i=+el.dataset.i, cell=S.cells[i], g=S.guess[i]||"";
     el.querySelector(".g").textContent=g;
     el.classList.toggle("same",!S.done&&cell.c===selC&&i!==S.sel);
@@ -596,10 +1154,17 @@ function update(){
   const need={};
   S.cells.forEach((c,i)=>{ need[c.p]=(need[c.p]!==false)&&S.guess[i]===c.p; });
   document.querySelectorAll(".kb button[data-k]").forEach(b=>b.classList.toggle("done",need[b.dataset.k]===true));
-  $("hint").disabled=S.done; $("clear").disabled=S.done;
+  $("clear").disabled=S.done; renderHintBtn();
+}
+function renderHintBtn(){
+  if(!S||!ST.freeHint) return;
+  const free=Math.max(0,FREE_HINTS-ST.freeHint.used), tix=ST.inv.hint||0;
+  $("hint").textContent=free?`Hint · ${free} free`:tix?`Hint · ${tix} ticket${tix===1?"":"s"}`:"Hint";
+  $("hint").disabled=S.done;
+  $("itemRow").hidden=!(ST.inv.vowel>0)||S.done;
+  $("vowelBtn").textContent=`Reveal vowels · ${ST.inv.vowel||0} left`;
 }
 
-/* ---------- letter-frequency panel ---------- */
 let showFreq=false;
 try{ showFreq=localStorage.getItem("cg_freq")==="1"; }catch(e){}
 function renderFreq(){
@@ -621,7 +1186,6 @@ function renderFreq(){
 $("freqBtn").onclick=()=>{ showFreq=!showFreq; try{localStorage.setItem("cg_freq",showFreq?"1":"0");}catch(e){} renderFreq(); };
 
 function msg(t,cls){ $("msg").textContent=t; $("msg").className="msg"+(cls?" "+cls:""); }
-
 function nextEmpty(from){
   const n=S.cells.length;
   for(let k=1;k<=n;k++){ const i=(from+k+n)%n; if(!S.guess[i]) return i; }
@@ -639,43 +1203,59 @@ function assign(L){
 }
 function erase(){
   if(!S||S.done) return;
-  if(!S.guess[S.sel]||S.rev.has(S.sel)){
-    for(let i=S.sel-1;i>=0;i--) if(!S.rev.has(i)){ S.sel=i; break; }
-  }
+  if(!S.guess[S.sel]||S.rev.has(S.sel)){ for(let i=S.sel-1;i>=0;i--) if(!S.rev.has(i)){ S.sel=i; break; } }
   if(!S.rev.has(S.sel)){ const code=S.cells[S.sel].c; S.cells.forEach((c,i)=>{ if(c.c===code&&!S.rev.has(i)) delete S.guess[i]; }); }
   update(); renderFreq(); saveCurrent();
 }
 function move(d){ if(!S||S.done) return; const n=S.cells.length; S.sel=(S.sel+d+n)%n; update(); renderFreq(); }
-
 function checkWin(){
   if(S.done||!S.cells.every((c,i)=>S.guess[i])) return;
   if(S.cells.every((c,i)=>S.guess[i]===c.p)){
-    S.base+=Date.now()-S.t0; S.done=true; S.sel=null; clearInterval(timer); tick(); update(); renderFreq();
-    $("author").textContent="— "+S.q.a;
-    const {sc,pbScore}=recordSolve();
-    msg(`${pbScore?"New best score! ":""}${num(sc)} pts · ${fmt(elapsed())} · ${S.hints} hint${S.hints===1?"":"s"} · ${S.mistakes?S.mistakes+" miss"+(S.mistakes===1?"":"es"):"no misses"}`,"ok");
+    S.base+=Date.now()-S.t0; S.done=true; S.sel=null; clearInterval(timer); tick(); update(); renderFreq(); renderMeta();
+    const {sc,pbScore,gold,gems}=recordSolve();
+    msg(`${pbScore?"New best! ":""}${num(sc)} pts · ${fmt(elapsed())} · +${num(gold)} G${gems?` · +${gems} ◆`:""}`,"ok");
   } else msg("Every letter is filled, but some are wrong. Fix the red letters.","bad");
+}
+function useHintAllowance(){
+  migrate();
+  if(ST.freeHint.used<FREE_HINTS){ ST.freeHint.used++; return true; }
+  if(ST.inv.hint>0){ ST.inv.hint--; return true; }
+  return false;
 }
 function hint(){
   if(!S||S.done) return;
   const open=S.cells.map((c,i)=>i).filter(i=>S.guess[i]!==S.cells[i].p);
   if(!open.length) return;
+  if(!useHintAllowance()){ msg("No hints left today. Buy hint tickets in the Shop.","bad"); return; }
   const i=open.includes(S.sel)?S.sel:open[Math.floor(Math.random()*open.length)];
-  const code=S.cells[i].c; S.cells.forEach((c,j)=>{ if(c.c===code){ S.guess[j]=c.p; S.rev.add(j); } }); S.hints++; $("hints").textContent=S.hints; msg("");
+  const code=S.cells[i].c; S.cells.forEach((c,j)=>{ if(c.c===code){ S.guess[j]=c.p; S.rev.add(j); } });
+  S.hints++; $("hints").textContent=S.hints; msg("");
+  save("stats",ST); renderShop();
   S.sel=nextEmpty(i); after();
+}
+function revealVowels(){
+  if(!S||S.done||!(ST.inv.vowel>0)) return;
+  const V="AEIOU"; let any=false;
+  S.cells.forEach((c,j)=>{ if(V.includes(c.p)){ if(S.guess[j]!==c.p) any=true; S.guess[j]=c.p; S.rev.add(j); } });
+  if(!any){ msg("All the vowels are already in place.","ok"); return; }
+  ST.inv.vowel--; S.hints++; $("hints").textContent=S.hints; msg("");
+  save("stats",ST); renderShop();
+  S.sel=nextEmpty(S.sel==null?-1:S.sel); after();
 }
 function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.has(+k)) delete S.guess[k]; msg(""); S.sel=nextEmpty(-1); update(); renderFreq(); saveCurrent(); }
 
-// on-screen keyboard
 ["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((r,ri)=>{
   const row=document.createElement("div"); row.className="row";
-  [...r].forEach(L=>{const b=document.createElement("button");b.textContent=L;b.dataset.k=L;b.onclick=()=>assign(L);row.appendChild(b);});
-  if(ri===2){const b=document.createElement("button");b.className="wide";b.textContent="Erase";b.onclick=erase;row.appendChild(b);}
+  [...r].forEach(L=>{const b=document.createElement("button");b.className="key";b.textContent=L;b.dataset.k=L;b.onclick=()=>assign(L);row.appendChild(b);});
+  if(ri===2){const b=document.createElement("button");b.className="key wide";b.textContent="Erase";b.onclick=erase;row.appendChild(b);}
   $("kb").appendChild(row);
 });
 document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
-  if(e.target&&e.target.tagName==="BUTTON"&&(e.key===" "||e.key==="Enter")) return;
+  if($("view-play").hidden) return;
+  const tag=e.target&&e.target.tagName;
+  if(tag==="TEXTAREA"||tag==="INPUT") return;
+  if(tag==="BUTTON"&&(e.key===" "||e.key==="Enter")) return;
   const k=e.key.toUpperCase();
   if(/^[A-Z]$/.test(k)){assign(k);e.preventDefault();}
   else if(e.key==="Backspace"||e.key==="Delete"){erase();e.preventDefault();}
@@ -684,18 +1264,13 @@ document.addEventListener("keydown",e=>{
 });
 document.addEventListener("visibilitychange",()=>{ if(document.hidden&&S&&!S.done) save("current",snapshot()); });
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
-  const m=b.dataset.mode;
-  if(S&&m===S.mode&&!S.done) return;
-  play(m);
+  const m=b.dataset.mode; if(S&&m===S.mode&&!S.done) return; play(m);
 });
-$("hint").onclick=hint; $("clear").onclick=clearAll;
+$("hint").onclick=hint; $("clear").onclick=clearAll; $("vowelBtn").onclick=revealVowels;
 $("next").onclick=()=>play(mode==="daily"?"normal":mode);
 
 /* ---------- save code: move progress between browsers ---------- */
-function makeCode(){
-  const data={v:1,s:ST,c:S?snapshot():null};
-  return "CG1."+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-}
+function makeCode(){ return "CG1."+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,s:ST,c:S?snapshot():null})))); }
 $("copyCode").onclick=async()=>{
   const code=makeCode(), out=$("codeOut");
   out.value=code; out.hidden=false; $("loadBox").hidden=true;
@@ -707,24 +1282,21 @@ $("cancelLoad").onclick=()=>{ $("loadBox").hidden=true; $("xmsg").textContent=""
 $("doLoad").onclick=()=>{
   let data;
   try{
-    const raw=$("codeIn").value.trim();
-    if(!raw.startsWith("CG1.")) throw 0;
+    const raw=$("codeIn").value.trim(); if(!raw.startsWith("CG1.")) throw 0;
     data=JSON.parse(decodeURIComponent(escape(atob(raw.slice(4)))));
     if(!data||!data.s||typeof data.s.solved!=="number") throw 0;
   }catch(e){ $("xmsg").textContent="That code doesn't look right. Copy the whole code, starting with CG1., and try again."; return; }
-  ST={...ST,...data.s}; save("stats",ST); renderStats();
-  const c=data.c;
-  if(c&&c.v===3&&!c.done&&QUOTES[c.qi]&&DIFF[c.diff]){ start(c); save("current",snapshot()); }
-  else play(ST.daily&&ST.daily[day()]?"normal":"daily");
-  $("loadBox").hidden=true; $("xmsg").textContent=`Loaded: ${ST.solved} solved, ${num(ST.totalScore||0)} total points.`;
+  ST={...ST,...data.s}; commit();
+  if(validSnap(data.c)&&!data.c.done){ start(data.c); save("current",snapshot()); }
+  else play(ST.daily[day()]?"normal":"daily");
+  $("loadBox").hidden=true; $("xmsg").textContent=`Loaded: ${ST.solved} solved, ${num(ST.gold)} G, ${num(ST.gems)} ◆.`;
 };
 
-/* ---------- automatic sync for the hosted version (Firebase) ----------
-   Paste your Firebase web app config below. Leave apiKey empty to turn sync off. */
+/* ---------- automatic sync for the hosted version (Firebase) ---------- */
 const FIREBASE_CONFIG={apiKey:"AIzaSyCdKbeVEWzHfjgk5QMZq-L-yc-WnRjoRhc",authDomain:"cryptogram-b19bc.firebaseapp.com",projectId:"cryptogram-b19bc",storageBucket:"cryptogram-b19bc.firebasestorage.app",messagingSenderId:"11698311470",appId:"1:11698311470:web:04f6e7148c3f2f39c42abf"};
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 async function setupCloud(){
-  if(store.kind==="db"||!FIREBASE_CONFIG.apiKey) return;
+  if(store.kind==="db"||!FIREBASE_CONFIG.apiKey||!/^https?:$/.test(location.protocol)) return;
   try{ for(const f of ["app","auth","firestore"]) await loadScript(`https://www.gstatic.com/firebasejs/10.12.2/firebase-${f}-compat.js`); }
   catch(e){ return; }
   firebase.initializeApp(FIREBASE_CONFIG);
@@ -743,110 +1315,39 @@ async function setupCloud(){
     if(!u){
       store=local; $("signIn").hidden=false; $("signOut").hidden=true;
       $("acctText").textContent="Sign in to sync your progress across browsers and devices.";
-      renderStats(); return;
+      renderRecords(); return;
     }
     const ref=k=>fs.collection("users").doc(u.uid).collection("data").doc(k);
     const cloud={kind:"cloud",
       async get(k){ const s=await ref(k).get(); return s.exists?s.data():null; },
       async set(k,v){ local.set(k,v); await ref(k).set(JSON.parse(JSON.stringify(v))); }};
-    $("signIn").hidden=true; $("signOut").hidden=false;
-    $("acctText").textContent="Syncing…";
+    $("signIn").hidden=true; $("signOut").hidden=false; $("acctText").textContent="Syncing…";
     let cs=null, cc=null;
     try{ cs=await cloud.get("stats"); cc=await cloud.get("current"); }
     catch(e){ $("acctText").textContent="Couldn't reach the sync server. Your progress stays in this browser for now."; return; }
     store=cloud;
-    if(cs&&(cs.solved||0)>=(ST.solved||0)){
-      ST={...ST,...cs}; renderStats();
-      if(cc&&cc.v===3&&!cc.done&&QUOTES[cc.qi]&&DIFF[cc.diff]) start(cc);
-    } else {
-      save("stats",ST); if(S) save("current",snapshot());
-    }
+    if(cs&&(cs.solved||0)>=(ST.solved||0)){ ST={...ST,...cs}; renderAll(); if(validSnap(cc)&&!cc.done) start(cc); }
+    else { save("stats",ST); if(S) save("current",snapshot()); }
     $("acctText").textContent="Signed in as "+(u.displayName||u.email||"you")+". Progress syncs automatically.";
-    renderStats();
+    renderRecords();
   });
 }
-
-/* ---------- progression: level, missions, calendar, collection ---------- */
-function migrate(){
-  if(ST.xp==null) ST.xp=ST.totalScore||0;
-  ST.days=ST.days||{}; ST.found=ST.found||{}; ST.badges=ST.badges||{}; ST.daily=ST.daily||{};
-  Object.keys(ST.daily).forEach(k=>{ if(!ST.days[k]) ST.days[k]=1; });
-  if(ST.lastDay&&!ST.days[ST.lastDay]) ST.days[ST.lastDay]=1;
-}
-function ensureMissions(){
-  const d=day();
-  if(!ST.mission||ST.mission.date!==d){
-    const r=seeded("missions-"+d), ids=Object.keys(MISSIONS);
-    for(let i=ids.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [ids[i],ids[j]]=[ids[j],ids[i]]; }
-    ST.mission={date:d,ids:ids.slice(0,3),prog:{},claimed:{},bonus:false};
-  }
-  return ST.mission;
-}
-let calY=new Date().getFullYear(), calM=new Date().getMonth();
-function renderProgress(){
-  const xp=ST.xp||0, L=levelOf(xp), lo=xpFor(L), hi=xpFor(L+1);
-  $("lv").textContent=L;
-  $("lvName").textContent=`Lv.${L} ${rankOf(L)}`;
-  $("xpTotal").textContent=num(xp)+" XP";
-  $("xpBar").style.width=Math.round((xp-lo)/(hi-lo)*100)+"%";
-  $("xpText").textContent=`${num(xp-lo)} / ${num(hi-lo)} XP to Lv.${L+1}`;
-  const nr=RANKS.find(([min])=>min>L);
-  $("nextRank").textContent=nr?`Next rank: ${nr[1]} at Lv.${nr[0]}`:"Top rank reached";
-  // missions
-  const M=ensureMissions(); $("missions").innerHTML="";
-  M.ids.forEach(id=>{
-    const def=MISSIONS[id], p=Math.min(def.target,M.prog[id]||0), done=!!M.claimed[id];
-    const li=document.createElement("li"); li.className=done?"done":"";
-    const ck=document.createElement("span"); ck.className="ck"; ck.textContent=done?"✓":"";
-    const mt=document.createElement("span"); mt.className="mt"; mt.textContent=def.text;
-    const mp=document.createElement("span"); mp.className="mp"; mp.textContent=done?"+"+MISSION_XP+" XP":`${num(p)}/${num(def.target)}`;
-    li.append(ck,mt,mp); $("missions").appendChild(li);
-  });
-  // calendar
-  const first=new Date(calY,calM,1), days=new Date(calY,calM+1,0).getDate(), today=day();
-  $("calTitle").textContent=first.toLocaleDateString("en-US",{month:"long",year:"numeric"});
-  const cal=$("cal"); cal.innerHTML="";
-  ["S","M","T","W","T","F","S"].forEach(w=>{ const e=document.createElement("div"); e.className="dow"; e.textContent=w; cal.appendChild(e); });
-  for(let i=0;i<first.getDay();i++){ const e=document.createElement("div"); e.className="cd blank"; cal.appendChild(e); }
-  let played=0;
-  for(let n=1;n<=days;n++){
-    const key=day(new Date(calY,calM,n)), e=document.createElement("div");
-    const did=!!(ST.days&&ST.days[key]); if(did) played++;
-    e.className="cd"+(did?" did":"")+(ST.daily&&ST.daily[key]?" dly":"")+(key===today?" today":"");
-    e.textContent=n; e.title=did?`${key}: ${ST.days[key]} solved`+(ST.daily[key]?" · Daily done":""):key;
-    cal.appendChild(e);
-  }
-  $("calSub").textContent=`${played} day${played===1?"":"s"} played this month · ★ Daily solved`;
-  const now=new Date(); $("calNext").disabled=calY>now.getFullYear()||(calY===now.getFullYear()&&calM>=now.getMonth());
-  // collection
-  const got=QUOTES.filter(q=>ST.found&&ST.found[qkey(q)]).length;
-  $("collCount").textContent=`${got}/${QUOTES.length}`;
-  $("collBar").style.width=Math.round(got/QUOTES.length*100)+"%";
-  $("quotes").innerHTML="";
-  QUOTES.forEach(q=>{
-    const f=ST.found&&ST.found[qkey(q)], li=document.createElement("li"), sm=document.createElement("small");
-    if(f){ li.textContent=q.t; sm.textContent=`${q.a} · ${DIFF[tierOf(q)].label} · collected ${f.slice(5)}`; }
-    else { li.className="lock"; li.textContent="Locked quote"; sm.textContent=`${DIFF[tierOf(q)].label} · ${words(q)} words`; }
-    li.appendChild(sm); $("quotes").appendChild(li);
-  });
-}
-$("calPrev").onclick=()=>{ calM--; if(calM<0){calM=11;calY--;} renderProgress(); };
-$("calNext").onclick=()=>{ calM++; if(calM>11){calM=0;calY++;} renderProgress(); };
 
 (async function boot(){
+  show(location.hash.slice(1)||"play");
   msg("Loading your game…");
   await connect();
   const st=await store.get("stats").catch(()=>null);
   if(st) ST={...ST,...st};
-  renderStats();
+  migrate(); renderAll(); save("stats",ST);
   const cur=await store.get("current").catch(()=>null);
-  if(cur&&cur.v===3&&!cur.done&&QUOTES[cur.qi]&&DIFF[cur.diff]&&typeof cur.key==="string"&&cur.key.length===26){ start(cur); msg("Picked up where you left off."); }
-  else if(!(ST.daily&&ST.daily[day()])) play("daily");
+  if(validSnap(cur)&&!cur.done){ start(cur); msg("Picked up where you left off."); }
+  else if(!ST.daily[day()]) play("daily");
   else play("normal");
   setupCloud();
 })();
-</script>
 
+</script>
 <script>
 if("serviceWorker" in navigator && location.protocol==="https:"){
   window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
