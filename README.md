@@ -2,7 +2,7 @@
 
 A browser-based substitution-cipher puzzle game. Each famous quote is encrypted with a random letter-substitution key, and your job is to crack it.
 
-**▶ Play:** https://YOUR-GITHUB-ID.github.io/cryptogram/
+**▶ Play:** https://daeunmint.github.io/cryptogram/
 
 <!-- Add a screenshot: upload screenshot.png to the repo and uncomment the line below -->
 <!-- ![Cryptogram screenshot](screenshot.png) -->
