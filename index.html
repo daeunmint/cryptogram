@@ -49,7 +49,7 @@ button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .kb{display:flex;flex-direction:column;gap:6px;align-items:center}
 .kb .row{display:flex;gap:5px;max-width:100%}
 .kb button{font-family:var(--f-mono);padding:0;width:min(34px,8.4vw);height:44px;font-size:1rem}
-.kb button.used{opacity:.4}
+.kb button.done{background:var(--bg);color:var(--muted);border-style:dashed;text-decoration:line-through;opacity:.55}
 .kb button.wide{width:min(64px,16vw);font-family:var(--f-ui);font-size:.8rem}
 .help{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.5}
 .rec{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
@@ -75,6 +75,7 @@ button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
     <div class="stats">
       <div>TIME <b id="time">00:00</b></div>
       <div>HINTS <b id="hints">0</b></div>
+      <div>MISSES <b id="miss">0</b></div>
       <div>#<b id="num">1</b></div>
     </div>
   </header>
@@ -169,22 +170,22 @@ function renderStats(){
   $("sAvg").textContent=ST.solved?fmt(Math.round(ST.total/ST.solved)):"–";
   const live=ST.lastDay===day()||ST.lastDay===yesterday();
   $("sStreak").textContent=live?ST.streak:0;
-  $("sSub").textContent=ST.played?`${ST.played} started · ${ST.noHint} solved without hints · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
+  $("sSub").textContent=ST.played?`${ST.played} started · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
   $("recent").innerHTML="";
   ST.recent.forEach(r=>{
     const li=document.createElement("li");
     const a=document.createElement("span"); a.textContent=r.a;
-    const b=document.createElement("span"); b.textContent=`${fmt(r.time)} · ${r.hints} hint${r.hints===1?"":"s"} · ${r.day.slice(5)}`;
+    const b=document.createElement("span"); b.textContent=`${fmt(r.time)} · ${r.hints}H · ${r.miss??"–"}✕ · ${r.day.slice(5)}`;
     li.append(a,b); $("recent").appendChild(li);
   });
   $("where").textContent=store.kind==="db"?"Saved to your account":"Saved in this browser";
 }
 function recordSolve(){
   const t=elapsed(), d=day();
-  ST.solved++; ST.total+=t; const pb=ST.best!=null&&t<ST.best; if(ST.best==null||t<ST.best) ST.best=t; if(!S.hints) ST.noHint++;
+  ST.solved++; ST.total+=t; const pb=ST.best!=null&&t<ST.best; if(ST.best==null||t<ST.best) ST.best=t; if(!S.hints) ST.noHint++; if(!S.mistakes) ST.noMiss=(ST.noMiss||0)+1;
   if(ST.lastDay!==d){ ST.streak=ST.lastDay===yesterday()?ST.streak+1:1; ST.lastDay=d; }
   ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
-  ST.recent.unshift({a:QUOTES[S.qi].a,time:t,hints:S.hints,day:d}); ST.recent=ST.recent.slice(0,8);
+  ST.recent.unshift({a:QUOTES[S.qi].a,time:t,hints:S.hints,miss:S.mistakes,day:d}); ST.recent=ST.recent.slice(0,8);
   save("stats",ST); renderStats();
   return pb;
 }
@@ -197,7 +198,7 @@ function derange(){
   return a.join("");
 }
 function elapsed(){ return Math.floor((S.base+(S.done?0:Date.now()-S.t0))/1000); }
-function snapshot(){ return {v:2,qi:S.qi,key:S.key,guess:S.guess,rev:[...S.rev],hints:S.hints,ms:S.base+(S.done?0:Date.now()-S.t0),done:S.done}; }
+function snapshot(){ return {v:2,qi:S.qi,key:S.key,guess:S.guess,rev:[...S.rev],hints:S.hints,mistakes:S.mistakes,ms:S.base+(S.done?0:Date.now()-S.t0),done:S.done}; }
 
 function start(saved){
   const q=QUOTES[saved.qi], enc={};
@@ -207,10 +208,10 @@ function start(saved){
     if(!enc[ch]) return {punct:ch};
     cells.push({c:enc[ch],p:ch}); return {i:cells.length-1};
   }));
-  S={qi:saved.qi,key:saved.key,q,cells,words,guess:{...saved.guess},rev:new Set(saved.rev),hints:saved.hints,
+  S={qi:saved.qi,key:saved.key,q,cells,words,guess:{...saved.guess},rev:new Set(saved.rev),hints:saved.hints,mistakes:saved.mistakes||0,
      base:saved.ms||0,t0:Date.now(),done:false};
   S.sel=nextEmpty(-1);
-  $("num").textContent=ST.played; $("hints").textContent=S.hints; msg("");
+  $("num").textContent=ST.played; $("hints").textContent=S.hints; $("miss").textContent=S.mistakes; msg("");
   $("author").textContent="— "+q.a.replace(/[A-Za-zÀ-ÿ]/g,"•");
   build(); update();
   clearInterval(timer); timer=setInterval(tick,1000); tick();
@@ -254,6 +255,9 @@ function update(){
     el.classList.toggle("rev",S.rev.has(i));
     el.classList.toggle("wrong",!!g&&g!==cell.p);
   });
+  const need={};
+  S.cells.forEach((c,i)=>{ need[c.p]=(need[c.p]!==false)&&S.guess[i]===c.p; });
+  document.querySelectorAll(".kb button[data-k]").forEach(b=>b.classList.toggle("done",need[b.dataset.k]===true));
 }
 
 function msg(t,cls){ $("msg").textContent=t; $("msg").className="msg"+(cls?" "+cls:""); }
@@ -267,6 +271,7 @@ function assign(L){
   if(!S||S.done||S.sel==null) return;
   if(S.rev.has(S.sel)){ S.sel=nextEmpty(S.sel); update(); return; }
   S.guess[S.sel]=L; msg("");
+  if(L!==S.cells[S.sel].p){ S.mistakes++; $("miss").textContent=S.mistakes; }
   S.sel=nextEmpty(S.sel); update(); checkWin(); saveCurrent();
 }
 function erase(){
@@ -285,7 +290,7 @@ function checkWin(){
     S.base+=Date.now()-S.t0; S.done=true; clearInterval(timer); tick(); update();
     $("author").textContent="— "+S.q.a;
     const pb=recordSolve();
-    msg((pb?"New best time! ":"")+"Solved in "+fmt(elapsed())+(S.hints?" with "+S.hints+" hint"+(S.hints>1?"s":""):" with no hints")+".","ok");
+    msg((pb?"New best time! ":"")+"Solved in "+fmt(elapsed())+" · "+S.hints+" hint"+(S.hints===1?"":"s")+" · "+(S.mistakes?S.mistakes+" miss"+(S.mistakes===1?"":"es"):"no misses")+".","ok");
   } else msg("Every letter is filled, but some are wrong. Fix the red letters.","bad");
 }
 function hint(){
