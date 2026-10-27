@@ -1,9 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <title>Cryptogram</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;600;800&display=swap">
 <style>
-/* Layout: one centered play column — header strip, puzzle board, controls, on-screen keyboard */
+/* Layout: one centered play column — header strip, mode switch, puzzle board, controls, keyboard, records */
 :root{
   --bg:#eef1f4; --panel:#ffffff; --ink:#1b2430; --muted:#6a7584; --line:#cfd6de;
   --sel:#ffd34d; --selsoft:#fff2c2; --wrong:#d64545; --ok:#2f8f5b; --hint:#3c6fd1;
@@ -17,12 +22,16 @@
   --sel:#e0b52c; --selsoft:#3a3220; --wrong:#ff6b6b; --ok:#4fc386; --hint:#7aa2ff; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
-.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{margin:0;font-weight:800;font-size:1.6rem;letter-spacing:.02em;text-wrap:balance}
 h1 span{font-family:var(--f-mono);font-weight:400;color:var(--muted);font-size:.9rem;margin-left:8px}
 .stats{display:flex;gap:16px;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .stats b{color:var(--ink);font-weight:700}
+.modes{display:flex;gap:6px}
+.modes button{flex:1;padding:9px 6px;font-size:.9rem}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.modes small{display:block;font-family:var(--f-mono);font-size:.68rem;font-weight:400;opacity:.75;margin-top:2px}
 .board{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 14px;
   display:flex;flex-wrap:wrap;gap:16px 18px;justify-content:center}
 .word{display:flex;gap:3px}
@@ -37,38 +46,73 @@ h1 span{font-family:var(--f-mono);font-weight:400;color:var(--muted);font-size:.
 .cell.wrong .g{color:var(--wrong)}
 .cell:focus-visible{outline:2px solid var(--hint);outline-offset:2px}
 .p{font-family:var(--f-mono);font-weight:700;font-size:1.15rem;align-self:flex-start;padding-top:4px}
-.author{text-align:right;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);margin-top:-8px}
+.author{text-align:right;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);margin-top:-6px}
 .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 button{font-family:var(--f-ui);font-weight:600;font-size:.95rem;border:1px solid var(--line);background:var(--panel);
   color:var(--ink);border-radius:8px;padding:9px 16px;cursor:pointer}
 button:hover{border-color:var(--ink)}
 button:focus-visible{outline:2px solid var(--hint);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
 button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button[aria-pressed="true"].toggle{border-color:var(--ink);background:var(--selsoft)}
 .msg{text-align:center;min-height:1.4em;font-weight:600}
 .msg.ok{color:var(--ok)} .msg.bad{color:var(--wrong)}
+.freq{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.freq button{padding:4px 8px;font-family:var(--f-mono);font-size:.85rem;display:flex;gap:6px;align-items:baseline;border-radius:6px}
+.freq button i{font-style:normal;color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums}
+.freq button.done{opacity:.4;text-decoration:line-through}
+.freq button.on{background:var(--sel);border-color:var(--sel);color:#1b2430}
+.freq button.on i{color:#1b2430}
 .kb{display:flex;flex-direction:column;gap:6px;align-items:center}
 .kb .row{display:flex;gap:5px;max-width:100%}
 .kb button{font-family:var(--f-mono);padding:0;width:min(34px,8.4vw);height:44px;font-size:1rem}
 .kb button.done{background:var(--bg);color:var(--muted);border-style:dashed;text-decoration:line-through;opacity:.55}
 .kb button.wide{width:min(64px,16vw);font-family:var(--f-ui);font-size:.8rem}
-.help{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.5}
+.help{font-size:.85rem;color:var(--muted);text-align:center;line-height:1.5;margin:0}
 .rec{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
 .rec-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .rec h2{margin:0;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.rec h3{margin:6px 0 0;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rec-head span{font-size:.8rem;color:var(--muted)}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
 .tile span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .tile b{font-family:var(--f-mono);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.bests{width:100%;border-collapse:collapse;font-size:.88rem}
+.bests th,.bests td{text-align:left;padding:6px 4px;border-bottom:1px dashed var(--line)}
+.bests th{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.bests td{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.bests td:first-child{font-family:var(--f-ui);font-weight:600}
 .sub{font-size:.85rem;color:var(--muted)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.badge{border:1px dashed var(--line);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:2px;color:var(--muted)}
+.badge b{font-size:.88rem;color:var(--muted)}
+.badge span{font-size:.75rem;line-height:1.35}
+.badge.got{border:1px solid var(--sel);background:var(--selsoft);color:var(--ink)}
+.badge.got b{color:var(--ink)}
+.badge.got b::before{content:"★ ";color:var(--sel)}
 .recent{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;font-size:.88rem}
 .recent li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}
 .recent li span:last-child{font-family:var(--f-mono);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 .recent li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[hidden]{display:none!important}
+.acct{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.88rem}
+.acct span{flex:1;min-width:180px}
+.xfer{display:flex;gap:8px;flex-wrap:wrap}
+.code{width:100%;box-sizing:border-box;font-family:var(--f-mono);font-size:.78rem;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical;word-break:break-all}
+.loadbox{display:flex;flex-direction:column;gap:8px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:.9rem;
+  max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:20;text-align:center}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .25s ease-out}}
+@keyframes pop{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:480px){.cell{width:24px}.cell .g{font-size:1rem;height:24px}.board{gap:12px 12px;padding:16px 8px}}
+@media (max-width:480px){.cell{width:24px}.cell .g{font-size:1rem;height:24px}.board{gap:12px 12px;padding:16px 8px}.modes button{font-size:.82rem;padding:8px 2px}}
 </style>
-
+<style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
 <div class="wrap">
   <header>
     <h1>CRYPTOGRAM<span>A→?</span></h1>
@@ -76,63 +120,149 @@ button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
       <div>TIME <b id="time">00:00</b></div>
       <div>HINTS <b id="hints">0</b></div>
       <div>MISSES <b id="miss">0</b></div>
-      <div>#<b id="num">1</b></div>
     </div>
   </header>
+  <div class="modes" role="group" aria-label="Mode">
+    <button id="m-daily" data-mode="daily">Daily<small id="dailyTag">today</small></button>
+    <button id="m-easy" data-mode="easy">Easy<small>×1 score</small></button>
+    <button id="m-normal" data-mode="normal">Normal<small>×2 score</small></button>
+    <button id="m-hard" data-mode="hard">Hard<small>×3 score</small></button>
+  </div>
   <div class="board" id="board" aria-label="Puzzle"></div>
   <div class="author" id="author"></div>
-  <div class="msg" id="msg"></div>
+  <div class="msg" id="msg" aria-live="polite"></div>
   <div class="controls">
     <button id="hint">Hint</button>
     <button id="clear">Clear</button>
+    <button id="freqBtn" class="toggle" aria-pressed="false">Letter counts</button>
     <button id="next" class="primary">New puzzle</button>
   </div>
+  <div class="freq" id="freq" hidden></div>
   <div class="kb" id="kb"></div>
   <p class="help">Tap a letter in the puzzle, then type your guess. Each code letter stands for one real letter, and no letter stands for itself. Matching code letters are highlighted, but you fill each one in yourself.</p>
   <section class="rec" aria-label="Your records">
     <div class="rec-head"><h2>Your records</h2><span id="where">Loading…</span></div>
+    <div class="acct" id="acct" hidden>
+      <span id="acctText">Sign in to sync your progress across browsers and devices.</span>
+      <button id="signIn" class="primary">Sign in with Google</button>
+      <button id="signOut" hidden>Sign out</button>
+    </div>
     <div class="tiles">
       <div class="tile"><span>Solved</span><b id="sSolved">0</b></div>
-      <div class="tile"><span>Best time</span><b id="sBest">–</b></div>
-      <div class="tile"><span>Average</span><b id="sAvg">–</b></div>
+      <div class="tile"><span>Total score</span><b id="sScore">0</b></div>
+      <div class="tile"><span>Badges</span><b id="sBadges">0</b></div>
       <div class="tile"><span>Day streak</span><b id="sStreak">0</b></div>
     </div>
+    <div style="overflow-x:auto"><table class="bests">
+      <thead><tr><th>Level</th><th>Solved</th><th>Best score</th><th>Best time</th></tr></thead>
+      <tbody id="bests"></tbody>
+    </table></div>
     <div class="sub" id="sSub"></div>
+    <h3>Badges</h3>
+    <div class="badges" id="badges"></div>
+    <h3>Recent solves</h3>
     <ol class="recent" id="recent"></ol>
+    <h3>Move to another browser</h3>
+    <p class="sub" style="margin:0">Copy your save code here, then load it in the other browser or on your phone. It carries your records and the puzzle in progress.</p>
+    <div class="xfer"><button id="copyCode">Copy save code</button><button id="showLoad">Load save code</button></div>
+    <textarea id="codeOut" class="code" rows="3" readonly hidden aria-label="Your save code"></textarea>
+    <div class="loadbox" id="loadBox" hidden>
+      <textarea id="codeIn" class="code" rows="3" placeholder="Paste a save code" aria-label="Save code to load"></textarea>
+      <div class="xfer"><button id="doLoad" class="primary">Replace my records</button><button id="cancelLoad">Cancel</button></div>
+    </div>
+    <div class="sub" id="xmsg" aria-live="polite"></div>
   </section>
 </div>
+<div class="toast" id="toast" hidden></div>
 
 <script>
 const QUOTES=[
- {t:"Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less.",a:"Marie Curie"},
+ {t:"Knowledge is power.",a:"Francis Bacon"},
+ {t:"Simplicity is the ultimate sophistication.",a:"Leonardo da Vinci"},
+ {t:"Well done is better than well said.",a:"Benjamin Franklin"},
+ {t:"I think, therefore I am.",a:"René Descartes"},
+ {t:"Stay hungry, stay foolish.",a:"Stewart Brand"},
+ {t:"The unexamined life is not worth living.",a:"Socrates"},
+ {t:"Talk is cheap. Show me the code.",a:"Linus Torvalds"},
+ {t:"Imagination is more important than knowledge.",a:"Albert Einstein"},
+ {t:"Whatever you are, be a good one.",a:"Abraham Lincoln"},
+ {t:"Fortune favors the bold.",a:"Virgil"},
+ {t:"Electricity is really just organized lightning.",a:"George Carlin"},
+ {t:"What I cannot create, I do not understand.",a:"Richard Feynman"},
+ {t:"Any sufficiently advanced technology is indistinguishable from magic.",a:"Arthur C. Clarke"},
+ {t:"It always seems impossible until it is done.",a:"Nelson Mandela"},
+ {t:"Genius is one percent inspiration and ninety nine percent perspiration.",a:"Thomas Edison"},
+ {t:"An investment in knowledge pays the best interest.",a:"Benjamin Franklin"},
+ {t:"The only thing we have to fear is fear itself.",a:"Franklin D. Roosevelt"},
  {t:"If I have seen further, it is by standing on the shoulders of giants.",a:"Isaac Newton"},
  {t:"Life is like riding a bicycle. To keep your balance you must keep moving.",a:"Albert Einstein"},
  {t:"The important thing is not to stop questioning. Curiosity has its own reason for existing.",a:"Albert Einstein"},
  {t:"Logic will get you from A to B. Imagination will take you everywhere.",a:"Albert Einstein"},
- {t:"Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",a:"Thomas Edison"},
  {t:"I have not failed. I have just found ten thousand ways that will not work.",a:"Thomas Edison"},
- {t:"Engineering is the art of directing the great sources of power in nature for the use and convenience of man.",a:"Thomas Tredgold"},
  {t:"The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.",a:"Isaac Asimov"},
- {t:"Any sufficiently advanced technology is indistinguishable from magic.",a:"Arthur C. Clarke"},
  {t:"Education is the most powerful weapon which you can use to change the world.",a:"Nelson Mandela"},
- {t:"It always seems impossible until it is done.",a:"Nelson Mandela"},
  {t:"In three words I can sum up everything I have learned about life: it goes on.",a:"Robert Frost"},
  {t:"Ask not what your country can do for you; ask what you can do for your country.",a:"John F. Kennedy"},
  {t:"That is one small step for man, one giant leap for mankind.",a:"Neil Armstrong"},
  {t:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.",a:"Will Durant"},
  {t:"Keep your face always toward the sunshine, and shadows will fall behind you.",a:"Walt Whitman"},
  {t:"The best way to predict the future is to invent it.",a:"Alan Kay"},
- {t:"Genius is one percent inspiration and ninety nine percent perspiration.",a:"Thomas Edison"},
- {t:"An investment in knowledge pays the best interest.",a:"Benjamin Franklin"},
  {t:"Tell me and I forget. Teach me and I remember. Involve me and I learn.",a:"Benjamin Franklin"},
- {t:"The only thing we have to fear is fear itself.",a:"Franklin D. Roosevelt"}
+ {t:"If you want to find the secrets of the universe, think in terms of energy, frequency and vibration.",a:"Nikola Tesla"},
+ {t:"The present is theirs; the future, for which I really worked, is mine.",a:"Nikola Tesla"},
+ {t:"Research is to see what everybody else has seen, and to think what nobody else has thought.",a:"Albert Szent-Györgyi"},
+ {t:"Study hard what interests you the most in the most undisciplined, irreverent and original manner possible.",a:"Richard Feynman"},
+ {t:"I would rather have questions that cannot be answered than answers that cannot be questioned.",a:"Richard Feynman"},
+ {t:"Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less.",a:"Marie Curie"},
+ {t:"Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.",a:"Thomas Edison"},
+ {t:"Engineering is the art of directing the great sources of power in nature for the use and convenience of man.",a:"Thomas Tredgold"},
+ {t:"It is not the critic who counts; not the man who points out how the strong man stumbles, or where the doer of deeds could have done them better.",a:"Theodore Roosevelt"},
+ {t:"The most beautiful thing we can experience is the mysterious. It is the source of all true art and science.",a:"Albert Einstein"},
+ {t:"Do not go where the path may lead, go instead where there is no path and leave a trail.",a:"Ralph Waldo Emerson"},
+ {t:"Our virtues and our failings are inseparable, like force and matter. When they separate, man is no more.",a:"Nikola Tesla"},
+ {t:"The first principle is that you must not fool yourself, and you are the easiest person to fool.",a:"Richard Feynman"},
+ {t:"Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.",a:"Martin Luther King Jr."},
+ {t:"I am among those who think that science has great beauty. A scientist in his laboratory is not only a technician: he is also a child placed before natural phenomena which impress him like a fairy tale.",a:"Marie Curie"}
 ];
 const AZ="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-let S=null, timer=null;
+const DIFF={
+  easy:  {label:"Easy",  give:3,base:300, target:90},
+  normal:{label:"Normal",give:2,base:600, target:180},
+  hard:  {label:"Hard",  give:1,base:1000,target:300}
+};
+const words=q=>q.t.split(/\s+/).length;
+const tierOf=q=>words(q)<=11?"easy":words(q)<=17?"normal":"hard";
+const POOL={easy:[],normal:[],hard:[]};
+QUOTES.forEach((q,i)=>POOL[tierOf(q)].push(i));
+
+const BADGES=[
+  {id:"first",   name:"First Crack",   desc:"Solve your first puzzle"},
+  {id:"nohint",  name:"No Peeking",    desc:"Solve without hints"},
+  {id:"flawless",name:"Flawless",      desc:"No hints and no misses"},
+  {id:"quick",   name:"Quick Draw",    desc:"Solve in under 60 seconds"},
+  {id:"hard",    name:"Codebreaker",   desc:"Solve a Hard puzzle"},
+  {id:"enigma",  name:"Enigma",        desc:"Solve Hard without hints"},
+  {id:"daily",   name:"Daily Dose",    desc:"Solve a daily puzzle"},
+  {id:"streak3", name:"On a Roll",     desc:"3-day solving streak"},
+  {id:"streak7", name:"Week Warrior",  desc:"7-day solving streak"},
+  {id:"ten",     name:"Decoder",       desc:"Solve 10 puzzles"},
+  {id:"fifty",   name:"Cryptanalyst",  desc:"Solve 50 puzzles"},
+  {id:"high",    name:"High Roller",   desc:"Score 1,500 or more in one puzzle"}
+];
+
+let S=null, timer=null, mode="normal";
 const $=id=>document.getElementById(id);
 const fmt=s=>s==null?"–":String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
 const day=(d=new Date())=>d.toLocaleDateString("en-CA");
 const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return day(d);};
+const num=n=>n.toLocaleString("en-US");
+
+/* ---------- seeded random for the daily puzzle ---------- */
+function seeded(str){
+  let h=2166136261;
+  for(const ch of str){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); }
+  return function(){ h+=0x6D2B79F5; let t=h; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
+}
 
 /* ---------- storage: account (db) when available, else this browser ---------- */
 let store={
@@ -162,71 +292,144 @@ async function save(k,v){
 let saveT=null;
 function saveCurrent(){ clearTimeout(saveT); saveT=setTimeout(()=>save("current",snapshot()),500); }
 
-/* ---------- stats ---------- */
-let ST={played:0,solved:0,best:null,total:0,noHint:0,streak:0,bestStreak:0,lastDay:null,recent:[]};
+/* ---------- stats, score, badges ---------- */
+let ST={played:0,solved:0,total:0,noHint:0,noMiss:0,streak:0,bestStreak:0,lastDay:null,recent:[],
+        totalScore:0,by:{},badges:{},daily:{}};
 function renderStats(){
-  $("sSolved").textContent=ST.solved;
-  $("sBest").textContent=fmt(ST.best);
-  $("sAvg").textContent=ST.solved?fmt(Math.round(ST.total/ST.solved)):"–";
+  $("sSolved").textContent=num(ST.solved);
+  $("sScore").textContent=num(ST.totalScore||0);
+  $("sBadges").textContent=Object.keys(ST.badges||{}).length+"/"+BADGES.length;
   const live=ST.lastDay===day()||ST.lastDay===yesterday();
   $("sStreak").textContent=live?ST.streak:0;
-  $("sSub").textContent=ST.played?`${ST.played} started · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
+  $("bests").innerHTML="";
+  ["easy","normal","hard"].forEach(d=>{
+    const b=(ST.by||{})[d]||{};
+    const tr=document.createElement("tr");
+    [DIFF[d].label,b.solved||0,b.score!=null?num(b.score):"–",fmt(b.time)].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.appendChild(td);});
+    $("bests").appendChild(tr);
+  });
+  const dailyCount=Object.keys(ST.daily||{}).length;
+  $("sSub").textContent=ST.played?`${ST.played} started · ${dailyCount} daily · ${ST.noHint} without hints · ${ST.noMiss||0} without misses · longest streak ${ST.bestStreak} day${ST.bestStreak===1?"":"s"}`:"Solve a puzzle to start your record.";
+  $("badges").innerHTML="";
+  BADGES.forEach(b=>{
+    const got=(ST.badges||{})[b.id];
+    const el=document.createElement("div"); el.className="badge"+(got?" got":"");
+    const n=document.createElement("b"); n.textContent=b.name;
+    const s=document.createElement("span"); s.textContent=got?b.desc+" · "+got.slice(5):b.desc;
+    el.append(n,s); $("badges").appendChild(el);
+  });
   $("recent").innerHTML="";
   ST.recent.forEach(r=>{
     const li=document.createElement("li");
-    const a=document.createElement("span"); a.textContent=r.a;
-    const b=document.createElement("span"); b.textContent=`${fmt(r.time)} · ${r.hints}H · ${r.miss??"–"}✕ · ${r.day.slice(5)}`;
+    const a=document.createElement("span"); a.textContent=(r.mode?(r.mode==="daily"?"Daily":DIFF[r.mode].label)+" · ":"")+r.a;
+    const b=document.createElement("span"); b.textContent=`${r.score!=null?num(r.score)+" pts · ":""}${fmt(r.time)} · ${r.hints}H · ${r.miss??"–"}✕`;
     li.append(a,b); $("recent").appendChild(li);
   });
-  $("where").textContent=store.kind==="db"?"Saved to your account":"Saved in this browser";
+  $("where").textContent=store.kind==="db"?"Saved to your account":store.kind==="cloud"?"Synced to your Google account":"Saved in this browser";
+  const done=ST.daily&&ST.daily[day()];
+  $("dailyTag").textContent=done?"solved ✓":"today";
+}
+function scoreFor(diff,t,hints,miss){
+  const D=DIFF[diff];
+  const bonus=Math.round(D.base*Math.max(0,(D.target-t)/D.target));
+  return Math.max(Math.round(D.base*0.1), D.base+bonus-hints*Math.round(D.base/10)-miss*Math.round(D.base/30));
 }
 function recordSolve(){
-  const t=elapsed(), d=day();
-  ST.solved++; ST.total+=t; const pb=ST.best!=null&&t<ST.best; if(ST.best==null||t<ST.best) ST.best=t; if(!S.hints) ST.noHint++; if(!S.mistakes) ST.noMiss=(ST.noMiss||0)+1;
+  const t=elapsed(), d=day(), diff=S.diff, sc=scoreFor(diff,t,S.hints,S.mistakes);
+  ST.solved++; ST.total+=t; ST.totalScore=(ST.totalScore||0)+sc;
+  if(!S.hints) ST.noHint++; if(!S.mistakes) ST.noMiss=(ST.noMiss||0)+1;
+  ST.by=ST.by||{}; const b=ST.by[diff]=ST.by[diff]||{solved:0,score:null,time:null};
+  const pbScore=b.score!=null&&sc>b.score;
+  b.solved++; if(b.score==null||sc>b.score) b.score=sc; if(b.time==null||t<b.time) b.time=t;
   if(ST.lastDay!==d){ ST.streak=ST.lastDay===yesterday()?ST.streak+1:1; ST.lastDay=d; }
   ST.bestStreak=Math.max(ST.bestStreak,ST.streak);
-  ST.recent.unshift({a:QUOTES[S.qi].a,time:t,hints:S.hints,miss:S.mistakes,day:d}); ST.recent=ST.recent.slice(0,8);
+  if(S.mode==="daily"){ ST.daily=ST.daily||{}; ST.daily[S.date]={time:t,score:sc,hints:S.hints,miss:S.mistakes};
+    const keys=Object.keys(ST.daily).sort(); while(keys.length>90) delete ST.daily[keys.shift()]; }
+  ST.recent.unshift({a:QUOTES[S.qi].a,mode:S.mode==="daily"?"daily":diff,time:t,hints:S.hints,miss:S.mistakes,score:sc,day:d});
+  ST.recent=ST.recent.slice(0,8);
+  // badges
+  ST.badges=ST.badges||{}; const earned=[];
+  const give=(id,cond)=>{ if(cond&&!ST.badges[id]){ ST.badges[id]=d; earned.push(id);} };
+  give("first",true); give("nohint",!S.hints); give("flawless",!S.hints&&!S.mistakes); give("quick",t<60);
+  give("hard",diff==="hard"); give("enigma",diff==="hard"&&!S.hints); give("daily",S.mode==="daily");
+  give("streak3",ST.streak>=3); give("streak7",ST.streak>=7); give("ten",ST.solved>=10); give("fifty",ST.solved>=50);
+  give("high",sc>=1500);
   save("stats",ST); renderStats();
-  return pb;
+  earned.forEach(id=>toast("Badge unlocked: "+BADGES.find(x=>x.id===id).name));
+  return {sc,pbScore};
+}
+const toastQ=[]; let toasting=false;
+function toast(t){ toastQ.push(t); if(!toasting) nextToast(); }
+function nextToast(){
+  const t=toastQ.shift(); if(!t){toasting=false;$("toast").hidden=true;return;}
+  toasting=true; const el=$("toast"); el.hidden=true; el.textContent=t; void el.offsetWidth; el.hidden=false;
+  setTimeout(nextToast,2600);
 }
 
-/* ---------- game: every cell is filled on its own ---------- */
-function derange(){
+/* ---------- puzzle creation ---------- */
+function derange(rand){
   let a;
-  do{ a=[...AZ]; for(let i=25;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
+  do{ a=[...AZ]; for(let i=25;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
   while(a.some((x,i)=>x===AZ[i]));
   return a.join("");
 }
+function makePuzzle(m){
+  const isDaily=m==="daily", diff=isDaily?"normal":m, date=day();
+  const rand=isDaily?seeded("cryptogram-"+date):Math.random;
+  const pool=POOL[diff]; let qi;
+  if(isDaily) qi=pool[Math.floor(rand()*pool.length)];
+  else { const prev=S?S.qi:-1; do{ qi=pool[Math.floor(rand()*pool.length)]; }while(pool.length>1&&qi===prev); }
+  const key=derange(rand), up=QUOTES[qi].t.toUpperCase();
+  const plains=[...new Set([...up].filter(c=>AZ.includes(c)))];
+  const shuffled=[...plains]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+  const pick=shuffled.slice(0,Math.min(DIFF[diff].give,plains.length-1));
+  const guess={}, rev=[]; let n=0;
+  [...up].forEach(ch=>{ if(!AZ.includes(ch)) return; if(pick.includes(ch)){guess[n]=ch;rev.push(n);} n++; });
+  return {v:3,mode:isDaily?"daily":diff,diff,date,qi,key,guess,rev,hints:0,mistakes:0,ms:0,done:false};
+}
+
+/* ---------- game ---------- */
 function elapsed(){ return Math.floor((S.base+(S.done?0:Date.now()-S.t0))/1000); }
-function snapshot(){ return {v:2,qi:S.qi,key:S.key,guess:S.guess,rev:[...S.rev],hints:S.hints,mistakes:S.mistakes,ms:S.base+(S.done?0:Date.now()-S.t0),done:S.done}; }
+function snapshot(){ return {v:3,mode:S.mode,diff:S.diff,date:S.date,qi:S.qi,key:S.key,guess:S.guess,rev:[...S.rev],
+  hints:S.hints,mistakes:S.mistakes,ms:S.base+(S.done?0:Date.now()-S.t0),done:S.done}; }
 
 function start(saved){
   const q=QUOTES[saved.qi], enc={};
   [...AZ].forEach((p,i)=>enc[p]=saved.key[i]);
-  const cells=[]; // {c: code letter, p: real letter}
-  const words=q.t.toUpperCase().split(" ").map(w=>[...w].map(ch=>{
+  const cells=[];
+  const wds=q.t.toUpperCase().split(" ").map(w=>[...w].map(ch=>{
     if(!enc[ch]) return {punct:ch};
     cells.push({c:enc[ch],p:ch}); return {i:cells.length-1};
   }));
-  S={qi:saved.qi,key:saved.key,q,cells,words,guess:{...saved.guess},rev:new Set(saved.rev),hints:saved.hints,mistakes:saved.mistakes||0,
-     base:saved.ms||0,t0:Date.now(),done:false};
-  S.sel=nextEmpty(-1);
-  $("num").textContent=ST.played; $("hints").textContent=S.hints; $("miss").textContent=S.mistakes; msg("");
-  $("author").textContent="— "+q.a.replace(/[A-Za-zÀ-ÿ]/g,"•");
-  build(); update();
-  clearInterval(timer); timer=setInterval(tick,1000); tick();
+  S={mode:saved.mode,diff:saved.diff,date:saved.date,qi:saved.qi,key:saved.key,q,cells,words:wds,
+     guess:{...saved.guess},rev:new Set(saved.rev),hints:saved.hints||0,mistakes:saved.mistakes||0,
+     base:saved.ms||0,t0:Date.now(),done:!!saved.done};
+  mode=S.mode;
+  S.sel=S.done?null:nextEmpty(-1);
+  $("hints").textContent=S.hints; $("miss").textContent=S.mistakes; msg("");
+  $("author").textContent="— "+(S.done?q.a:q.a.replace(/[A-Za-zÀ-ÿ]/g,"•"));
+  document.querySelectorAll(".modes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
+  $("next").textContent=mode==="daily"?"Practice":"New puzzle";
+  build(); update(); renderFreq();
+  clearInterval(timer); if(!S.done) timer=setInterval(tick,1000); tick();
 }
-function newPuzzle(){
-  let i; const prev=S?S.qi:-1;
-  do{ i=Math.floor(Math.random()*QUOTES.length); }while(QUOTES.length>1&&i===prev);
-  const key=derange(), up=QUOTES[i].t.toUpperCase();
-  const plains=[...new Set([...up].filter(c=>AZ.includes(c)))];
-  const given=plains.length>14?2:1, pick=[...plains].sort(()=>Math.random()-.5).slice(0,given);
-  const guess={}, rev=[]; let n=0;
-  [...up].forEach(ch=>{ if(!AZ.includes(ch)) return; if(pick.includes(ch)){guess[n]=ch;rev.push(n);} n++; });
+function play(m){
+  if(m==="daily"){
+    const res=ST.daily&&ST.daily[day()];
+    if(res){
+      const p=makePuzzle("daily");
+      p.cells=null; const up=QUOTES[p.qi].t.toUpperCase(); let n=0;
+      [...up].forEach(ch=>{ if(AZ.includes(ch)) p.guess[n++]=ch; });
+      p.done=true; p.ms=res.time*1000; p.hints=res.hints; p.mistakes=res.miss;
+      start(p);
+      msg(`Today's puzzle is solved: ${num(res.score)} pts in ${fmt(res.time)}. A new one arrives tomorrow.`,"ok");
+      save("current",snapshot());
+      return;
+    }
+    if(S&&S.mode==="daily"&&S.date===day()&&!S.done){ return; }
+  }
   ST.played++; save("stats",ST); renderStats();
-  start({qi:i,key,guess,rev,hints:0,ms:0});
-  saveCurrent();
+  start(makePuzzle(m)); saveCurrent();
 }
 function tick(){ $("time").textContent=fmt(elapsed()); }
 
@@ -238,7 +441,7 @@ function build(){
       if(x.punct!==undefined){ const p=document.createElement("span"); p.className="p"; p.textContent=x.punct; wd.appendChild(p); return; }
       const c=document.createElement("div"); c.className="cell"; c.dataset.i=x.i; c.tabIndex=0;
       c.innerHTML='<span class="g"></span><span class="c">'+S.cells[x.i].c+'</span>';
-      c.onclick=()=>{S.sel=x.i;update();};
+      c.onclick=()=>{ if(S.done) return; S.sel=x.i; update(); renderFreq(); };
       wd.appendChild(c);
     });
     b.appendChild(wd);
@@ -258,7 +461,29 @@ function update(){
   const need={};
   S.cells.forEach((c,i)=>{ need[c.p]=(need[c.p]!==false)&&S.guess[i]===c.p; });
   document.querySelectorAll(".kb button[data-k]").forEach(b=>b.classList.toggle("done",need[b.dataset.k]===true));
+  $("hint").disabled=S.done; $("clear").disabled=S.done;
 }
+
+/* ---------- letter-frequency panel ---------- */
+let showFreq=false;
+try{ showFreq=localStorage.getItem("cg_freq")==="1"; }catch(e){}
+function renderFreq(){
+  $("freq").hidden=!showFreq; $("freqBtn").setAttribute("aria-pressed",String(showFreq));
+  if(!showFreq||!S) return;
+  const cnt={}, solved={};
+  S.cells.forEach((c,i)=>{ cnt[c.c]=(cnt[c.c]||0)+1; solved[c.c]=(solved[c.c]!==false)&&S.guess[i]===c.p; });
+  const selC=S.sel!=null?S.cells[S.sel].c:null;
+  $("freq").innerHTML="";
+  Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b)).forEach(k=>{
+    const b=document.createElement("button");
+    b.className=(solved[k]?"done ":"")+(k===selC?"on":"");
+    b.innerHTML=k+"<i>"+cnt[k]+"</i>";
+    b.title=`Code letter ${k} appears ${cnt[k]} time${cnt[k]===1?"":"s"}`;
+    b.onclick=()=>{ if(S.done) return; const i=S.cells.findIndex((c,j)=>c.c===k&&S.guess[j]!==c.p); S.sel=i>=0?i:S.cells.findIndex(c=>c.c===k); update(); renderFreq(); };
+    $("freq").appendChild(b);
+  });
+}
+$("freqBtn").onclick=()=>{ showFreq=!showFreq; try{localStorage.setItem("cg_freq",showFreq?"1":"0");}catch(e){} renderFreq(); };
 
 function msg(t,cls){ $("msg").textContent=t; $("msg").className="msg"+(cls?" "+cls:""); }
 
@@ -267,30 +492,31 @@ function nextEmpty(from){
   for(let k=1;k<=n;k++){ const i=(from+k+n)%n; if(!S.guess[i]) return i; }
   return from<0?0:from;
 }
+function after(){ update(); renderFreq(); checkWin(); saveCurrent(); }
 function assign(L){
   if(!S||S.done||S.sel==null) return;
-  if(S.rev.has(S.sel)){ S.sel=nextEmpty(S.sel); update(); return; }
+  if(S.rev.has(S.sel)){ S.sel=nextEmpty(S.sel); update(); renderFreq(); return; }
   S.guess[S.sel]=L; msg("");
   if(L!==S.cells[S.sel].p){ S.mistakes++; $("miss").textContent=S.mistakes; }
-  S.sel=nextEmpty(S.sel); update(); checkWin(); saveCurrent();
+  S.sel=nextEmpty(S.sel); after();
 }
 function erase(){
   if(!S||S.done) return;
-  if(!S.guess[S.sel]||S.rev.has(S.sel)){ // step back to the previous editable cell
+  if(!S.guess[S.sel]||S.rev.has(S.sel)){
     for(let i=S.sel-1;i>=0;i--) if(!S.rev.has(i)){ S.sel=i; break; }
   }
   if(!S.rev.has(S.sel)) delete S.guess[S.sel];
-  update(); saveCurrent();
+  update(); renderFreq(); saveCurrent();
 }
-function move(d){ if(!S) return; const n=S.cells.length; S.sel=(S.sel+d+n)%n; update(); }
+function move(d){ if(!S||S.done) return; const n=S.cells.length; S.sel=(S.sel+d+n)%n; update(); renderFreq(); }
 
 function checkWin(){
-  if(!S.cells.every((c,i)=>S.guess[i])) return;
+  if(S.done||!S.cells.every((c,i)=>S.guess[i])) return;
   if(S.cells.every((c,i)=>S.guess[i]===c.p)){
-    S.base+=Date.now()-S.t0; S.done=true; clearInterval(timer); tick(); update();
+    S.base+=Date.now()-S.t0; S.done=true; S.sel=null; clearInterval(timer); tick(); update(); renderFreq();
     $("author").textContent="— "+S.q.a;
-    const pb=recordSolve();
-    msg((pb?"New best time! ":"")+"Solved in "+fmt(elapsed())+" · "+S.hints+" hint"+(S.hints===1?"":"s")+" · "+(S.mistakes?S.mistakes+" miss"+(S.mistakes===1?"":"es"):"no misses")+".","ok");
+    const {sc,pbScore}=recordSolve();
+    msg(`${pbScore?"New best score! ":""}${num(sc)} pts · ${fmt(elapsed())} · ${S.hints} hint${S.hints===1?"":"s"} · ${S.mistakes?S.mistakes+" miss"+(S.mistakes===1?"":"es"):"no misses"}`,"ok");
   } else msg("Every letter is filled, but some are wrong. Fix the red letters.","bad");
 }
 function hint(){
@@ -299,9 +525,9 @@ function hint(){
   if(!open.length) return;
   const i=open.includes(S.sel)?S.sel:open[Math.floor(Math.random()*open.length)];
   S.guess[i]=S.cells[i].p; S.rev.add(i); S.hints++; $("hints").textContent=S.hints; msg("");
-  S.sel=nextEmpty(i); update(); checkWin(); saveCurrent();
+  S.sel=nextEmpty(i); after();
 }
-function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.has(+k)) delete S.guess[k]; msg(""); S.sel=nextEmpty(-1); update(); saveCurrent(); }
+function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.has(+k)) delete S.guess[k]; msg(""); S.sel=nextEmpty(-1); update(); renderFreq(); saveCurrent(); }
 
 // on-screen keyboard
 ["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"].forEach((r,ri)=>{
@@ -312,6 +538,7 @@ function clearAll(){ if(!S||S.done) return; for(const k in S.guess) if(!S.rev.ha
 });
 document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.target&&e.target.tagName==="BUTTON"&&(e.key===" "||e.key==="Enter")) return;
   const k=e.key.toUpperCase();
   if(/^[A-Z]$/.test(k)){assign(k);e.preventDefault();}
   else if(e.key==="Backspace"||e.key==="Delete"){erase();e.preventDefault();}
@@ -319,7 +546,88 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="ArrowLeft"){move(-1);e.preventDefault();}
 });
 document.addEventListener("visibilitychange",()=>{ if(document.hidden&&S&&!S.done) save("current",snapshot()); });
-$("hint").onclick=hint; $("clear").onclick=clearAll; $("next").onclick=newPuzzle;
+document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
+  const m=b.dataset.mode;
+  if(S&&m===S.mode&&!S.done) return;
+  play(m);
+});
+$("hint").onclick=hint; $("clear").onclick=clearAll;
+$("next").onclick=()=>play(mode==="daily"?"normal":mode);
+
+/* ---------- save code: move progress between browsers ---------- */
+function makeCode(){
+  const data={v:1,s:ST,c:S?snapshot():null};
+  return "CG1."+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+$("copyCode").onclick=async()=>{
+  const code=makeCode(), out=$("codeOut");
+  out.value=code; out.hidden=false; $("loadBox").hidden=true;
+  try{ await navigator.clipboard.writeText(code); $("xmsg").textContent="Save code copied. Paste it with Load save code on the other browser."; }
+  catch(e){ out.focus(); out.select(); $("xmsg").textContent="Copy the selected code above, then paste it on the other browser."; }
+};
+$("showLoad").onclick=()=>{ $("loadBox").hidden=false; $("codeOut").hidden=true; $("codeIn").value=""; $("xmsg").textContent="Loading replaces the records on this browser."; $("codeIn").focus(); };
+$("cancelLoad").onclick=()=>{ $("loadBox").hidden=true; $("xmsg").textContent=""; };
+$("doLoad").onclick=()=>{
+  let data;
+  try{
+    const raw=$("codeIn").value.trim();
+    if(!raw.startsWith("CG1.")) throw 0;
+    data=JSON.parse(decodeURIComponent(escape(atob(raw.slice(4)))));
+    if(!data||!data.s||typeof data.s.solved!=="number") throw 0;
+  }catch(e){ $("xmsg").textContent="That code doesn't look right. Copy the whole code, starting with CG1., and try again."; return; }
+  ST={...ST,...data.s}; save("stats",ST); renderStats();
+  const c=data.c;
+  if(c&&c.v===3&&!c.done&&QUOTES[c.qi]&&DIFF[c.diff]){ start(c); save("current",snapshot()); }
+  else play(ST.daily&&ST.daily[day()]?"normal":"daily");
+  $("loadBox").hidden=true; $("xmsg").textContent=`Loaded: ${ST.solved} solved, ${num(ST.totalScore||0)} total points.`;
+};
+
+/* ---------- automatic sync for the hosted version (Firebase) ----------
+   Paste your Firebase web app config below. Leave apiKey empty to turn sync off. */
+const FIREBASE_CONFIG={apiKey:"AIzaSyCdKbeVEWzHfjgk5QMZq-L-yc-WnRjoRhc",authDomain:"cryptogram-b19bc.firebaseapp.com",projectId:"cryptogram-b19bc",storageBucket:"cryptogram-b19bc.firebasestorage.app",messagingSenderId:"11698311470",appId:"1:11698311470:web:04f6e7148c3f2f39c42abf"};
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+async function setupCloud(){
+  if(store.kind==="db"||!FIREBASE_CONFIG.apiKey) return;
+  try{ for(const f of ["app","auth","firestore"]) await loadScript(`https://www.gstatic.com/firebasejs/10.12.2/firebase-${f}-compat.js`); }
+  catch(e){ return; }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const auth=firebase.auth(), fs=firebase.firestore(), local=store;
+  $("acct").hidden=false;
+  $("signIn").onclick=async()=>{
+    const p=new firebase.auth.GoogleAuthProvider();
+    try{ await auth.signInWithPopup(p); }
+    catch(e){
+      if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment") auth.signInWithRedirect(p);
+      else if(e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/cancelled-popup-request") $("acctText").textContent="Sign-in didn't work ("+e.code+"). Try again.";
+    }
+  };
+  $("signOut").onclick=()=>auth.signOut();
+  auth.onAuthStateChanged(async u=>{
+    if(!u){
+      store=local; $("signIn").hidden=false; $("signOut").hidden=true;
+      $("acctText").textContent="Sign in to sync your progress across browsers and devices.";
+      renderStats(); return;
+    }
+    const ref=k=>fs.collection("users").doc(u.uid).collection("data").doc(k);
+    const cloud={kind:"cloud",
+      async get(k){ const s=await ref(k).get(); return s.exists?s.data():null; },
+      async set(k,v){ local.set(k,v); await ref(k).set(JSON.parse(JSON.stringify(v))); }};
+    $("signIn").hidden=true; $("signOut").hidden=false;
+    $("acctText").textContent="Syncing…";
+    let cs=null, cc=null;
+    try{ cs=await cloud.get("stats"); cc=await cloud.get("current"); }
+    catch(e){ $("acctText").textContent="Couldn't reach the sync server. Your progress stays in this browser for now."; return; }
+    store=cloud;
+    if(cs&&(cs.solved||0)>=(ST.solved||0)){
+      ST={...ST,...cs}; renderStats();
+      if(cc&&cc.v===3&&!cc.done&&QUOTES[cc.qi]&&DIFF[cc.diff]) start(cc);
+    } else {
+      save("stats",ST); if(S) save("current",snapshot());
+    }
+    $("acctText").textContent="Signed in as "+(u.displayName||u.email||"you")+". Progress syncs automatically.";
+    renderStats();
+  });
+}
 
 (async function boot(){
   msg("Loading your game…");
@@ -328,7 +636,12 @@ $("hint").onclick=hint; $("clear").onclick=clearAll; $("next").onclick=newPuzzle
   if(st) ST={...ST,...st};
   renderStats();
   const cur=await store.get("current").catch(()=>null);
-  if(cur&&cur.v===2&&!cur.done&&QUOTES[cur.qi]&&typeof cur.key==="string"&&cur.key.length===26){ start(cur); msg("Picked up where you left off."); }
-  else newPuzzle();
+  if(cur&&cur.v===3&&!cur.done&&QUOTES[cur.qi]&&DIFF[cur.diff]&&typeof cur.key==="string"&&cur.key.length===26){ start(cur); msg("Picked up where you left off."); }
+  else if(!(ST.daily&&ST.daily[day()])) play("daily");
+  else play("normal");
+  setupCloud();
 })();
 </script>
+
+</body>
+</html>
