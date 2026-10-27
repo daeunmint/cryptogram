@@ -34,7 +34,7 @@ A browser-based substitution-cipher puzzle game. Each sentence (famous quotes, p
 - **Badges:** 19 achievements such as *Flawless*, *Curator* and *Card Shark*
 - **Five pages:** Play, Progress, Museum, Shop and Records
 - **Gold and gems:** gold from every solve and mission; gems from level-ups, badges, streaks and finishing all missions
-- **Cipher Museum:** spend gold to build 6 halls with permanent rewards
+- **Cipher Museum:** spend gold to build 6 halls with permanent rewards; the museum illustration grows with every hall you build
 - **Cipher cards:** 34 collectible cards on real ciphers and codebreakers, from Caesar to RSA, shown in the museum
 - **Shop:** hint tickets, vowel reveals and streak freezes (gold); looks, card packs and new themes (gems). Every look you own adds gold to each solve
 - **Letter counts:** frequency panel for each code letter
@@ -46,7 +46,7 @@ A browser-based substitution-cipher puzzle game. Each sentence (famous quotes, p
 
 ## Tech
 
-- `index.html` (HTML, CSS and vanilla JavaScript, no framework or build step) plus `sentences.js` for the puzzle sentences
+- `index.html` (HTML, CSS and vanilla JavaScript, no framework or build step) plus `sentences.js` for the puzzle sentences and `img/` for the museum artwork (WebP)
 - Progress and records are stored in the browser with `localStorage`, and synced across devices with Firebase (Google sign-in + Firestore) when signed in
 - Hosted on GitHub Pages, installable as a PWA (`manifest.webmanifest` + `sw.js` for offline play)
 
@@ -73,6 +73,7 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 9. **Long-term goals:** added levels, ranks, daily missions, a quote collection and a play calendar so there is always a next goal.
 10. **Less clutter, more variety:** split the app into Play / Progress / Records pages, moved sentences into an easy-to-edit file and added themed sentence sets.
 11. **Economy:** added gold and gems, a shop, a cipher museum to build and collectible cipher cards. Looks give a flat gold bonus per solve instead of a percentage.
+12. **Artwork:** added museum illustrations (made with ChatGPT image generation) that change as halls are built, plus an SVG icon set.
 
 ## Roadmap
 

@@ -498,6 +498,12 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
 /* previews in the shop are too small for the field-note label */
 .cos .pv .board:before{display:none}
 .cos .pv .board{padding:8px}
+/* starfield: tile the stars only, stretch the glow across the whole board */
+[data-board="starfield"] .board{background-color:#101925;
+  background-image:radial-gradient(1px 1px at 20% 30%,#e4e9cf 50%,transparent 55%),radial-gradient(1px 1px at 70% 20%,#a7c5c6 50%,transparent 55%),radial-gradient(1.5px 1.5px at 40% 80%,#f5d78b 50%,transparent 55%),radial-gradient(1px 1px at 85% 65%,#e4e9cf 50%,transparent 55%),radial-gradient(ellipse at 15% 0%,rgba(52,96,110,.45),transparent 65%);
+  background-size:120px 120px,120px 120px,120px 120px,120px 120px,100% 100%;
+  background-repeat:repeat,repeat,repeat,repeat,no-repeat}
+@keyframes drift{from{background-position:0 0,0 0,0 0,0 0,0 0}to{background-position:120px 240px,120px 240px,120px 240px,120px 240px,0 0}}
 @media(max-width:600px){.board{gap:12px 14px}.word{gap:2px}}
 @media(max-width:360px){.board{gap:10px 10px}}
 
@@ -523,6 +529,17 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
   .tabs button .ic{width:19px;height:19px}
   #hint .ic{display:none}
 }
+
+/* ---- museum artwork ---- */
+.musfig{margin:-15px -15px 2px;position:relative;overflow:hidden;border-radius:11px 11px 0 0;aspect-ratio:16/10;background:#2a3436}
+.musfig img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;display:block}
+.musfig figcaption{position:absolute;left:10px;bottom:9px;font:700 .68rem var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;background:rgba(20,28,30,.62);padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px)}
+.musfig.reveal img{animation:unveil 1.4s ease-out}
+@keyframes unveil{0%{filter:brightness(1.8) blur(6px);transform:scale(1.06)}100%{filter:none;transform:none}}
+.hthumb{width:46px;height:46px;flex:none;border-radius:9px;object-fit:cover;border:1px solid var(--line);background:var(--bg)}
+.hall:not(.built) .hthumb{filter:grayscale(1) contrast(.85);opacity:.55}
+.hall .hbig{display:block;width:min(100%,240px);aspect-ratio:1;object-fit:cover;border-radius:10px;margin:8px auto 4px;border:1px solid var(--line)}
+.hall:not(.built) .hbig{filter:grayscale(1);opacity:.5}
 </style>
 <style>html,body{margin:0}body{font-size:14px;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
@@ -621,6 +638,7 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
   <!-- ===== MUSEUM ===== -->
   <section class="view" id="view-museum" aria-label="Museum" hidden>
     <div class="card0">
+      <figure class="musfig" id="musFig"><img id="musImg" alt="" decoding="async"><figcaption id="musCap"></figcaption></figure>
       <div class="lvtop"><b><svg class="ic" aria-hidden="true"><use href="#i-museum"/></svg>Cipher Museum</b><span id="musCount">0/6 halls</span></div>
       <div class="sub" id="musNext"></div>
       <div class="bar goldbar"><i id="musBar"></i></div>
@@ -697,6 +715,7 @@ h1 span{font-size:.72rem;letter-spacing:.02em;border-left:1px solid var(--line);
 <div class="toast" id="toast" hidden></div>
 
 <script src="sentences.js"></script>
+<script>window.CG_IMG={"hall-ancient":"img/hall-ancient.webp","hall-entrance":"img/hall-entrance.webp","hall-medieval":"img/hall-medieval.webp","hall-modern":"img/hall-modern.webp","hall-unsolved":"img/hall-unsolved.webp","hall-war":"img/hall-war.webp","museum-0":"img/museum-0.webp","museum-1":"img/museum-1.webp","museum-2":"img/museum-2.webp","museum-3":"img/museum-3.webp","museum-4":"img/museum-4.webp","museum-5":"img/museum-5.webp","museum-6":"img/museum-6.webp"};</script>
 <script>
 /* ---------- sentences: parsed from sentences.js ---------- */
 const THEMES=[], SENT=[];
@@ -736,6 +755,7 @@ const HALLS=[
   {id:"modern",  name:"Modern Cryptography",theme:"RSA, AES, one-time pads",cost:50000,reward:"+200 G on every solve",apply:()=>{}},
   {id:"unsolved",name:"Unsolved Mysteries",theme:"Voynich, Kryptos, Beale",cost:80000,reward:"A guaranteed Legendary card",apply:()=>{ const c=pullCard("L"); toast(`Legendary card: ${c.name}`); }}
 ];
+const IMG=window.CG_IMG||{};
 const RAR={C:{name:"Common",cls:"c"},R:{name:"Rare",cls:"r"},E:{name:"Epic",cls:"e"},L:{name:"Legendary",cls:"l"}};
 const CARDS=[
   {id:"morse",hall:"entrance",r:"C",name:"Morse Code",era:"1840s · USA",d:"Letters sent as short and long signals over telegraph wires.",ex:"SOS = ··· ––– ···"},
@@ -1074,6 +1094,11 @@ function cardEl(c,count){
 }
 function renderMuseum(){
   const b=ST.built, next=HALLS[b], bon=bonuses();
+  const mi=IMG["museum-"+b];
+  $("musFig").hidden=!mi;
+  if(mi&&$("musImg").getAttribute("src")!==mi){ $("musImg").src=mi; }
+  $("musImg").alt=b?`The Cipher Museum with ${b} of 6 halls built`:"An empty plot with the museum's blueprints";
+  $("musCap").textContent=b>=HALLS.length?"Museum complete":b?`${b} / ${HALLS.length} halls open`:"Construction site";
   $("musCount").textContent=`${b}/${HALLS.length} halls`;
   if(next){
     $("musNext").textContent=`Next: ${next.name} · ${next.reward}`;
@@ -1094,9 +1119,11 @@ function renderMuseum(){
     const det=document.createElement("details"); det.className="hall"+(built?" built":""); det.dataset.h=h.id;
     if(open.has(h.id)) det.open=true;
     const sum=document.createElement("summary");
+    if(IMG["hall-"+h.id]){ const t=document.createElement("img"); t.className="hthumb"; t.src=IMG["hall-"+h.id]; t.alt=""; t.loading="lazy"; sum.appendChild(t); }
     const nm=document.createElement("b"); nm.textContent=`${i+1}. ${h.name}`;
     const st=document.createElement("span"); st.className="st"; st.textContent=built?`Open · ${own}/${list.length} cards`:`${num(h.cost)} G · ${own}/${list.length} cards`;
     sum.append(nm,st); det.appendChild(sum);
+    if(IMG["hall-"+h.id]){ const bi=document.createElement("img"); bi.className="hbig"; bi.src=IMG["hall-"+h.id]; bi.alt=`${h.name} centerpiece`; bi.loading="lazy"; det.appendChild(bi); }
     const rw=document.createElement("div"); rw.className="rw"; rw.textContent=`${h.theme} · Reward: ${h.reward}${built?" ✓":""}`; det.appendChild(rw);
     if(!built){ const n=document.createElement("div"); n.className="rw"; n.textContent="Build this hall to put its cards on show. Cards you pull now are kept for it."; det.appendChild(n); }
     const g=document.createElement("div"); g.className="cards";
@@ -1110,6 +1137,7 @@ $("buildBtn").onclick=()=>{
   if(!ST.badges.curator){ ST.badges.curator=day(); ST.gems+=5; toast("Badge unlocked: Curator · +5 ◆"); }
   toast(`${h.name} is open! ${h.reward}`);
   commit(); if(S) renderThemes();
+  const f=$("musFig"); f.classList.remove("reveal"); void f.offsetWidth; f.classList.add("reveal"); window.scrollTo({top:0,behavior:"smooth"});
 };
 
 function renderShop(){
