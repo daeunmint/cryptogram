@@ -2,7 +2,7 @@
 
 A browser-based substitution-cipher puzzle game. Each famous quote is encrypted with a random letter-substitution key, and your job is to crack it.
 
-**▶ Play:** https://daeunmint.github.io/cryptogram/
+**▶ Play:** https://YOUR-GITHUB-ID.github.io/cryptogram/
 
 <!-- Add a screenshot: upload screenshot.png to the repo and uncomment the line below -->
 <!-- ![Cryptogram screenshot](screenshot.png) -->
@@ -11,9 +11,9 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 
 - Every letter in the quote is replaced by a different letter (no letter maps to itself).
 - Tap a cell and type your guess, using the on-screen keyboard or a physical keyboard.
-- Cells that share the same code letter are highlighted, but you fill in each one yourself.
+- Typing a letter fills every cell with the same code letter at once.
 - Wrong letters turn red right away.
-- One or two letters are revealed at the start. Use **Hint** to reveal the selected cell.
+- One or two letters are revealed at the start. Use **Hint** to reveal the selected code letter everywhere.
 
 | Key | Action |
 |---|---|
@@ -43,7 +43,7 @@ A browser-based substitution-cipher puzzle game. Each famous quote is encrypted 
 ### Core logic
 
 - **Derangement key:** shuffle `A–Z` with Fisher–Yates and reshuffle until no letter maps to itself.
-- **Per-cell state:** guesses are stored by cell index, not by code letter, so matching letters are highlighted without being auto-filled.
+- **Cell state:** guesses are stored by cell index; entering a letter writes it to every cell that shares the code letter.
 - **Daily seed:** the date string is hashed into a seeded PRNG, so the quote, key and starting letters are identical for a given day.
 - **Score:** `base + speed bonus − hint penalty − miss penalty`, with a higher base for harder levels.
 - **Persistence:** game state is serialized to JSON on every move (debounced) and restored on load.
@@ -59,6 +59,7 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 5. **Per-cell input:** changed from auto-filling every matching letter to highlighting them only, so the player does the solving.
 6. **Miss counter and keyboard marks:** show how many wrong letters were entered and which letters are fully solved.
 7. **Game systems:** added difficulty levels, a daily puzzle, letter-frequency help, scoring and badges.
+8. **Back to auto-fill:** after playtesting, per-cell input felt tedious on long quotes, so matching letters fill together again.
 
 ## Roadmap
 
@@ -71,4 +72,5 @@ I prototyped this game with Claude (AI-assisted "vibe coding") and shaped it thr
 
 ## Run locally
 
+Download `index.html` and open it in any modern browser.
 Download `index.html` and open it in any modern browser.
